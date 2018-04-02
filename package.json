@@ -1,0 +1,32 @@
+{
+  "name": "logzio-slack-integration",
+  "version": "1.0.0",
+  "description": "Logz.io integration with Slack",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/logzio/slack-integration.git"
+  },
+  "keywords": [
+    "Logz.io",
+    "slack",
+    "bot",
+    "alerting",
+    "logging",
+    "elk"
+  ],
+  "author": "Logz.io",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/logzio/slack-integration/issues"
+  },
+  "homepage": "https://github.com/logzio/slack-integration#readme",
+  "dependencies": {
+  },
+  "devDependencies": {
+  }
+}
