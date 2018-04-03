@@ -1,5 +1,5 @@
-import Command from "../core/commands/Command";
-import CommandsRegistry from "../core/commands/CommandsRegistry";
+import Command from "../core/commands/command";
+import CommandsRegistry from "../core/commands/commands-registry";
 
 function addCommandUsage(usage, command) {
   const commandUsage = command.getUsage();
