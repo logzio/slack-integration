@@ -1,6 +1,7 @@
 import Botkit from 'botkit';
 import BotkitStorage from 'botkit-storage-mongo';
 import LoggerFactory from './logging/logger-factory';
+import CommandsRegistry from "./core/commands/CommandsRegistry";
 
 class LogzioBot {
 
@@ -39,11 +40,21 @@ class LogzioBot {
 
     this.controller.on('create_bot', this.createBot);
 
+    this.configureCommands();
     this.connectToExistingTeams();
+  }
+
+  registerCommand(command) {
+    CommandsRegistry.register(command);
   }
 
   getController() {
     return this.controller;
+  }
+
+  configureCommands() {
+    CommandsRegistry.getCommands()
+      .forEach(command => command.configure(this.controller));
   }
 
   createBot(bot, config) {

@@ -1,4 +1,5 @@
 import LogzioBot from './logzio-bot'
+import HelpCommand from "./help/help-command";
 
 function getRequiredValueFromEnv(variableName) {
   const value = process.env[variableName];
@@ -10,6 +11,7 @@ function getRequiredValueFromEnv(variableName) {
 }
 
 let logzioBot = new LogzioBot();
+logzioBot.registerCommand(new HelpCommand());
 logzioBot.bootstrap(
   getRequiredValueFromEnv('CLIENT_ID'),
   getRequiredValueFromEnv('CLIENT_SECRET'),
