@@ -1,5 +1,6 @@
 import Botkit from 'botkit';
 import BotkitStorage from 'botkit-storage-mongo';
+import LoggerFactory from './logging/logger-factory';
 
 class LogzioBot {
 
@@ -9,6 +10,8 @@ class LogzioBot {
 
   bootstrap(clientId, clientSecret, clientVerificationToken, mongoUri, port) {
     const config = {
+      logger: LoggerFactory.getLogger('botkit'),
+      disable_startup_messages: true,
       storage: BotkitStorage({
         mongoUri: mongoUri
       }),

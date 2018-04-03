@@ -27,7 +27,9 @@
   "homepage": "https://github.com/logzio/slack-integration#readme",
   "dependencies": {
     "botkit": "^0.6.12",
-    "botkit-storage-mongo": "^1.0.7"
+    "botkit-storage-mongo": "^1.0.7",
+    "winston": "^2.4.1",
+    "winston-logzio": "^1.0.6"
   },
   "devDependencies": {}
 }
