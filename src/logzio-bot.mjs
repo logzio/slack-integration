@@ -1,6 +1,6 @@
 import Botkit from 'botkit';
 import BotkitStorage from 'botkit-storage-mongo';
-import LoggerFactory from './logging/logger-factory';
+import LoggerFactory from './core/logging/logger-factory';
 import CommandsRegistry from "./core/commands/commands-registry";
 
 const logger = LoggerFactory.getLogger('LogzioBot');
