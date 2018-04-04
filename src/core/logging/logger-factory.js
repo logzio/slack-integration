@@ -1,6 +1,8 @@
-import winston from 'winston';
-import LogzioWinstonTransport from 'winston-logzio';
+const LogzioWinstonTransport = require('winston-logzio');
+const path = require('path');
+const winston = require('winston');
 
+const rootPath = path.resolve(__dirname, '../../');
 const loggers = {};
 
 const transporters = getTransporters();
@@ -50,9 +52,13 @@ function getTransporters() {
   return transporters;
 }
 
-export default class LoggerFactory {
+class LoggerFactory {
 
   static getLogger(loggerName) {
+    if (loggerName.startsWith(rootPath)) {
+      loggerName = path.relative(rootPath, loggerName);
+    }
+
     if (loggerName in loggers) {
       return loggers[loggerName];
     }
@@ -73,3 +79,5 @@ export default class LoggerFactory {
   }
 
 }
+
+module.exports = LoggerFactory;

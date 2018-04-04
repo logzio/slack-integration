@@ -1,8 +1,8 @@
-import Command from "./command";
+const Command = require('./command');
 
 const commands = [];
 
-export default class CommandsRegistry {
+class CommandsRegistry {
 
   static register(command) {
     if (!(command instanceof Command)) {
@@ -17,3 +17,5 @@ export default class CommandsRegistry {
   }
 
 }
+
+module.exports = CommandsRegistry;

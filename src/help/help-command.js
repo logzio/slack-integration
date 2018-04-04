@@ -1,5 +1,5 @@
-import Command from "../core/commands/command";
-import CommandsRegistry from "../core/commands/commands-registry";
+const Command = require('../core/commands/command');
+const CommandsRegistry = require('../core/commands/commands-registry');
 
 function addCommandUsage(usage, command) {
   const commandUsage = command.getUsage();
@@ -10,7 +10,7 @@ function addCommandUsage(usage, command) {
   }
 }
 
-export default class HelpCommand extends Command {
+class HelpCommand extends Command {
 
   configure(controller) {
     controller.hears([/help/, /help [\w-]+/], 'direct_message,direct_mention', function (bot, message) {
@@ -47,5 +47,6 @@ export default class HelpCommand extends Command {
     ];
   }
 
-
 }
+
+module.exports = HelpCommand;

@@ -2,9 +2,9 @@
   "name": "logzio-slack-integration",
   "version": "1.0.0",
   "description": "Logz.io integration with Slack",
-  "main": "src/index.mjs",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node --experimental-modules .",
+    "start": "node .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

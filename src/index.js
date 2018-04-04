@@ -1,5 +1,5 @@
-import LogzioBot from './logzio-bot'
-import HelpCommand from "./help/help-command";
+const LogzioBot = require('./logzio-bot');
+const HelpCommand = require('./help/help-command');
 
 function getRequiredValueFromEnv(variableName) {
   const value = process.env[variableName];

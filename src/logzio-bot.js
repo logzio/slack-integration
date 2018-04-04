@@ -1,9 +1,9 @@
-import Botkit from 'botkit';
-import BotkitStorage from 'botkit-storage-mongo';
-import LoggerFactory from './core/logging/logger-factory';
-import CommandsRegistry from "./core/commands/commands-registry";
+const Botkit = require('botkit');
+const BotkitStorage = require('botkit-storage-mongo');
+const LoggerFactory = require('./core/logging/logger-factory');
+const CommandsRegistry = require('./core/commands/commands-registry');
 
-const logger = LoggerFactory.getLogger('LogzioBot');
+const logger = LoggerFactory.getLogger(__filename);
 
 function createBot(logzioBot, bot, config) {
   if (logzioBot.bots[bot.config.token]) {
@@ -109,4 +109,4 @@ class LogzioBot {
 
 }
 
-export default LogzioBot;
+module.exports = LogzioBot;

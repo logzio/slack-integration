@@ -1,4 +1,4 @@
-export default class Command {
+class Command {
 
   configure(controller) {
     throw new Error('Method `configure` must be overridden!');
@@ -14,3 +14,5 @@ export default class Command {
   }
 
 }
+
+module.exports = Command;
