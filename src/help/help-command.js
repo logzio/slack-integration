@@ -35,7 +35,6 @@ class HelpCommand extends Command {
 
   }
 
-
   getCategory() {
     return 'help';
   }

@@ -1,5 +1,4 @@
 const Botkit = require('botkit');
-const BotkitStorage = require('botkit-storage-mongo');
 const LoggerFactory = require('./core/logging/logger-factory');
 const CommandsRegistry = require('./core/commands/commands-registry');
 
@@ -63,17 +62,16 @@ function configureCommands(logzioBot) {
 
 class LogzioBot {
 
-  constructor() {
+  constructor(storage) {
     this.bots = {};
+    this.storage = storage;
   }
 
-  bootstrap(clientId, clientSecret, clientVerificationToken, mongoUri, port) {
+  bootstrap(clientId, clientSecret, clientVerificationToken, port) {
     const config = {
       logger: LoggerFactory.getLogger('botkit'),
       disable_startup_messages: true,
-      storage: BotkitStorage({
-        mongoUri: mongoUri
-      }),
+      storage: this.storage,
     };
 
     this.controller = Botkit.slackbot(config).configureSlackApp({
