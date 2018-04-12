@@ -15,7 +15,7 @@ class TeamConfigurationService {
         }
 
         if (!team_data || !team_data.configuration) {
-          reject(`Unable to find configuration for team with id: ${teamId}`);
+          resolve(new TeamConfiguration());
         } else {
           resolve(new TeamConfiguration(team_data.configuration));
         }

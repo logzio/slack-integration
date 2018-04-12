@@ -9,7 +9,8 @@ class TeamConfiguration {
   }
 
   setLogzioAccountRegion(logzioAccountRegion) {
-    this.config = { ...config, accountRegion: logzioAccountRegion };
+    this.config = { ...this.config, accountRegion: logzioAccountRegion };
+    return this;
   }
 
   getLogzioApiToken() {
@@ -17,7 +18,8 @@ class TeamConfiguration {
   }
 
   setLogzioApiToken(logzioApiToken) {
-    this.config = { ...config, apiToken: logzioApiToken };
+    this.config = { ...this.config, apiToken: logzioApiToken };
+    return this;
   }
 
   getAsObject() {

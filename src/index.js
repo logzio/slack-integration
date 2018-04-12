@@ -5,6 +5,7 @@ const HttpClient = require('./core/client/http-client');
 const LogzioBot = require('./logzio-bot');
 const SearchClient = require('./search/search-client');
 const SearchCommand = require('./search/search-command');
+const SetupCommand = require('./setup/setup-command');
 const TeamConfigurationService = require('./core/configuration/team-configuration-service');
 
 const apiConfig = require('../conf/api');
@@ -29,6 +30,7 @@ const httpClient = new HttpClient(teamConfigurationService, endpointResolver);
 const logzioBot = new LogzioBot(storage);
 logzioBot.registerCommand(new HelpCommand());
 logzioBot.registerCommand(new SearchCommand(new SearchClient(httpClient)));
+logzioBot.registerCommand(new SetupCommand(apiConfig, teamConfigurationService));
 logzioBot.bootstrap(
   getRequiredValueFromEnv('CLIENT_ID'),
   getRequiredValueFromEnv('CLIENT_SECRET'),
