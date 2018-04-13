@@ -7,38 +7,27 @@ class TeamConfigurationService {
   }
 
   get(teamId) {
-    const teamStore = this.teamStore;
-    return new Promise((resolve, reject) => {
-      teamStore.get(teamId, function(err, team_data) {
-        if (err) {
-          reject(err);
-        }
-
-        if (!team_data || !team_data.configuration) {
-          resolve(new TeamConfiguration());
+    return this.teamStore.get(teamId)
+      .then(teamDate => {
+        if (!teamDate || !teamDate.configuration) {
+          return new TeamConfiguration();
         } else {
-          resolve(new TeamConfiguration(team_data.configuration));
+          return new TeamConfiguration(teamDate.configuration);
         }
       });
-    });
   }
 
   save(teamId, teamConfiguration) {
     const teamStore = this.teamStore;
-    return new Promise((resolve, reject) => {
-      const data = {
-        id: teamId,
-        configuration: teamConfiguration.getAsObject(),
-      };
+    return teamStore.get(teamId)
+      .then(currentTeamData => {
+        const updatedTeamData = {
+          ...currentTeamData,
+          configuration: teamConfiguration.getAsObject(),
+        };
 
-      teamStore.save(data, function(err, id) {
-        if (err) {
-          reject(err);
-        }
-
-        resolve(id);
+        return teamStore.save(updatedTeamData);
       });
-    });
   }
 
 }

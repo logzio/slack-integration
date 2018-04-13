@@ -40,8 +40,12 @@ const messageWithoutButtons = {
 };
 
 function maskApiToken(logzioApiToken) {
+  if (!logzioApiToken) {
+    return '';
+  }
+
   if (logzioApiToken.length < 6) {
-    return '*'.repeat(6);
+    return '*'.repeat(logzioApiToken.length);
   }
 
   const charsToMask = logzioApiToken.length - 6;
@@ -64,7 +68,7 @@ function createSelectableRegionList(configuredRegions) {
 
 function buildAndSendConfigurationDialog(bot, selectableRegionList, reply, config) {
   const accountRegion = config.getLogzioAccountRegion() || 'us-east-1';
-  const apiToken = maskApiToken(config.getLogzioApiToken()) || '';
+  const apiToken = maskApiToken(config.getLogzioApiToken());
 
   const dialog = bot.createDialog('Logz.io Configuration', 'setup_dialog', 'Save')
     .addSelect('Account region', 'accountRegion', accountRegion, selectableRegionList)
