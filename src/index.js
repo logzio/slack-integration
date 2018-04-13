@@ -2,6 +2,8 @@ const BotkitStorage = require('botkit-storage-mongo');
 const EndpointResolver = require('./core/client/endpoint-resolver');
 const HelpCommand = require('./help/help-command');
 const HttpClient = require('./core/client/http-client');
+const KibanaClient = require('./kibana/kibana-client');
+const KibanaObjectsCommand = require('./kibana/kibana-objects-command');
 const LogzioBot = require('./logzio-bot');
 const SearchClient = require('./search/search-client');
 const SearchCommand = require('./search/search-command');
@@ -29,6 +31,7 @@ const httpClient = new HttpClient(teamConfigurationService, endpointResolver);
 
 const logzioBot = new LogzioBot(storage);
 logzioBot.registerCommand(new HelpCommand());
+logzioBot.registerCommand(new KibanaObjectsCommand(new KibanaClient(httpClient)));
 logzioBot.registerCommand(new SearchCommand(new SearchClient(httpClient)));
 logzioBot.registerCommand(new SetupCommand(apiConfig, teamConfigurationService));
 logzioBot.bootstrap(
