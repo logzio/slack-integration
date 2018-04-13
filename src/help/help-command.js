@@ -42,7 +42,7 @@ class HelpCommand extends Command {
   getUsage() {
     return [
       '*help* - Displays all available help commands.',
-      '*help <query>* - Displays all help commands that match <query>.',
+      '*help &lt;query&gt;* - Displays all help commands that match &lt;query&gt;.',
     ];
   }
 

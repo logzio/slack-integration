@@ -84,9 +84,9 @@ class SearchCommand extends Command {
 
   getUsage() {
     return [
-      '*search \u034f`<query-string>`* - Search the specified query for the last 15 minutes.',
-      '*search \u034f`<query-string>` last <time-value> <time-unit>* - Search the specified query for the last X minutes/hours.',
-      '*search \u034f`<query-string>` from <from-timestamp> to <to-timestamp>* - Search the specified query with the specified window.',
+      '*search \u034f`&lt;query-string&gt;`* - Search the specified query for the last 15 minutes.',
+      '*search \u034f`&lt;query-string&gt;` last &lt;time-value&gt; &lt;time-unit&gt;* - Search the specified query for the last X minutes/hours.',
+      '*search \u034f`&lt;query-string&gt;` from &lt;from-timestamp&gt; to &lt;to-timestamp&gt;* - Search the specified query with the specified window.',
     ];
   }
 
