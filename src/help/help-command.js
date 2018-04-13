@@ -1,13 +1,26 @@
 const Command = require('../core/commands/command');
 const CommandsRegistry = require('../core/commands/commands-registry');
 
-function addCommandUsage(usage, command) {
+function createListOfCategoryAndUsagePairs(command) {
+  const pairs = [];
+  const category = command.getCategory();
+
   const commandUsage = command.getUsage();
   if (typeof commandUsage === 'string') {
-    usage.push(commandUsage);
+    pairs.push({ category, usage: commandUsage });
   } else {
-    commandUsage.forEach(usageLine => usage.push(usageLine))
+    commandUsage.forEach(usageLine => pairs.push({ category, usage: usageLine }));
   }
+
+  return pairs;
+}
+
+function isCategoryOrUsageMatchQuery(categoryUsagePair, query) {
+  const normalizedCategory = categoryUsagePair.category.toLocaleLowerCase();
+  const normalizedUsage = categoryUsagePair.usage.toLocaleLowerCase();
+  const normalizedQuery = query.toLowerCase();
+
+  return normalizedCategory.includes(normalizedQuery) || normalizedUsage.includes(normalizedQuery);
 }
 
 class HelpCommand extends Command {
@@ -21,9 +34,14 @@ class HelpCommand extends Command {
       }
 
       const usageLines = [];
+      const allCommandsPairs = [];
       CommandsRegistry.getCommands()
-        .filter(command => command.getCategory().includes(query))
-        .forEach(command => addCommandUsage(usageLines, command));
+        .map(createListOfCategoryAndUsagePairs)
+        .forEach(pairs => allCommandsPairs.push(...pairs));
+
+      allCommandsPairs.filter(categoryUsagePair => isCategoryOrUsageMatchQuery(categoryUsagePair, query))
+        .map(categoryUsagePair => categoryUsagePair.usage)
+        .forEach(usageLine => usageLines.push(usageLine));
 
       if (usageLines.length === 0) {
         bot.reply(message, `No available commands match ${query}`);
