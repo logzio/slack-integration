@@ -1,4 +1,9 @@
 const Command = require('../core/commands/command');
+const LoggerFactory = require('../core/logging/logger-factory');
+const Table = require('easy-table');
+const { getEventMetadata } = require('../core/logging/logging-metadata');
+
+const logger = LoggerFactory.getLogger(__filename);
 
 const commandRegex = /get kibana (objects|vis|visualizations?|dash|dashboards?|search|searches)/;
 
@@ -34,14 +39,26 @@ class KibanaObjectsCommand extends Command {
       const promises = objectTypes.map(objectType => kibanaClient.listObjects(message.team, objectType));
       Promise.all(promises)
         .then(results => {
-          const kibanaObjects = [];
+          const table = new Table();
+
           results.forEach(objects => {
-            objects
-              .map(kibanaObject => `${kibanaObject['_type']} - ${kibanaObject['_source']['title']}`)
-              .forEach(objectLine => kibanaObjects.push(objectLine))
+            objects.forEach(kibanaObject => {
+              table.cell('Object Type', kibanaObject['_type']);
+              table.cell('Object Name', kibanaObject['_source']['title']);
+              table.newRow();
+            });
           });
 
-          bot.reply(message, kibanaObjects.join('\n'));
+          bot.api.files.upload({
+            content: table.toString(),
+            channels: message.channel,
+            filename: `Kibana objects of the following types: ${objectTypes.join(', ')}`,
+            filetype: 'text'
+          }, err => {
+            if (err) {
+              logger.error('Failed to send kibana objects table', getEventMetadata(message, 'failed_to_get_kibana_objects'), err);
+            }
+          });
         });
     })
   }
