@@ -1,13 +1,30 @@
 function getEventMetadata(message, eventName) {
-  return {
+  const metadata = {
     eventName,
-    teamId: message.team.id,
-    teamDomain: message.team.domain,
-    userId: message.user.id,
-    userName: message.user.name,
-    channelId: message.channel.id,
-    channelName: message.channel.name,
+  };
+
+  if (typeof message.team === 'string') {
+    metadata['teamId'] = message.team;
+  } else {
+    metadata['teamId'] = message.team.id;
+    metadata['teamDomain'] = message.team.domain;
   }
+
+  if (typeof message.user === 'string') {
+    metadata['userId'] = message.user;
+  } else {
+    metadata['userId'] = message.user.id;
+    metadata['userName'] = message.user.name;
+  }
+
+  if (typeof message.channel === 'string') {
+    metadata['channelId'] = message.channel;
+  } else {
+    metadata['channelId'] = message.channel.id;
+    metadata['channelName'] = message.channel.name;
+  }
+
+  return metadata
 }
 
 module.exports = {

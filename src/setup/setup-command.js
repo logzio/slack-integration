@@ -96,6 +96,10 @@ class SetupCommand extends Command {
     const teamConfigService = this.teamConfigurationService;
 
     controller.hears('setup', 'direct_message,direct_mention', function (bot, message) {
+      if (message.type !== 'direct_message') {
+        bot.reply(message, `<@${message.user}> sending you the configuration options privately.`);
+      }
+
       bot.startPrivateConversation(message, function(err, convo) {
         convo.ask(messageWithButtons, [{
           pattern: 'yes',
