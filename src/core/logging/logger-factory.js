@@ -65,7 +65,7 @@ class LoggerFactory {
 
     let logger = new winston.Logger({
       level: 'info',
-      levels: winston.config.syslog.levels,
+      levels: winston.config.npm.levels,
       transports: transporters,
       exceptionHandlers: transporters,
       exitOnError: true,

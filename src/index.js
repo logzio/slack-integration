@@ -1,3 +1,4 @@
+const AlertsClient = require('./alerts/alerts-client');
 const BotkitStorage = require('botkit-storage-mongo');
 const EndpointResolver = require('./core/client/endpoint-resolver');
 const HelpCommand = require('./help/help-command');
@@ -8,6 +9,7 @@ const LogzioBot = require('./logzio-bot');
 const SearchClient = require('./search/search-client');
 const SearchCommand = require('./search/search-command');
 const SetupCommand = require('./setup/setup-command');
+const ShowAlertCommand = require('./alerts/show-alert-command');
 const TeamConfigurationService = require('./core/configuration/team-configuration-service');
 
 const apiConfig = require('../conf/api');
@@ -34,6 +36,7 @@ logzioBot.registerCommand(new HelpCommand());
 logzioBot.registerCommand(new KibanaObjectsCommand(new KibanaClient(httpClient)));
 logzioBot.registerCommand(new SearchCommand(new SearchClient(httpClient)));
 logzioBot.registerCommand(new SetupCommand(apiConfig, teamConfigurationService));
+logzioBot.registerCommand(new ShowAlertCommand(new AlertsClient(httpClient)));
 logzioBot.bootstrap(
   getRequiredValueFromEnv('CLIENT_ID'),
   getRequiredValueFromEnv('CLIENT_SECRET'),
