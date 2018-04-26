@@ -10,6 +10,8 @@ const SearchClient = require('./search/search-client');
 const SearchCommand = require('./search/search-command');
 const SetupCommand = require('./setup/setup-command');
 const ShowAlertCommand = require('./alerts/show-alert-command');
+const SnapshotCommand = require('./snapshots/snapshot-command');
+const SnapshotsClient = require('./snapshots/snapshots-client');
 const TeamConfigurationService = require('./core/configuration/team-configuration-service');
 
 const apiConfig = require('../conf/api');
@@ -23,6 +25,7 @@ function getRequiredValueFromEnv(variableName) {
   return value;
 }
 
+const externalDomain = getRequiredValueFromEnv('EXTERNAL_DOMAIN');
 const storage = BotkitStorage({
   mongoUri: getRequiredValueFromEnv('MONGODB_URI')
 });
@@ -32,11 +35,13 @@ const endpointResolver = new EndpointResolver(apiConfig);
 const httpClient = new HttpClient(teamConfigurationService, endpointResolver);
 
 const logzioBot = new LogzioBot(storage);
+const kibanaClient = new KibanaClient(httpClient);
 logzioBot.registerCommand(new HelpCommand());
-logzioBot.registerCommand(new KibanaObjectsCommand(new KibanaClient(httpClient)));
+logzioBot.registerCommand(new KibanaObjectsCommand(kibanaClient));
 logzioBot.registerCommand(new SearchCommand(new SearchClient(httpClient)));
 logzioBot.registerCommand(new SetupCommand(apiConfig, teamConfigurationService));
 logzioBot.registerCommand(new ShowAlertCommand(new AlertsClient(httpClient)));
+logzioBot.registerCommand(new SnapshotCommand(externalDomain, kibanaClient, new SnapshotsClient(httpClient)));
 logzioBot.bootstrap(
   getRequiredValueFromEnv('CLIENT_ID'),
   getRequiredValueFromEnv('CLIENT_SECRET'),

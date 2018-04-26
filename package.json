@@ -30,6 +30,7 @@
     "botkit": "^0.6.12",
     "botkit-storage-mongo": "^1.0.7",
     "easy-table": "^1.1.1",
+    "moment": "^2.22.1",
     "winston": "^2.4.1",
     "winston-logzio": "^1.0.6"
   },
