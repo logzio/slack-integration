@@ -6,7 +6,7 @@
     },
     "eu-central-1": {
       "name": "EU",
-      "endpoint": "https://api-ue.logz.io"
+      "endpoint": "https://api-eu.logz.io"
     }
   }
 }
