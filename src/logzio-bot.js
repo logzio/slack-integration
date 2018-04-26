@@ -1,6 +1,7 @@
 const Botkit = require('botkit');
 const LoggerFactory = require('./core/logging/logger-factory');
 const CommandsRegistry = require('./core/commands/commands-registry');
+const { createWebhookProxyEndpoint } = require('./core/webhook/webhook-proxy');
 
 const logger = LoggerFactory.getLogger(__filename);
 
@@ -82,6 +83,7 @@ class LogzioBot {
     });
 
     this.controller.setupWebserver(port, (err, webserver) => {
+      createWebhookProxyEndpoint(this, webserver);
       this.controller.createHomepageEndpoint(webserver);
       this.controller.createWebhookEndpoints(webserver);
 
