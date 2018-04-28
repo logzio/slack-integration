@@ -48,7 +48,7 @@ class HelpCommand extends Command {
         return;
       }
 
-      bot.reply(message, usageLines.join('\n'));
+      bot.reply(message, usageLines.sort().join('\n'));
     });
 
   }

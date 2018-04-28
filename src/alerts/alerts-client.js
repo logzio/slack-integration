@@ -24,6 +24,18 @@ class AlertsClient {
       });
   }
 
+  getTriggeredAlerts(teamId, size, severity, sortBy, sortOrder) {
+    const body = {
+      from: 0,
+      size,
+      severity,
+      sortBy,
+      sortOrder
+    };
+
+    return this.httpClient.post(teamId, '/v1/alerts/triggered-alerts', body);
+  }
+
 }
 
 module.exports = AlertsClient;
