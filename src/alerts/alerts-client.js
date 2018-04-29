@@ -24,6 +24,10 @@ class AlertsClient {
       });
   }
 
+  getAlertById(teamId, alertId) {
+    return this.httpClient.get(teamId, `/v1/alerts/${alertId}`);
+  }
+
   getTriggeredAlerts(teamId, size, severity, sortBy, sortOrder) {
     const body = {
       from: 0,

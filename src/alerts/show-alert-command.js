@@ -5,10 +5,14 @@ const { getEventMetadata } = require('../core/logging/logging-metadata');
 const logger = LoggerFactory.getLogger(__filename);
 
 function ucFirst(text) {
-  return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+  return text ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : '';
 }
 
 function createAlertDetailsMessage(alert) {
+  if (typeof alert === 'string') {
+    return alert;
+  }
+
   return {
     attachments: [{
       title: alert.title,
@@ -33,16 +37,27 @@ class ShowAlertCommand extends Command {
     this.alertsClient = alertsClient;
   }
   configure(controller) {
-    const alertsClient = this.alertsClient;
-    controller.hears([/show alert (.*)/], 'direct_message,direct_mention', function (bot, message) {
-      const alertName = message.match[1];
-      alertsClient.getAlertByName(message.team, alertName)
-        .then(alert => bot.reply(message, createAlertDetailsMessage(alert)))
+    controller.hears([/(show|get) alert by id (\d*)/], 'direct_message,direct_mention', (bot, message) => {
+      const alertId = message.match[2];
+      this.alertsClient.getAlertById(message.team, alertId)
+        .then(createAlertDetailsMessage)
+        .then(alertMessage => bot.reply(message, alertMessage))
+        .catch(err => {
+          logger.warn(`Failed to get details for alert with id: ${alertId}`, err, getEventMetadata(message, 'failed-to-show-alert'));
+          bot.reply(message, `Failed to get details for alert with id: ${alertId}`);
+        });
+    });
+
+    controller.hears([/(show|get) alert (.*)/], 'direct_message,direct_mention', (bot, message) => {
+      const alertName = message.match[2];
+      this.alertsClient.getAlertByName(message.team, alertName)
+        .then(createAlertDetailsMessage)
+        .then(alertMessage => bot.reply(message, alertMessage))
         .catch(err => {
           logger.warn(`Failed to get details for alert with title: ${alertName}`, err, getEventMetadata(message, 'failed-to-show-alert'));
           bot.reply(message, `Failed to get details for alert with title: ${alertName}`);
         });
-    })
+    });
   }
 
   getCategory() {
@@ -51,7 +66,8 @@ class ShowAlertCommand extends Command {
 
   getUsage() {
     return [
-      '*show alert &lt;alert-name&gt;* - Displays alert details'
+      '*show alert &lt;alert-name&gt;* - Displays alert details',
+      '*show alert by id &lt;alert-id&gt;* - Displays alert details',
     ];
   }
 
