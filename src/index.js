@@ -14,6 +14,7 @@ const ShowAlertCommand = require('./alerts/show-alert-command');
 const SnapshotCommand = require('./snapshots/snapshot-command');
 const SnapshotsClient = require('./snapshots/snapshots-client');
 const TeamConfigurationService = require('./core/configuration/team-configuration-service');
+const UnknownCommand = require('./help/unknown-command');
 
 const apiConfig = require('../conf/api');
 
@@ -45,6 +46,7 @@ logzioBot.registerCommand(new SearchCommand(new SearchClient(httpClient)));
 logzioBot.registerCommand(new SetupCommand(apiConfig, teamConfigurationService));
 logzioBot.registerCommand(new ShowAlertCommand(alertsClient));
 logzioBot.registerCommand(new SnapshotCommand(externalDomain, kibanaClient, new SnapshotsClient(httpClient)));
+logzioBot.registerCommand(new UnknownCommand());
 logzioBot.bootstrap(
   getRequiredValueFromEnv('CLIENT_ID'),
   getRequiredValueFromEnv('CLIENT_SECRET'),
