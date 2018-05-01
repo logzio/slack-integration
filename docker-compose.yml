@@ -1,0 +1,39 @@
+version: '2.1'
+
+networks:
+  logzbot:
+
+services:
+  logzbot:
+    build: .
+    environment:
+      MYSQL_USER: root
+      MYSQL_PASSWORD: p@ssw0rd
+      MYSQL_DATABASE: logzbot
+      MYSQL_HOST: db
+    env_file:
+      - .env
+    ports:
+      - '8080:8080'
+    networks:
+      - logzbot
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:5.7.21
+    volumes:
+      - ./docker/mysql/healthcheck:/usr/local/bin/healthcheck
+    environment:
+      MYSQL_DATABASE: logzbot
+      MYSQL_ROOT_PASSWORD: p@ssw0rd
+    ports:
+      - '3306:3306'
+    networks:
+      - logzbot
+    healthcheck:
+      test: "healthcheck"
+      interval: 5s
+      timeout: 3s
+      retries: 3

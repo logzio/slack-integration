@@ -9,10 +9,10 @@ class TeamConfigurationService {
   get(teamId) {
     return this.teamStore.get(teamId)
       .then(teamDate => {
-        if (!teamDate || !teamDate.configuration) {
+        if (!teamDate || !teamDate.bot.configuration) {
           return new TeamConfiguration();
         } else {
-          return new TeamConfiguration(teamDate.configuration);
+          return new TeamConfiguration(teamDate.bot.configuration);
         }
       });
   }
@@ -21,9 +21,13 @@ class TeamConfigurationService {
     const teamStore = this.teamStore;
     return teamStore.get(teamId)
       .then(currentTeamData => {
+        const { bot } = currentTeamData;
         const updatedTeamData = {
           ...currentTeamData,
-          configuration: teamConfiguration.getAsObject(),
+          bot: {
+            ...bot,
+            configuration: teamConfiguration.getAsObject(),
+          }
         };
 
         return teamStore.save(updatedTeamData);

@@ -1,3 +1,5 @@
+const BotkitStorageMySQL = require('botkit-storage-mysql');
+const DBMigrate = require('db-migrate');
 const LogzioBot = require('./logzio-bot');
 
 function getRequiredValueFromEnv(variableName) {
@@ -9,13 +11,37 @@ function getRequiredValueFromEnv(variableName) {
   return value;
 }
 
-const apiConfig = require('../conf/api');
-const logzioBot = new LogzioBot(apiConfig);
-logzioBot.bootstrap(
-  getRequiredValueFromEnv('CLIENT_ID'),
-  getRequiredValueFromEnv('CLIENT_SECRET'),
-  getRequiredValueFromEnv('VERIFICATION_TOKEN'),
-  getRequiredValueFromEnv('EXTERNAL_DOMAIN'),
-  getRequiredValueFromEnv('MONGODB_URI'),
-  getRequiredValueFromEnv('PORT'),
-);
+function migrateDatabase(dbConfig) {
+  const options = {
+    env: 'prod',
+    config: {
+      prod: {
+        ...dbConfig,
+        driver: 'mysql'
+      }
+    }
+  };
+
+  return DBMigrate.getInstance(true, options).up();
+}
+
+const dbConfig = {
+  user: getRequiredValueFromEnv('MYSQL_USER'),
+  password: getRequiredValueFromEnv('MYSQL_PASSWORD'),
+  database: getRequiredValueFromEnv('MYSQL_DATABASE'),
+  host: getRequiredValueFromEnv('MYSQL_HOST'),
+};
+
+migrateDatabase(dbConfig).then(() => {
+  const apiConfig = require('../conf/api');
+  const externalDomain = getRequiredValueFromEnv('EXTERNAL_DOMAIN');
+  const storage = new BotkitStorageMySQL(dbConfig);
+
+  const logzioBot = new LogzioBot(apiConfig, externalDomain, storage);
+  logzioBot.bootstrap(
+    getRequiredValueFromEnv('CLIENT_ID'),
+    getRequiredValueFromEnv('CLIENT_SECRET'),
+    getRequiredValueFromEnv('VERIFICATION_TOKEN'),
+    getRequiredValueFromEnv('PORT'),
+  );
+});

@@ -1,0 +1,10 @@
+{
+  "dev": {
+    "driver": "mysql",
+    "user": "root",
+    "password": "p@ssw0rd",
+    "database": "logzbot",
+    "host": "localhost"
+  },
+  "sql-file": true
+}

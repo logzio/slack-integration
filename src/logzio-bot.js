@@ -1,6 +1,5 @@
 const AlertsClient = require('./alerts/alerts-client');
 const Botkit = require('botkit');
-const BotkitStorage = require('botkit-storage-mongo');
 const CommandsRegistry = require('./core/commands/commands-registry');
 const EndpointResolver = require('./core/client/endpoint-resolver');
 const GetTriggeredAlertsCommand = require('./alerts/get-triggered-alerts-command');
@@ -9,6 +8,7 @@ const HttpClient = require('./core/client/http-client');
 const KibanaClient = require('./kibana/kibana-client');
 const KibanaObjectsCommand = require('./kibana/kibana-objects-command');
 const LoggerFactory = require('./core/logging/logger-factory');
+const PromiseStorage = require('botkit-promise-storage');
 const SearchClient = require('./search/search-client');
 const SearchCommand = require('./search/search-command');
 const SetupCommand = require('./setup/setup-command');
@@ -98,14 +98,14 @@ function registerAndConfigureCommands(logzioBot) {
 
 class LogzioBot {
 
-  constructor(apiConfig) {
+  constructor(apiConfig, externalDomain, storage) {
     this.bots = {};
     this.apiConfig = apiConfig;
+    this.externalDomain = externalDomain;
+    this.storage = new PromiseStorage({ storage });
   }
 
-  bootstrap(clientId, clientSecret, clientVerificationToken, externalDomain, mongoUri, port) {
-    this.storage = BotkitStorage({ mongoUri });
-
+  bootstrap(clientId, clientSecret, clientVerificationToken, port) {
     const config = {
       logger: LoggerFactory.getLogger('botkit'),
       disable_startup_messages: true,
