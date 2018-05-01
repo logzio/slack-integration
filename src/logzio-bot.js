@@ -1,6 +1,23 @@
+const AlertsClient = require('./alerts/alerts-client');
 const Botkit = require('botkit');
-const LoggerFactory = require('./core/logging/logger-factory');
+const BotkitStorage = require('botkit-storage-mongo');
 const CommandsRegistry = require('./core/commands/commands-registry');
+const EndpointResolver = require('./core/client/endpoint-resolver');
+const GetTriggeredAlertsCommand = require('./alerts/get-triggered-alerts-command');
+const HelpCommand = require('./help/help-command');
+const HttpClient = require('./core/client/http-client');
+const KibanaClient = require('./kibana/kibana-client');
+const KibanaObjectsCommand = require('./kibana/kibana-objects-command');
+const LoggerFactory = require('./core/logging/logger-factory');
+const SearchClient = require('./search/search-client');
+const SearchCommand = require('./search/search-command');
+const SetupCommand = require('./setup/setup-command');
+const ShowAlertCommand = require('./alerts/show-alert-command');
+const SnapshotCommand = require('./snapshots/snapshot-command');
+const SnapshotsClient = require('./snapshots/snapshots-client');
+const TeamConfigurationService = require('./core/configuration/team-configuration-service');
+const UnknownCommand = require('./help/unknown-command');
+
 const { createWebhookProxyEndpoint } = require('./core/webhook/webhook-proxy');
 
 const logger = LoggerFactory.getLogger(__filename);
@@ -56,19 +73,39 @@ function connectToExistingTeams(logzioBot) {
 
 }
 
-function configureCommands(logzioBot) {
+function registerAndConfigureCommands(logzioBot) {
+  const apiConfig = logzioBot.apiConfig;
+  const externalDomain = logzioBot.externalDomain;
+
+  const storage = logzioBot.storage;
+  const teamConfigurationService = new TeamConfigurationService(storage.teams);
+  const endpointResolver = new EndpointResolver(apiConfig);
+
+  const httpClient = new HttpClient(teamConfigurationService, endpointResolver);
+  const alertsClient = new AlertsClient(httpClient);
+  const kibanaClient = new KibanaClient(httpClient);
+  CommandsRegistry.register(new GetTriggeredAlertsCommand(alertsClient));
+  CommandsRegistry.register(new HelpCommand());
+  CommandsRegistry.register(new KibanaObjectsCommand(kibanaClient));
+  CommandsRegistry.register(new SearchCommand(new SearchClient(httpClient)));
+  CommandsRegistry.register(new SetupCommand(apiConfig, teamConfigurationService));
+  CommandsRegistry.register(new ShowAlertCommand(alertsClient));
+  CommandsRegistry.register(new SnapshotCommand(externalDomain, kibanaClient, new SnapshotsClient(httpClient)));
+  CommandsRegistry.register(new UnknownCommand());
   CommandsRegistry.getCommands()
     .forEach(command => command.configure(logzioBot.controller));
 }
 
 class LogzioBot {
 
-  constructor(storage) {
+  constructor(apiConfig) {
     this.bots = {};
-    this.storage = storage;
+    this.apiConfig = apiConfig;
   }
 
-  bootstrap(clientId, clientSecret, clientVerificationToken, port) {
+  bootstrap(clientId, clientSecret, clientVerificationToken, externalDomain, mongoUri, port) {
+    this.storage = BotkitStorage({ mongoUri });
+
     const config = {
       logger: LoggerFactory.getLogger('botkit'),
       disable_startup_messages: true,
@@ -98,13 +135,8 @@ class LogzioBot {
 
     this.controller.on('create_bot', (bot, config) => createBot(this, bot, config));
 
-    configureCommands(this);
+    registerAndConfigureCommands(this);
     connectToExistingTeams(this);
-  }
-
-  registerCommand(command) {
-    CommandsRegistry.register(command);
-    return this;
   }
 
 }
