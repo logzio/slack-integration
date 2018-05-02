@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node jasmine.js"
   },
   "repository": {
     "type": "git",
@@ -39,5 +39,8 @@
     "winston": "^2.4.1",
     "winston-logzio": "^1.0.6"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "jasmine": "^3.1.0",
+    "jasmine-spec-reporter": "^4.2.1"
+  }
 }
