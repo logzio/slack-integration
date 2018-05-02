@@ -6,10 +6,6 @@ const HttpMethod = {
 };
 
 function validateConfiguration(configuration) {
-  if (!configuration) {
-    return Promise.reject('Missing configuration!');
-  }
-
   if (!configuration.getLogzioAccountRegion()) {
     return Promise.reject('Logz.io account region is not configured!');
   }
