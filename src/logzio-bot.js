@@ -109,6 +109,7 @@ class LogzioBot {
     const config = {
       logger: LoggerFactory.getLogger('botkit'),
       disable_startup_messages: true,
+      require_delivery: true,
       storage: this.storage,
     };
 
