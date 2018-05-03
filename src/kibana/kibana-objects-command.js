@@ -13,6 +13,7 @@ class KibanaObjectsCommand extends Command {
     super();
     this.kibanaClient = kibanaClient;
   }
+
   configure(controller) {
     const kibanaClient = this.kibanaClient;
     controller.hears([commandRegex], 'direct_message,direct_mention', (bot, message) => {
@@ -55,9 +56,12 @@ class KibanaObjectsCommand extends Command {
             filename: `Kibana objects of the following types: ${objectTypes.join(', ')}`,
             filetype: 'text'
           }, err => {
-            if (err) {
-              logger.error('Failed to send kibana objects table', getEventMetadata(message, 'failed_to_get_kibana_objects'), err);
-            }
+            throw err;
+          });
+        })
+        .catch(err => {
+          this.handleError(bot, message, err, err => {
+            logger.error('Failed to send kibana objects table', getEventMetadata(message, 'failed_to_get_kibana_objects'), err);
           });
         });
     })

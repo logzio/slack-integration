@@ -4,7 +4,7 @@ const { sendUsage } = require('./usage-message-supplier');
 class HelpCommand extends Command {
 
   configure(controller) {
-    controller.hears([/help/, /help [\w-]+/], 'direct_message,direct_mention', (bot, message) => {
+    controller.hears([/help ([\w-]+)/, /help$/], 'direct_message,direct_mention', (bot, message) => {
       let query = message.match[1] || '';
       sendUsage(bot, message, query);
     });

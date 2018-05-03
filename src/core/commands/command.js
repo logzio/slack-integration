@@ -1,3 +1,5 @@
+const TeamNotConfiguredError = require('../client/team-not-configured-error');
+
 class Command {
 
   configure(controller) {
@@ -11,6 +13,15 @@ class Command {
 
   getUsage() {
     throw new Error('Method `getUsage` must be overridden!');
+  }
+
+  handleError(bot, userMessage, err, unknownErrorHandler) {
+    if (err instanceof TeamNotConfiguredError) {
+      bot.reply(userMessage, 'Logz.io integration is not configured!\n' +
+        'Use `setup` command to configure the Logz.io integration and try again.');
+    } else {
+      unknownErrorHandler(err);
+    }
   }
 
 }

@@ -50,13 +50,9 @@ function sendMatchedKibanaObjectsTable(bot, message, objectType, matchedKibanaOb
 function sendSnapshotRequest(snapshotsClient, externalDomain, bot, message, objectType, objectId, fromTS, toTS, query) {
   const webhookUrl = `${externalDomain}/webhook/${message.team}/${message.channel}`;
   const queryWithFixedQuotes = query.replace('”', '"').replace('“', '"');
-  snapshotsClient.createSnapshot(message.team, message.user, objectType, objectId, fromTS, toTS, queryWithFixedQuotes, webhookUrl)
+  return snapshotsClient.createSnapshot(message.team, message.user, objectType, objectId, fromTS, toTS, queryWithFixedQuotes, webhookUrl)
     .then(() => {
       bot.reply(message, 'Snapshot request has been sent.')
-    })
-    .catch(err => {
-      logger.warn('Failed to send snapshot request', err, getEventMetadata(message, 'failed-to-send-snapshot-request'));
-      bot.reply(message, 'Failed to send snapshot request');
     });
 }
 
@@ -98,7 +94,13 @@ class SnapshotCommand extends Command {
           }
 
           const objectId = matchedKibanaObjects[0]['_id'];
-          sendSnapshotRequest(this.snapshotsClient, this.externalDomain, bot, message, objectType, objectId, fromTS, toTS, query);
+          return sendSnapshotRequest(this.snapshotsClient, this.externalDomain, bot, message, objectType, objectId, fromTS, toTS, query);
+        })
+        .catch(err => {
+          this.handleError(bot, message, err, err => {
+            logger.warn('Failed to send snapshot request', err, getEventMetadata(message, 'failed-to-send-snapshot-request'));
+            bot.reply(message, 'Failed to send snapshot request');
+          });
         });
     });
   }

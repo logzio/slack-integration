@@ -38,8 +38,10 @@ class GetTriggeredAlertsCommand extends Command {
       alertsClient.getTriggeredAlerts(message.team, 5, ["HIGH", "MEDIUM", "LOW"], "DATE", "DESC")
         .then(({ results, total }) => bot.reply(message, createTriggeredAlertsMessage(results, total)))
         .catch(err => {
-          logger.warn('Failed to get triggered events', err, getEventMetadata(message, 'failed-to-get-triggered-alerts'));
-          bot.reply(message, 'Failed to get triggered events');
+          this.handleError(bot, message, err, err => {
+            logger.warn('Failed to get triggered events', err, getEventMetadata(message, 'failed-to-get-triggered-alerts'));
+            bot.reply(message, 'Failed to get triggered events');
+          });
         });
     })
   }

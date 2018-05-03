@@ -36,6 +36,7 @@ class ShowAlertCommand extends Command {
     super();
     this.alertsClient = alertsClient;
   }
+
   configure(controller) {
     controller.hears([/(show|get) alert by id (\d*)/], 'direct_message,direct_mention', (bot, message) => {
       const alertId = message.match[2];
@@ -54,8 +55,10 @@ class ShowAlertCommand extends Command {
         .then(createAlertDetailsMessage)
         .then(alertMessage => bot.reply(message, alertMessage))
         .catch(err => {
-          logger.warn(`Failed to get details for alert with title: ${alertName}`, err, getEventMetadata(message, 'failed-to-show-alert'));
-          bot.reply(message, `Failed to get details for alert with title: ${alertName}`);
+          this.handleError(bot, message, err, err => {
+            logger.warn(`Failed to get details for alert with title: ${alertName}`, err, getEventMetadata(message, 'failed-to-show-alert'));
+            bot.reply(message, `Failed to get details for alert with title: ${alertName}`);
+          });
         });
     });
   }

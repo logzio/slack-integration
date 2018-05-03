@@ -1,4 +1,5 @@
 const Axios = require('axios');
+const TeamNotConfiguredError = require('./team-not-configured-error');
 
 const HttpMethod = {
   GET: 'GET',
@@ -7,11 +8,11 @@ const HttpMethod = {
 
 function validateConfiguration(configuration) {
   if (!configuration.getLogzioAccountRegion()) {
-    return Promise.reject('Logz.io account region is not configured!');
+    throw new TeamNotConfiguredError('Logz.io account region is not configured!');
   }
 
   if (!configuration.getLogzioApiToken()) {
-    return Promise.reject('Logz.io api token is not configured!');
+    throw new TeamNotConfiguredError('Logz.io api token is not configured!');
   }
 
   return Promise.resolve(configuration);
