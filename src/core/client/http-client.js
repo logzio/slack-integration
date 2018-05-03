@@ -1,10 +1,6 @@
 const Axios = require('axios');
+const HttpMethod = require('./http-method');
 const TeamNotConfiguredError = require('./team-not-configured-error');
-
-const HttpMethod = {
-  GET: 'GET',
-  POST: 'POST',
-};
 
 function validateConfiguration(configuration) {
   if (!configuration.getLogzioAccountRegion()) {
@@ -28,33 +24,6 @@ function getAuthHeaders(token) {
   };
 }
 
-function sendRequest(httpClient, teamId, method, path, body) {
-  return httpClient.teamConfigurationService.get(teamId)
-    .then(validateConfiguration)
-    .then(configuration => {
-      const accountRegion = configuration.getLogzioAccountRegion();
-      const apiToken = configuration.getLogzioApiToken();
-
-      const endpointUrl = httpClient.endpointResolver.getEndpointUrl(accountRegion, path);
-      const authHeaders = getAuthHeaders(apiToken);
-
-      let requestPromise;
-      switch (method) {
-        case HttpMethod.GET:
-          requestPromise = Axios.get(endpointUrl, authHeaders);
-          break;
-        case HttpMethod.POST:
-          requestPromise = Axios.post(endpointUrl, body, authHeaders);
-          break;
-        default:
-          return Promise.reject(`Unsupported method ${method}!`);
-      }
-
-      return requestPromise
-        .then(response => response.data);
-    });
-}
-
 class HttpClient {
 
   constructor(teamConfigurationService, endpointResolver) {
@@ -63,11 +32,42 @@ class HttpClient {
   }
 
   get(teamId, path) {
-    return sendRequest(this, teamId, HttpMethod.GET, path);
+    return this.sendRequest(this, teamId, HttpMethod.GET, path);
   }
 
   post(teamId, path, body) {
-    return sendRequest(this, teamId, HttpMethod.POST, path, body);
+    return this.sendRequest(this, teamId, HttpMethod.POST, path, body);
+  }
+
+  sendRequest(teamId, method, path, body) {
+    return this.teamConfigurationService.get(teamId)
+      .then(validateConfiguration)
+      .then(configuration => {
+        const accountRegion = configuration.getLogzioAccountRegion();
+        const apiToken = configuration.getLogzioApiToken();
+
+        return this.sendRequestWithRegionAndToken(accountRegion, apiToken, method, path, body)
+      });
+  }
+
+  sendRequestWithRegionAndToken(accountRegion, apiToken, method, path, body) {
+    const endpointUrl = this.endpointResolver.getEndpointUrl(accountRegion, path);
+    const authHeaders = getAuthHeaders(apiToken);
+
+    let requestPromise;
+    switch (method) {
+      case HttpMethod.GET:
+        requestPromise = Axios.get(endpointUrl, authHeaders);
+        break;
+      case HttpMethod.POST:
+        requestPromise = Axios.post(endpointUrl, body, authHeaders);
+        break;
+      default:
+        return Promise.reject(`Unsupported method ${method}!`);
+    }
+
+    return requestPromise
+      .then(response => response.data);
   }
 
 }

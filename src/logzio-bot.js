@@ -92,7 +92,7 @@ function registerAndConfigureCommands(logzioBot) {
   CommandsRegistry.getCommands()
     .forEach(command => command.configure(logzioBot.controller));
 
-  const setupDialogHandler = new SetupDialogHandler(teamConfigurationService, apiConfig);
+  const setupDialogHandler = new SetupDialogHandler(teamConfigurationService, httpClient, apiConfig);
   setupDialogHandler.configure(logzioBot.controller);
 }
 
