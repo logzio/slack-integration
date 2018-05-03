@@ -41,7 +41,7 @@ function getTransporters() {
 
 
     const logzioTransport = new LogzioWinstonTransport(options);
-    process.on('uncaughtException', function (err) {
+    process.on('uncaughtException', err => {
       LoggerFactory.getLogger('root').error("UncaughtException processing: %s", err);
       logzioTransport.flush(() => process.exit(1));
     });

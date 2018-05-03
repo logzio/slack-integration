@@ -39,7 +39,7 @@ class SearchCommand extends Command {
 
   configure(controller) {
     const searchClient = this.searchClient;
-    controller.hears([searchWithDefaultWindow], 'direct_message,direct_mention', function (bot, message) {
+    controller.hears([searchWithDefaultWindow], 'direct_message,direct_mention', (bot, message) => {
       const matches = message.text.match(searchWithDefaultWindow);
       const queryString = matches[1];
       const query = new QueryBuilder()
@@ -49,7 +49,7 @@ class SearchCommand extends Command {
       runSearchAndSendResults(searchClient, bot, message, query, `Search results for query: \`${queryString}\``);
     });
 
-    controller.hears([searchWithTimeToSearch], 'direct_message,direct_mention', function (bot, message) {
+    controller.hears([searchWithTimeToSearch], 'direct_message,direct_mention', (bot, message) => {
       const matches = message.text.match(searchWithTimeToSearch);
       const queryString = matches[1];
       const timeValue = matches[2];
@@ -63,7 +63,7 @@ class SearchCommand extends Command {
       runSearchAndSendResults(searchClient, bot, message, query, `Search results for query: \`${queryString}\``);
     });
 
-    controller.hears([searchWithSpecificTimeWindow], 'direct_message,direct_mention', function (bot, message) {
+    controller.hears([searchWithSpecificTimeWindow], 'direct_message,direct_mention', (bot, message) => {
       const matches = message.text.match(searchWithSpecificTimeWindow);
       const queryString = matches[1];
       const fromTS = matches[2];

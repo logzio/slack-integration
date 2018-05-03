@@ -15,7 +15,7 @@ class KibanaObjectsCommand extends Command {
   }
   configure(controller) {
     const kibanaClient = this.kibanaClient;
-    controller.hears([commandRegex], 'direct_message,direct_mention', function (bot, message) {
+    controller.hears([commandRegex], 'direct_message,direct_mention', (bot, message) => {
       const objectType = message.text.match(commandRegex)[1].toLocaleLowerCase();
 
       let objectTypes = ['dashboard', 'visualization', 'search'];

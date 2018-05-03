@@ -34,7 +34,7 @@ class GetTriggeredAlertsCommand extends Command {
   }
   configure(controller) {
     const alertsClient = this.alertsClient;
-    controller.hears([/(get|list) triggered alerts/], 'direct_message,direct_mention', function (bot, message) {
+    controller.hears([/(get|list) triggered alerts/], 'direct_message,direct_mention', (bot, message) => {
       alertsClient.getTriggeredAlerts(message.team, 5, ["HIGH", "MEDIUM", "LOW"], "DATE", "DESC")
         .then(({ results, total }) => bot.reply(message, createTriggeredAlertsMessage(results, total)))
         .catch(err => {
