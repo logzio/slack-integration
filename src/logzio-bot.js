@@ -12,6 +12,8 @@ const PromiseStorage = require('botkit-promise-storage');
 const SearchClient = require('./search/search-client');
 const SearchCommand = require('./search/search-command');
 const SetupCommand = require('./setup/setup-command');
+const SetupDialogHandler = require('./setup/setup-dialog-handler');
+const SetupDialogSender = require('./setup/setup-dialog-sender');
 const ShowAlertCommand = require('./alerts/show-alert-command');
 const SnapshotCommand = require('./snapshots/snapshot-command');
 const SnapshotsClient = require('./snapshots/snapshots-client');
@@ -34,14 +36,7 @@ function createBot(logzioBot, bot, config) {
       trackBot(logzioBot, bot);
 
       if (config.createdBy) {
-        bot.startPrivateConversation({ user: config.createdBy }, (err, convo) => {
-          if (err) {
-            logger.error(err);
-          } else {
-            convo.say('I am a bot that has just joined your team');
-            convo.say('You must now /invite me to a channel so that I can be of use!');
-          }
-        });
+        logzioBot.setupDialogSender.sendSetupMessage(bot, config.createdBy)
       }
     });
   }
@@ -84,16 +79,21 @@ function registerAndConfigureCommands(logzioBot) {
   const httpClient = new HttpClient(teamConfigurationService, endpointResolver);
   const alertsClient = new AlertsClient(httpClient);
   const kibanaClient = new KibanaClient(httpClient);
+  logzioBot.setupDialogSender = new SetupDialogSender(teamConfigurationService, apiConfig);
+
   CommandsRegistry.register(new GetTriggeredAlertsCommand(alertsClient));
   CommandsRegistry.register(new HelpCommand());
   CommandsRegistry.register(new KibanaObjectsCommand(kibanaClient));
   CommandsRegistry.register(new SearchCommand(new SearchClient(httpClient)));
-  CommandsRegistry.register(new SetupCommand(apiConfig, teamConfigurationService));
+  CommandsRegistry.register(new SetupCommand(logzioBot.setupDialogSender));
   CommandsRegistry.register(new ShowAlertCommand(alertsClient));
   CommandsRegistry.register(new SnapshotCommand(externalDomain, kibanaClient, new SnapshotsClient(httpClient)));
   CommandsRegistry.register(new UnknownCommand());
   CommandsRegistry.getCommands()
     .forEach(command => command.configure(logzioBot.controller));
+
+  const setupDialogHandler = new SetupDialogHandler(teamConfigurationService, apiConfig);
+  setupDialogHandler.configure(logzioBot.controller);
 }
 
 class LogzioBot {
