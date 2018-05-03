@@ -39,7 +39,7 @@ describe('HttpClient', () => {
     this.httpClient.get(unconfiguredTeam, '/whoami')
       .then(() => done.fail('Promise should not be resolved!'))
       .catch(err => {
-        expect(err).toBe('Logz.io account region is not configured!');
+        expect(err.message).toBe('Logz.io account region is not configured!');
         done();
       });
   });
@@ -48,7 +48,7 @@ describe('HttpClient', () => {
     this.httpClient.get(teamIdWithOnlyRegionConfigured, '/whoami')
       .then(() => done.fail('Promise should not be resolved!'))
       .catch(err => {
-        expect(err).toBe('Logz.io api token is not configured!');
+        expect(err.message).toBe('Logz.io api token is not configured!');
         done();
       });
   });
