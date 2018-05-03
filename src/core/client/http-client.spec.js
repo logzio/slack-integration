@@ -6,21 +6,15 @@ const TeamConfiguration = require('../configuration/team-configuration');
 
 describe('HttpClient', () => {
 
-  let port;
-  let httpSpy;
-
-  let endpointResolver;
-  let httpClient;
-
   const configuredTeamId = 'configured-team';
   const configuredTeamToken = 'configured-team-token';
   const teamIdWithOnlyRegionConfigured = 'team-with-only-region';
 
   it('should include account api token with each request', done => {
     const test = (httpMethodName, mockServerMethodName) => {
-      return httpClient[httpMethodName](configuredTeamId, '/mocked-url')
+      return this.httpClient[httpMethodName](configuredTeamId, '/mocked-url')
         .then(() => {
-          expect(httpSpy[mockServerMethodName]).toHaveBeenCalledWith(jasmine.objectContaining({
+          expect(this.httpSpy[mockServerMethodName]).toHaveBeenCalledWith(jasmine.objectContaining({
             headers: jasmine.objectContaining({
               'x-api-token': configuredTeamToken,
               'x-user-token': configuredTeamToken,
@@ -42,7 +36,7 @@ describe('HttpClient', () => {
 
   it('should throw exception when the region is not configured', done => {
     const unconfiguredTeam = 'unconfigured_team';
-    httpClient.get(unconfiguredTeam, '/whoami')
+    this.httpClient.get(unconfiguredTeam, '/whoami')
       .then(() => done.fail('Promise should not be resolved!'))
       .catch(err => {
         expect(err).toBe('Logz.io account region is not configured!');
@@ -51,7 +45,7 @@ describe('HttpClient', () => {
   });
 
   it('should throw exception when the api token is not configured', done => {
-    httpClient.get(teamIdWithOnlyRegionConfigured, '/whoami')
+    this.httpClient.get(teamIdWithOnlyRegionConfigured, '/whoami')
       .then(() => done.fail('Promise should not be resolved!'))
       .catch(err => {
         expect(err).toBe('Logz.io api token is not configured!');
@@ -61,8 +55,8 @@ describe('HttpClient', () => {
 
   beforeAll(done => {
     findFreePort(3000, (err, freePort) => {
-      port = freePort;
-      httpSpy = JasmineHttpServerSpy.createSpyObj('mockServer', [{
+      this.port = freePort;
+      this.httpSpy = JasmineHttpServerSpy.createSpyObj('mockServer', [{
         method: 'get',
         url: '/mocked-url',
         handlerName: 'getMockedUrl'
@@ -72,7 +66,7 @@ describe('HttpClient', () => {
         handlerName: 'postMockedUrl'
       }]);
 
-      httpSpy.server.start(port, () => {
+      this.httpSpy.server.start(this.port, () => {
         const response = {
           statusCode: 200,
           body: {
@@ -80,8 +74,8 @@ describe('HttpClient', () => {
           }
         };
 
-        httpSpy.getMockedUrl.and.returnValue(response);
-        httpSpy.postMockedUrl.and.returnValue(response);
+        this.httpSpy.getMockedUrl.and.returnValue(response);
+        this.httpSpy.postMockedUrl.and.returnValue(response);
 
         createMockClasses();
         done();
@@ -90,20 +84,19 @@ describe('HttpClient', () => {
   });
 
   afterAll(done => {
-    httpSpy.server.stop(done)
-
+    this.httpSpy.server.stop(done)
   });
 
   afterEach(() => {
-    httpSpy.getMockedUrl.calls.reset();
-    httpSpy.postMockedUrl.calls.reset();
+    this.httpSpy.getMockedUrl.calls.reset();
+    this.httpSpy.postMockedUrl.calls.reset();
   });
 
   const createMockClasses = () => {
     const config = {
       regions: {
         'us-east-1': {
-          endpoint: `http://localhost:${port}`
+          endpoint: `http://localhost:${this.port}`
         }
       }
     };
@@ -126,8 +119,8 @@ describe('HttpClient', () => {
       return Promise.resolve(teamConfiguration);
     };
 
-    endpointResolver = new EndpointResolver(config);
-    httpClient = new HttpClient({ get }, endpointResolver);
+    this.endpointResolver = new EndpointResolver(config);
+    this.httpClient = new HttpClient({ get }, this.endpointResolver);
   }
 
 });

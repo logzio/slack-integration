@@ -17,6 +17,7 @@ function getKibanaObjectType(objectTypeStr) {
       return 'dashboard';
   }
 }
+
 function filterObjectsByIdOrName(kibanaObjects, filter) {
   const lowerCaseFilter = filter.toLowerCase();
   return kibanaObjects.filter(kibanaObject => {
@@ -47,7 +48,7 @@ function sendMatchedKibanaObjectsTable(bot, message, objectType, matchedKibanaOb
 }
 
 function sendSnapshotRequest(snapshotsClient, externalDomain, bot, message, objectType, objectId, fromTS, toTS, query) {
-  const webhookUrl = `https://${externalDomain}/webhook/${message.team}/${message.channel}`;
+  const webhookUrl = `${externalDomain}/webhook/${message.team}/${message.channel}`;
   const queryWithFixedQuotes = query.replace('”', '"').replace('“', '"');
   snapshotsClient.createSnapshot(message.team, message.user, objectType, objectId, fromTS, toTS, queryWithFixedQuotes, webhookUrl)
     .then(() => {
