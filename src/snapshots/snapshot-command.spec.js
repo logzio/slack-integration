@@ -2,6 +2,7 @@ const Botmock = require('botkit-mock');
 const findFreePort = require("find-free-port");
 const HttpClient = require('../core/client/http-client');
 const JasmineHttpServerSpy = require('jasmine-http-server-spy');
+const moment = require('moment');
 const SnapshotCommand = require('./snapshot-command');
 const SnapshotsClient = require('./snapshots-client');
 const TeamConfiguration = require('../core/configuration/team-configuration');
@@ -38,11 +39,18 @@ describe('SnapshotCommand',() => {
             message: jasmine.stringMatching(`.*${query}`),
             queryString: query,
             darkTheme: true,
+            snapshotTimeZone: 'UTC',
             slackWebhookUrls: [
               `${this.externalDomain}/webhook/${teamId}/${channelId}`
             ]
           })
         }));
+
+        const requestBody = this.httpSpy.snapshots.calls.first().args[0].body;
+        const timeFrameFrom = requestBody.timeFrameFrom;
+        const timeFrameTo = requestBody.timeFrameTo;
+        const duration = moment.duration(moment(timeFrameTo).diff(moment(timeFrameFrom)));
+        expect(duration.asSeconds()).toBe(60 * 60);
 
         done();
       });
