@@ -70,7 +70,7 @@ function buildAndSendConfigurationDialog(bot, selectableRegionList, reply, confi
 
   const dialog = bot.createDialog('Logz.io Configuration', 'setup_dialog', 'Save')
     .addSelect('Account region', 'accountRegion', accountRegion, selectableRegionList)
-    .addText('API Token', 'apiToken', apiToken);
+    .addText('API Token', 'apiToken', null, { placeholder: apiToken });
 
   bot.replyWithDialog(reply, dialog.asObject(), (err) => {
     if (err) {

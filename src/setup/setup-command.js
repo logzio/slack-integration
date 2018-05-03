@@ -8,7 +8,7 @@ class SetupCommand extends Command {
   }
 
   configure(controller) {
-    controller.hears('setup', 'direct_message,direct_mention', function (bot, message) {
+    controller.hears('setup', 'direct_message,direct_mention', (bot, message) => {
       if (message.type !== 'direct_message') {
         bot.reply(message, `<@${message.user}> sending you the configuration options privately.`);
       }
