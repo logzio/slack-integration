@@ -10,12 +10,13 @@ describe('HttpClient', () => {
   const configuredTeamToken = 'configured-team-token';
   const teamIdWithOnlyRegionConfigured = 'team-with-only-region';
 
-  it('should include account api token with each request', done => {
+  it('should include account api token and user-agent with each request', done => {
     const test = (httpMethodName, mockServerMethodName) => {
       return this.httpClient[httpMethodName](configuredTeamId, '/mocked-url')
         .then(() => {
           expect(this.httpSpy[mockServerMethodName]).toHaveBeenCalledWith(jasmine.objectContaining({
             headers: jasmine.objectContaining({
+              'user-agent': 'logzio-slack-integration',
               'x-api-token': configuredTeamToken,
               'x-user-token': configuredTeamToken,
             })

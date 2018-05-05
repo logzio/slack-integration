@@ -29,6 +29,10 @@ class HttpClient {
   constructor(teamConfigurationService, endpointResolver) {
     this.teamConfigurationService = teamConfigurationService;
     this.endpointResolver = endpointResolver;
+
+    const axiosInstance = Axios.create();
+    axiosInstance.defaults.headers.common['User-Agent'] = 'logzio-slack-integration';
+    this.axios = axiosInstance
   }
 
   get(teamId, path) {
@@ -57,10 +61,10 @@ class HttpClient {
     let requestPromise;
     switch (method) {
       case HttpMethod.GET:
-        requestPromise = Axios.get(endpointUrl, authHeaders);
+        requestPromise = this.axios.get(endpointUrl, authHeaders);
         break;
       case HttpMethod.POST:
-        requestPromise = Axios.post(endpointUrl, body, authHeaders);
+        requestPromise = this.axios.post(endpointUrl, body, authHeaders);
         break;
       default:
         return Promise.reject(`Unsupported method ${method}!`);
