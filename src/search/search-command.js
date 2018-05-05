@@ -2,6 +2,7 @@ const Command = require('../core/commands/command');
 const LoggerFactory = require('../core/logging/logger-factory');
 const QueryBuilder = require('./query-builder');
 const TimeUnit = require('../core/time/time-unit');
+const { getEventMetadata } = require('../core/logging/logging-metadata');
 
 const searchWithDefaultWindow       = /search `(.+)`\s*$/;
 const searchWithTimeToSearch        = /search `(.+)` last (\d+) ?(minutes?|mins?|m|hours?|h)\s*$/;
@@ -9,8 +10,8 @@ const searchWithSpecificTimeWindow  = /search `(.+)` from (.+) to (.+)\s*$/;
 
 const logger = LoggerFactory.getLogger(__filename);
 
-function runSearchAndSendResults(searchClient, bot, message, query, attachmentTitle) {
-  searchClient.search(message.team, query)
+function runSearchAndSendResults(command, bot, message, query, attachmentTitle) {
+  command.searchClient.search(message.team, query)
     .then(searchResult => {
       bot.api.files.upload({
         content: JSON.stringify(searchResult, null, 2),
@@ -24,7 +25,7 @@ function runSearchAndSendResults(searchClient, bot, message, query, attachmentTi
       });
     })
     .catch(err => {
-      this.handleError(bot, message, err, err => {
+      command.handleError(bot, message, err, err => {
         bot.reply(message, 'Unknown error occurred while performing your search.\n' +
           'Please try again later or contact support.');
         logger.error(`Unknown error occurred while performing user search: [${JSON.stringify(query)}]`, err);
@@ -40,18 +41,19 @@ class SearchCommand extends Command {
   }
 
   configure(controller) {
-    const searchClient = this.searchClient;
     controller.hears([searchWithDefaultWindow], 'direct_message,direct_mention', (bot, message) => {
+      logger.info(`User ${message.user} from team ${message.team} triggered a search with default time frame`, getEventMetadata(message, 'search'));
       const matches = message.text.match(searchWithDefaultWindow);
       const queryString = matches[1];
       const query = new QueryBuilder()
         .withQueryString(queryString)
         .build();
 
-      runSearchAndSendResults(searchClient, bot, message, query, `Search results for query: \`${queryString}\``);
+      runSearchAndSendResults(this, bot, message, query, `Search results for query: \`${queryString}\``);
     });
 
     controller.hears([searchWithTimeToSearch], 'direct_message,direct_mention', (bot, message) => {
+      logger.info(`User ${message.user} from team ${message.team} triggered a search with relative time frame`, getEventMetadata(message, 'search'));
       const matches = message.text.match(searchWithTimeToSearch);
       const queryString = matches[1];
       const timeValue = matches[2];
@@ -62,10 +64,11 @@ class SearchCommand extends Command {
         .withRelativeTime(timeValue, TimeUnit.parse(timeUnitStr))
         .build();
 
-      runSearchAndSendResults(searchClient, bot, message, query, `Search results for query: \`${queryString}\``);
+      runSearchAndSendResults(this, bot, message, query, `Search results for query: \`${queryString}\``);
     });
 
     controller.hears([searchWithSpecificTimeWindow], 'direct_message,direct_mention', (bot, message) => {
+      logger.info(`User ${message.user} from team ${message.team} triggered a search with absolute time frame`, getEventMetadata(message, 'search'));
       const matches = message.text.match(searchWithSpecificTimeWindow);
       const queryString = matches[1];
       const fromTS = matches[2];
@@ -76,7 +79,7 @@ class SearchCommand extends Command {
         .withExactTime(fromTS, toTS)
         .build();
 
-      runSearchAndSendResults(searchClient, bot, message, query, `Search results for query: \`${queryString}\``);
+      runSearchAndSendResults(this, bot, message, query, `Search results for query: \`${queryString}\``);
     });
   }
 

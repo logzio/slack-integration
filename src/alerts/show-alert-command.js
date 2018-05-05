@@ -39,6 +39,7 @@ class ShowAlertCommand extends Command {
 
   configure(controller) {
     controller.hears([/(show|get) alert by id (\d*)/], 'direct_message,direct_mention', (bot, message) => {
+      logger.info(`User ${message.user} from team ${message.team} requested alert info by id`, getEventMetadata(message, 'get-alert-by-id'));
       const alertId = message.match[2];
       this.alertsClient.getAlertById(message.team, alertId)
         .then(createAlertDetailsMessage)
@@ -50,6 +51,7 @@ class ShowAlertCommand extends Command {
     });
 
     controller.hears([/(show|get) alert (.*)/], 'direct_message,direct_mention', (bot, message) => {
+      logger.info(`User ${message.user} from team ${message.team} requested alert info by name`, getEventMetadata(message, 'get-alert-by-name'));
       const alertName = message.match[2];
       this.alertsClient.getAlertByName(message.team, alertName)
         .then(createAlertDetailsMessage)

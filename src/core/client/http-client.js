@@ -32,11 +32,11 @@ class HttpClient {
   }
 
   get(teamId, path) {
-    return this.sendRequest(this, teamId, HttpMethod.GET, path);
+    return this.sendRequest(teamId, HttpMethod.GET, path);
   }
 
   post(teamId, path, body) {
-    return this.sendRequest(this, teamId, HttpMethod.POST, path, body);
+    return this.sendRequest(teamId, HttpMethod.POST, path, body);
   }
 
   sendRequest(teamId, method, path, body) {

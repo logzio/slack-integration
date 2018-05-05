@@ -67,6 +67,7 @@ class SnapshotCommand extends Command {
 
   configure(controller) {
     controller.hears([/snapshot (vis|visualization|dash|dashboard) (.*) last (\d+) ?(minutes?|mins?|m|hours?|h)( query (.+))?\s*$/], 'direct_message,direct_mention', (bot, message) => {
+      logger.info(`User ${message.user} from team ${message.team} requested a snapshot`, getEventMetadata(message, 'create-snapshot'));
       const matches = message.match;
       const objectType = getKibanaObjectType(matches[1]);
       const objectName = matches[2];

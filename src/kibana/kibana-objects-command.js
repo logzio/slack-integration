@@ -17,6 +17,7 @@ class KibanaObjectsCommand extends Command {
   configure(controller) {
     const kibanaClient = this.kibanaClient;
     controller.hears([commandRegex], 'direct_message,direct_mention', (bot, message) => {
+      logger.info(`User ${message.user} from team ${message.team} requested kibana objects list`, getEventMetadata(message, 'get-kibana-objects'));
       const objectType = message.text.match(commandRegex)[1].toLocaleLowerCase();
 
       let objectTypes = ['dashboard', 'visualization', 'search'];

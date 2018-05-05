@@ -21,17 +21,17 @@ class QueryBuilder {
   }
 
   withExactTime(fromTimestamp, toTimestamp) {
-    if (isNaN(fromTimestamp)) {
-      fromTimestamp = Date.parse(fromTimestamp);
-    } else {
-      fromTimestamp = parseInt(fromTimestamp);
-    }
-
-    if (isNaN(toTimestamp)) {
-      toTimestamp = Date.parse(toTimestamp);
-    } else {
-      toTimestamp = parseInt(toTimestamp);
-    }
+    // if (isNaN(fromTimestamp)) {
+    //   fromTimestamp = Date.parse(fromTimestamp);
+    // } else {
+    //   fromTimestamp = parseInt(fromTimestamp);
+    // }
+    //
+    // if (isNaN(toTimestamp)) {
+    //   toTimestamp = Date.parse(toTimestamp);
+    // } else {
+    //   toTimestamp = parseInt(toTimestamp);
+    // }
 
     this.timeRange = {
       range: {
