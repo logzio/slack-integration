@@ -3,7 +3,7 @@ const LoggerFactory = require('../core/logging/logger-factory');
 const logger = LoggerFactory.getLogger(__filename);
 
 const title = 'Configure your Logz.io integration with Slack';
-const question = 'Do you want to (re)configure your Logz.io integration?';
+const question = 'Do you want to connect your Logz.io account?';
 
 const messageWithButtons = {
   attachments: [
@@ -64,13 +64,13 @@ function createSelectableRegionList(apiConfig) {
   return selectableRegionList;
 }
 
-function buildAndSendConfigurationDialog(bot, selectableRegionList, reply, config) {
+function buildAndSendConfigurationDialog(bot, selectableRegionList, reply, config, callback_id) {
   const accountRegion = config.getLogzioAccountRegion() || 'us-east-1';
   const apiToken = maskApiToken(config.getLogzioApiToken());
 
-  const dialog = bot.createDialog('Logz.io Configuration', 'setup_dialog', 'Save')
+  const dialog = bot.createDialog('Logz.io Configuration', callback_id, 'Save')
     .addSelect('Account region', 'accountRegion', accountRegion, selectableRegionList)
-    .addText('API Token', 'apiToken', null, { placeholder: apiToken });
+    .addText('API Token', 'apiToken', null, { placeholder: apiToken, hint:'API tokens are in your Logz.io settings' });
 
   bot.replyWithDialog(reply, dialog.asObject(), (err) => {
     if (err) {
@@ -86,7 +86,7 @@ class SetupDialogSender {
     this.selectableRegionList = createSelectableRegionList(apiConfig);
   }
 
-  sendSetupMessage(bot, user) {
+  sendSetupMessage(bot, user, isInitializationPhase) {
     bot.startPrivateConversation({ user }, (err, convo) => {
       convo.ask(messageWithButtons, [{
         pattern: 'yes',
@@ -95,7 +95,8 @@ class SetupDialogSender {
             .then(config => {
               convo.stop();
               bot.replyInteractive(reply, messageWithoutButtons);
-              buildAndSendConfigurationDialog(bot, this.selectableRegionList, reply, config);
+              buildAndSendConfigurationDialog(bot, this.selectableRegionList, reply, config,
+                isInitializationPhase ? 'initialization_setup_dialog' : 'setup_dialog');
             });
         }
       }, {
