@@ -53,11 +53,6 @@ function sendSnapshotRequest(snapshotsClient, externalDomain, bot, message, obje
   return snapshotsClient.createSnapshot(message.team, message.user, objectType, objectId, fromTS, toTS, queryWithFixedQuotes, webhookUrl)
     .then(() => {
       bot.reply(message, 'Snapshot request has been sent.')
-    })
-    .catch(err => {
-      if (err.code === 429) {
-        throw new RateLimitExceededError(err.message);
-      }
     });
 }
 

@@ -71,7 +71,12 @@ class HttpClient {
     }
 
     return requestPromise
-      .then(response => response.data);
+      .then(response => response.data)
+      .catch(err => {
+        if (err.code === 429) {
+          throw new RateLimitExceededError(err.message);
+        }
+      });
   }
 
 }
