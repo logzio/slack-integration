@@ -36,7 +36,7 @@ function createBot(logzioBot, bot, config) {
       trackBot(logzioBot, bot);
 
       if (config.createdBy) {
-        logzioBot.setupDialogSender.sendSetupMessage(bot, config.createdBy)
+        logzioBot.setupDialogSender.sendSetupMessage(bot, config.createdBy, true)
       }
     });
   }
@@ -129,7 +129,7 @@ class LogzioBot {
         if (err) {
           res.status(500).send('ERROR: ' + err);
         } else {
-          res.send('Success!');
+          res.redirect('https://logz.io');
         }
       });
     });

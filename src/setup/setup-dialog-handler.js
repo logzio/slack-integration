@@ -2,6 +2,7 @@ const HttpMethod = require('../core/client/http-method');
 const LoggerFactory = require('../core/logging/logger-factory');
 const TeamConfiguration = require('../core/configuration/team-configuration');
 const { getEventMetadata } = require('../core/logging/logging-metadata');
+const { sendUsage } = require('../help/usage-message-supplier');
 
 const logger = LoggerFactory.getLogger(__filename);
 
@@ -43,7 +44,7 @@ class SetupDialogHandler {
 
   configure(controller) {
     controller.on('dialog_submission', async (bot, message) => {
-      if (message.callback_id !== 'setup_dialog') return;
+      if (message.callback_id !== 'setup_dialog' && message.callback_id !== 'initialization_setup_dialog') return;
 
       const submission = message['submission'];
 
@@ -72,7 +73,11 @@ class SetupDialogHandler {
 
           return this.teamConfigService.save(team.id, config)
             .then(() => {
-              bot.reply(message, 'Configuration saved!');
+              bot.reply(message, 'Configuration saved!', err => {
+                if (!err && message.callback_id === 'initialization_setup_dialog') {
+                  bot.reply(message, `Hi! If you want to learn what I can do, just type @${bot.identity.id} help.`, () => sendUsage(bot, message, ''));
+                }
+              });
               logger.info(`Configuration for team ${team.id} (${team.domain}) changed by user ${user.id} (${user.name})`,
                 getEventMetadata(rawMessage, 'configuration_changed'));
 
