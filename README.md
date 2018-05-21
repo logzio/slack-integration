@@ -14,7 +14,7 @@ You can chat with the Alice in a group message (where you'll need to tag `@Alice
 
 Alice works with the Logz.io API, so you'll need an Enterprise plan. Sign up for a free trial at [https://logz.io](https://logz.io).
 
-Install the Alice app [here](https://slack-bot.logz.io/login).
+[![Add to Slack](https://platform.slack-edge.com/img/add_to_slack.png)](https://slack.com/oauth/authorize?client_id=8241711843.335794452337&scope=bot)
 
 ## Using Alice
 
