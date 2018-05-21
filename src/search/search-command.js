@@ -25,11 +25,17 @@ function runSearchAndSendResults(command, bot, message, query, attachmentTitle) 
       });
     })
     .catch(err => {
-      command.handleError(bot, message, err, err => {
-        bot.reply(message, 'Unknown error occurred while performing your search.\n' +
-          'Please try again later or contact support.');
-        logger.error(`Unknown error occurred while performing user search: [${JSON.stringify(query)}]`, err);
-      });
+      if (err.code === 429) {
+        logger.warn('Failed to search - rate limit exceeded ', err, getEventMetadata(message, 'failed-to-search-rate-limit-exceeded'));
+        bot.reply(message, err.message)
+      }
+      else {
+        command.handleError(bot, message, err, err => {
+          bot.reply(message, 'Unknown error occurred while performing your search.\n' +
+            'Please try again later or contact support.');
+          logger.error(`Unknown error occurred while performing user search: [${JSON.stringify(query)}]`, err);
+        });
+      }
     });
 }
 
