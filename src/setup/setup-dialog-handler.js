@@ -75,7 +75,7 @@ class SetupDialogHandler {
             .then(() => {
               bot.reply(message, 'Configuration saved!', err => {
                 if (!err && message.callback_id === 'initialization_setup_dialog') {
-                  bot.reply(message, `Hi! If you want to learn what I can do, just type @${bot.identity.id} help.`, () => sendUsage(bot, message, ''));
+                  bot.reply(message, `Hi! If you want to learn what I can do, just type <@${bot.identity.id}> help.`, () => sendUsage(bot, message, ''));
                 }
               });
               logger.info(`Configuration for team ${team.id} (${team.domain}) changed by user ${user.id} (${user.name})`,
