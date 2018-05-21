@@ -25,7 +25,7 @@ function runSearchAndSendResults(command, bot, message, query, attachmentTitle) 
       });
     })
     .catch(err => {
-      this.handleError(bot, message, err, err => {
+      command.handleError(bot, message, err, err => {
         bot.reply(message, 'Unknown error occurred while performing your search.\n' +
           'Please try again later or contact support.');
         logger.error(`Unknown error occurred while performing user search: [${JSON.stringify(query)}]`, err);
