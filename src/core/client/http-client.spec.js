@@ -3,6 +3,7 @@ const findFreePort = require("find-free-port");
 const HttpClient = require('./http-client');
 const JasmineHttpServerSpy = require('jasmine-http-server-spy');
 const TeamConfiguration = require('../configuration/team-configuration');
+const RateLimitExceededError = require('../errors/rate-limit-exceeded-error');
 
 describe('HttpClient', () => {
 
@@ -35,6 +36,16 @@ describe('HttpClient', () => {
       .catch(done.fail);
   });
 
+  it('rate limit propagation to the user', done => {
+    this.httpClient.post(configuredTeamId, '/mocked-rate-limit-url', {})
+      .then(done.fail)
+      .catch(err => {
+        expect(err.constructor).toBe(RateLimitExceededError);
+        expect(err.message).toBe('rate limit not ok');
+        done();
+    })
+  });
+
   it('should throw exception when the region is not configured', done => {
     const unconfiguredTeam = 'unconfigured_team';
     this.httpClient.get(unconfiguredTeam, '/whoami')
@@ -65,6 +76,10 @@ describe('HttpClient', () => {
         method: 'post',
         url: '/mocked-url',
         handlerName: 'postMockedUrl'
+      }, {
+        method: 'post',
+        url: '/mocked-rate-limit-url',
+        handlerName: 'mockedRateLimitUrl'
       }]);
 
       this.httpSpy.server.start(this.port, () => {
@@ -75,8 +90,16 @@ describe('HttpClient', () => {
           }
         };
 
+        const rateLimitResponse = {
+          statusCode: 429,
+          body: {
+            message: 'rate limit not ok'
+          }
+        };
+
         this.httpSpy.getMockedUrl.and.returnValue(response);
         this.httpSpy.postMockedUrl.and.returnValue(response);
+        this.httpSpy.mockedRateLimitUrl.and.returnValue(rateLimitResponse);
 
         createMockClasses();
         done();
@@ -91,6 +114,7 @@ describe('HttpClient', () => {
   afterEach(() => {
     this.httpSpy.getMockedUrl.calls.reset();
     this.httpSpy.postMockedUrl.calls.reset();
+    this.httpSpy.mockedRateLimitUrl.calls.reset();
   });
 
   const createMockClasses = () => {
