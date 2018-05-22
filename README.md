@@ -12,7 +12,7 @@ You can chat with the Alice in a group message (where you'll need to tag `@Alice
 
 ## Install Alice
 
-Alice works with the Logz.io API, so you'll need an Enterprise plan. Sign up for a free trial at [https://logz.io](https://logz.io).
+Alice works with the Logz.io API, so you'll need an Enterprise or Pro plan. Sign up for a free trial at [https://logz.io](https://logz.io).
 
 [![Add to Slack](https://platform.slack-edge.com/img/add_to_slack.png)](https://slack.com/oauth/authorize?client_id=8241711843.335794452337&scope=bot)
 
@@ -20,6 +20,6 @@ Alice works with the Logz.io API, so you'll need an Enterprise plan. Sign up for
 
 You can talk to Alice in a private conversation, or in a group conversation if you want others in your workspace to see your messages.
 
-For a full list of everything Alice can show you, type `@Alice help`:
-
 **Note:** If you're in a group conversation, remember to tag `@Alice`.
+
+For a full list of everything Alice can show you, type `@Alice help`.
