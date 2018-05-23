@@ -1,4 +1,5 @@
-const TeamNotConfiguredError = require('../client/team-not-configured-error');
+const TeamNotConfiguredError = require('../errors/team-not-configured-error');
+const RateLimitExceededError = require('../errors/rate-limit-exceeded-error');
 
 class Command {
 
@@ -19,7 +20,11 @@ class Command {
     if (err instanceof TeamNotConfiguredError) {
       bot.reply(userMessage, 'Logz.io integration is not configured!\n' +
         'Use `setup` command to configure the Logz.io integration and try again.');
-    } else {
+    }
+    if (err instanceof RateLimitExceededError) {
+          bot.reply(userMessage, err.message);
+    }
+    else {
       unknownErrorHandler(err);
     }
   }

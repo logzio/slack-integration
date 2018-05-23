@@ -1,6 +1,7 @@
 const Axios = require('axios');
 const HttpMethod = require('./http-method');
-const TeamNotConfiguredError = require('./team-not-configured-error');
+const TeamNotConfiguredError = require('../errors/team-not-configured-error');
+const RateLimitExceededError = require('../errors/rate-limit-exceeded-error');
 
 function validateConfiguration(configuration) {
   if (!configuration.getLogzioAccountRegion()) {
@@ -71,7 +72,13 @@ class HttpClient {
     }
 
     return requestPromise
-      .then(response => response.data);
+      .then(response => response.data)
+      .catch(err => {
+        if (err.response.status === 429) {
+          throw new RateLimitExceededError(err.response.data.message);
+        }
+        throw err;
+      });
   }
 
 }
