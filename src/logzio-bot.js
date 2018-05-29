@@ -136,6 +136,12 @@ class LogzioBot {
 
     this.controller.on('create_bot', (bot, config) => createBot(this, bot, config));
 
+    this.controller.on('rtm_close', (bot, err) => {
+      delete this.bots[bot.config.token];
+      logger.warn(`RTM connection for bot ${bot.config.token} closed - trying to reopen RTM connection`, err);
+      createBot(this, bot, {});
+    });
+
     registerAndConfigureCommands(this);
     connectToExistingTeams(this);
   }
