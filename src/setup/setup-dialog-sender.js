@@ -70,7 +70,7 @@ function buildAndSendConfigurationDialog(bot, selectableRegionList, reply, confi
 
   const dialog = bot.createDialog('Logz.io Configuration', callback_id, 'Save')
     .addSelect('Account region', 'accountRegion', accountRegion, selectableRegionList)
-    .addText('API Token', 'apiToken', null, { placeholder: apiToken, hint:'API tokens are in your Logz.io settings' });
+    .addText('API Token', 'apiToken', null, { placeholder: apiToken, hint:'You can create a Shared Token in your Logz.io account settings page' });
 
   bot.replyWithDialog(reply, dialog.asObject(), (err) => {
     if (err) {
