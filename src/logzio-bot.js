@@ -129,7 +129,7 @@ class LogzioBot {
         if (err) {
           res.status(500).send('ERROR: ' + err);
         } else {
-          res.redirect('https://logz.io');
+          res.redirect('https://logz.io/alice-confirm/');
         }
       });
     });
