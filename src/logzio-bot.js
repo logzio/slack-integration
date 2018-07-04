@@ -122,7 +122,6 @@ class LogzioBot {
 
     this.controller.setupWebserver(port, (err, webserver) => {
       createWebhookProxyEndpoint(this, webserver);
-      this.controller.createHomepageEndpoint(webserver);
       this.controller.createWebhookEndpoints(webserver);
 
       this.controller.createOauthEndpoints(webserver, (err, req, res) => {
@@ -131,6 +130,10 @@ class LogzioBot {
         } else {
           res.redirect('https://logz.io/alice-confirm/');
         }
+      });
+
+      webserver.get('/*', function(req, res) {
+        res.redirect('https://logz.io');
       });
     });
 
