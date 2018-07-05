@@ -27,22 +27,23 @@
   "homepage": "https://github.com/logzio/slack-integration#readme",
   "dependencies": {
     "axios": "^0.18.0",
-    "botkit": "^0.6.12",
+    "botkit": "^0.6.14",
     "botkit-promise-storage": "^1.1.0",
-    "botkit-storage-mysql": "^1.0.2",
     "db-migrate": "^0.11.1",
     "db-migrate-mysql": "^1.1.10",
     "easy-table": "^1.1.1",
     "hoek": "^5.0.3",
-    "moment": "^2.22.1",
-    "winston": "^2.4.1",
-    "winston-logzio": "^1.0.6"
+    "moment": "^2.22.2",
+    "mysql": "^2.15.0",
+    "sql-template-strings": "^2.2.2",
+    "winston": "^2.4.3",
+    "winston-logzio": "^1.0.8"
   },
   "devDependencies": {
-    "botkit-mock": "^0.1.7",
+    "botkit-mock": "^0.1.10",
     "find-free-port": "^1.2.0",
     "jasmine": "^3.1.0",
-    "jasmine-http-server-spy": "^0.4.0",
+    "jasmine-http-server-spy": "^0.4.1",
     "jasmine-spec-reporter": "^4.2.1"
   }
 }

@@ -57,7 +57,9 @@ class KibanaObjectsCommand extends Command {
             filename: `Kibana objects of the following types: ${objectTypes.join(', ')}`,
             filetype: 'text'
           }, err => {
-            throw err;
+            if (err) {
+              logger.error('Failed to send kibana objects table', getEventMetadata(message, 'failed_to_send_kibana_objects_table'), err);
+            }
           });
         })
         .catch(err => {

@@ -1,4 +1,4 @@
-const BotkitStorageMySQL = require('botkit-storage-mysql');
+const BotkitStorageMySQL = require('./core/storage/botkit-storage-mysql');
 const DBMigrate = require('db-migrate');
 const LogzioBot = require('./logzio-bot');
 
@@ -13,6 +13,7 @@ function getRequiredValueFromEnv(variableName) {
 
 function migrateDatabase(dbConfig) {
   const options = {
+    throwUncatched: true,
     env: 'prod',
     config: {
       prod: {
