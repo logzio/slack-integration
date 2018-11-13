@@ -112,8 +112,8 @@ class SnapshotCommand extends Command {
 
   getUsage() {
     return [
-      '*snapshot &lt;dashboard|visualization&gt; &lt;object-name&gt; last &lt;time-value&gt; &lt;time-unit&gt;* - Create a snapshot of the requested object',
-      '*snapshot &lt;dashboard|visualization&gt; &lt;object-name&gt; last &lt;time-value&gt; &lt;time-unit&gt; query &lt;query-string&gt;* - Create a snapshot of the requested object'
+      '*snapshot &lt;dashboard|visualization&gt; &lt;object-name&gt; last &lt;time-value&gt; &lt;time-unit&gt;* - Create a snapshot of a dashboard or visualization',
+      '*snapshot &lt;dashboard|visualization&gt; &lt;object-name&gt; last &lt;time-value&gt; &lt;time-unit&gt; query &lt;query-string&gt;* - Create a snapshot of a dashboard or visualization'
     ];
   }
 
