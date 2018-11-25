@@ -1,4 +1,4 @@
-const BotkitStorageMySQL = require('./core/storage/botkit-storage-mysql');
+const LogzStorageMySQL = require('./core/storage/logzio-storage');
 const DBMigrate = require('db-migrate');
 const LogzioBot = require('./logzio-bot');
 
@@ -36,7 +36,7 @@ const dbConfig = {
 migrateDatabase(dbConfig).then(() => {
   const apiConfig = require('../conf/api');
   const externalDomain = getRequiredValueFromEnv('EXTERNAL_DOMAIN');
-  const storage = new BotkitStorageMySQL(dbConfig);
+  const storage = new LogzStorageMySQL(dbConfig);
 
   const logzioBot = new LogzioBot(apiConfig, externalDomain, storage);
   logzioBot.bootstrap(

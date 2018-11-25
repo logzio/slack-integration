@@ -91,7 +91,7 @@ class SetupDialogSender {
       convo.ask(messageWithButtons, [{
         pattern: 'yes',
         callback: (reply, convo) => {
-          this.teamConfigurationService.get(reply.team.id)
+          this.teamConfigurationService.getDefault(reply.team.id)
             .then(config => {
               convo.stop();
               bot.replyInteractive(reply, messageWithoutButtons);

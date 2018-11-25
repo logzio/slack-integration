@@ -71,7 +71,7 @@ class SetupDialogHandler {
           const team = rawMessage.team;
           const user = rawMessage.user;
 
-          return this.teamConfigService.save(team.id, config)
+          return this.teamConfigService.saveDefault(team.id, config)
             .then(() => {
               bot.reply(message, 'Configuration saved!', err => {
                 if (!err && message.callback_id === 'initialization_setup_dialog') {

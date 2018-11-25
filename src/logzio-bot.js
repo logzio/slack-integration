@@ -73,7 +73,7 @@ function registerAndConfigureCommands(logzioBot) {
   const externalDomain = logzioBot.externalDomain;
 
   const storage = logzioBot.storage;
-  const teamConfigurationService = new TeamConfigurationService(storage.teams);
+  const teamConfigurationService = new TeamConfigurationService(storage);
   const endpointResolver = new EndpointResolver(apiConfig);
 
   const httpClient = new HttpClient(teamConfigurationService, endpointResolver);

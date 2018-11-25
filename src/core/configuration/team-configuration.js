@@ -22,6 +22,24 @@ class TeamConfiguration {
     return this;
   }
 
+  getAlias() {
+    return this.config['alias'];
+  }
+
+  setAlias(alias) {
+    this.config = { ...this.config, alias: alias};
+    return this;
+  }
+
+  getRealName() {
+    return this.config['realName'];
+  }
+
+  setRealName(realName) {
+    this.config = { ...this.config, realName: realName};
+    return this;
+  }
+
   getAsObject() {
     return this.config;
   }

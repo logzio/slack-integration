@@ -45,7 +45,7 @@ class HttpClient {
   }
 
   sendRequest(teamId, method, path, body) {
-    return this.teamConfigurationService.get(teamId)
+    return this.teamConfigurationService.getDefault(teamId)
       .then(validateConfiguration)
       .then(configuration => {
         const accountRegion = configuration.getLogzioAccountRegion();
