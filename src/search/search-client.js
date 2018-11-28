@@ -4,8 +4,8 @@ class SearchClient {
     this.httpClient = httpClient;
   }
 
-  search(teamId, query) {
-    return this.httpClient.post(teamId, '/v1/search', query);
+  search(channelId, teamId, query) {
+    return this.httpClient.post(channelId, teamId, '/v1/search', query);
   }
 
 }

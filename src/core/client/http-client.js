@@ -36,16 +36,16 @@ class HttpClient {
     this.axios = axiosInstance
   }
 
-  get(teamId, path) {
-    return this.sendRequest(teamId, HttpMethod.GET, path);
+  get(channelId, teamId, path) {
+    return this.sendRequest(channelId, teamId, HttpMethod.GET, path);
   }
 
-  post(teamId, path, body) {
-    return this.sendRequest(teamId, HttpMethod.POST, path, body);
+  post(channelId, teamId, path, body) {
+    return this.sendRequest(channelId, teamId, HttpMethod.POST, path, body);
   }
 
-  sendRequest(teamId, method, path, body) {
-    return this.teamConfigurationService.getDefault(teamId)
+  sendRequest(channelId, teamId, method, path, body) {
+    return this.teamConfigurationService.getOrDefault(teamId, channelId)
       .then(validateConfiguration)
       .then(configuration => {
         const accountRegion = configuration.getLogzioAccountRegion();
@@ -81,6 +81,9 @@ class HttpClient {
       });
   }
 
+  getRealName(token, region) {
+    return this.sendRequestWithRegionAndToken(region, token, HttpMethod.GET, '/v1/whoami')
+  }
 }
 
 module.exports = HttpClient;

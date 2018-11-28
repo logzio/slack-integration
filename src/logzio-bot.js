@@ -11,9 +11,9 @@ const LoggerFactory = require('./core/logging/logger-factory');
 const PromiseStorage = require('botkit-promise-storage');
 const SearchClient = require('./search/search-client');
 const SearchCommand = require('./search/search-command');
-const SetupCommand = require('./setup/setup-command');
-const SetupDialogHandler = require('./setup/setup-dialog-handler');
-const SetupDialogSender = require('./setup/setup-dialog-sender');
+const AddCommand = require('./accounts/add/add-command');
+const SetupDialogHandler = require('./accounts/add/add-dialog-handler');
+const SetupDialogSender = require('./accounts/add/add-dialog-sender');
 const ShowAlertCommand = require('./alerts/show-alert-command');
 const SnapshotCommand = require('./snapshots/snapshot-command');
 const SnapshotsClient = require('./snapshots/snapshots-client');
@@ -36,7 +36,7 @@ function createBot(logzioBot, bot, config) {
       trackBot(logzioBot, bot);
 
       if (config.createdBy) {
-        logzioBot.setupDialogSender.sendSetupMessage(bot, config.createdBy, true)
+        logzioBot.removeAccountHandler.sendSetupMessage(bot, config.createdBy, true)
       }
     });
   }
@@ -85,7 +85,7 @@ function registerAndConfigureCommands(logzioBot) {
   CommandsRegistry.register(new HelpCommand());
   CommandsRegistry.register(new KibanaObjectsCommand(kibanaClient));
   CommandsRegistry.register(new SearchCommand(new SearchClient(httpClient)));
-  CommandsRegistry.register(new SetupCommand(logzioBot.setupDialogSender));
+  CommandsRegistry.register(new AddCommand(logzioBot.setupDialogSender));
   CommandsRegistry.register(new ShowAlertCommand(alertsClient));
   CommandsRegistry.register(new SnapshotCommand(externalDomain, kibanaClient, new SnapshotsClient(httpClient)));
   CommandsRegistry.register(new UnknownCommand());

@@ -1,4 +1,4 @@
-const LoggerFactory = require('../core/logging/logger-factory');
+const LoggerFactory = require('../../core/logging/logger-factory');
 
 const logger = LoggerFactory.getLogger(__filename);
 
@@ -70,7 +70,8 @@ function buildAndSendConfigurationDialog(bot, selectableRegionList, reply, confi
 
   const dialog = bot.createDialog('Logz.io Configuration', callback_id, 'Save')
     .addSelect('Account region', 'accountRegion', accountRegion, selectableRegionList)
-    .addText('API Token', 'apiToken', null, { placeholder: apiToken, hint:'Create an API token in your Logz.io Enterprise account, or request one from help@logz.io' });
+    .addText('API Token', 'apiToken', null, { placeholder: apiToken, hint:'Create an API token in your Logz.io Enterprise account, or request one from help@logz.io' })
+    .addText('Alias', 'alias', null, {placeholder: '', hint: 'Choose alias to represent your newly configured account'});
 
   bot.replyWithDialog(reply, dialog.asObject(), (err) => {
     if (err) {
@@ -79,7 +80,7 @@ function buildAndSendConfigurationDialog(bot, selectableRegionList, reply, confi
   });
 }
 
-class SetupDialogSender {
+class AddDialogSender {
 
   constructor(teamConfigurationService, apiConfig) {
     this.teamConfigurationService = teamConfigurationService;
@@ -111,4 +112,4 @@ class SetupDialogSender {
 
 }
 
-module.exports = SetupDialogSender;
+module.exports = AddDialogSender;

@@ -1,12 +1,12 @@
-const HttpMethod = require('../core/client/http-method');
-const LoggerFactory = require('../core/logging/logger-factory');
-const TeamConfiguration = require('../core/configuration/team-configuration');
-const { getEventMetadata } = require('../core/logging/logging-metadata');
-const { sendUsage } = require('../help/usage-message-supplier');
+const HttpMethod = require('../../core/client/http-method');
+const LoggerFactory = require('../../core/logging/logger-factory');
+const TeamConfiguration = require('../../core/configuration/team-configuration');
+const { getEventMetadata } = require('../../core/logging/logging-metadata');
+const { sendUsage } = require('../../help/usage-message-supplier');
 
 const logger = LoggerFactory.getLogger(__filename);
 
-function validateConfigurationAndGetErrorsIfInvalid(configuredRegions, accountRegion, apiToken) {
+function validateConfigurationAndGetErrorsIfInvalid(configuredRegions, accountRegion, apiToken, alias) {
   const errors = [];
 
   if (!configuredRegions.hasOwnProperty(accountRegion)) {
@@ -23,18 +23,25 @@ function validateConfigurationAndGetErrorsIfInvalid(configuredRegions, accountRe
     });
   }
 
+  if (!alias || alias.trim() === ''){
+    errors.push({
+      name: 'alias',
+      error: 'Alias cannot be blank.'
+    });
+  }
+
   return errors.length > 0 ? errors : null;
 }
 
 function sendInvalidConfigurationError(bot) {
   bot.dialogError([{
     name: 'accountRegion',
-    error: 'Please make sure you selected the right account region and that your API token is valid.' +
+    error: 'Please make sure you selected the right account region, your API token is valid and that the alias is not blank.' +
     'If the error proceed please contact support.'
   }]);
 }
 
-class SetupDialogHandler {
+class AddDialogHandler {
 
   constructor(teamConfigService, httpClient, apiConfig) {
     this.teamConfigService = teamConfigService;
@@ -50,8 +57,9 @@ class SetupDialogHandler {
 
       const accountRegion = submission['accountRegion'];
       const apiToken = submission['apiToken'];
+      const alias = submission['alias'];
 
-      const configErrors = validateConfigurationAndGetErrorsIfInvalid(this.configuredRegions, accountRegion, apiToken);
+      const configErrors = validateConfigurationAndGetErrorsIfInvalid(this.configuredRegions, accountRegion, apiToken, alias);
       if (configErrors) {
         bot.dialogError(configErrors);
       }
@@ -62,20 +70,30 @@ class SetupDialogHandler {
             sendInvalidConfigurationError(bot);
             return;
           }
+          let onRejected = err => {
+            bot.reply(message, 'Unknown error occurred while saving configuration, please try again later or contact support.');
+            logger.error(`Failed to save configuration for team ${team.id} (${team.domain})`, err,
+              getEventMetadata(rawMessage, 'configuration_change_failed'));
+          };
 
+          let realName = this.httpClient.getRealName(apiToken, accountRegion).catch(onRejected);
           const config = new TeamConfiguration()
             .setLogzioAccountRegion(accountRegion)
-            .setLogzioApiToken(apiToken);
+            .setLogzioApiToken(apiToken)
+            .setAlias(alias)
+            .setRealName(realName);
 
           const rawMessage = message.raw_message;
           const team = rawMessage.team;
           const user = rawMessage.user;
 
-          return this.teamConfigService.saveDefault(team.id, config)
+
+          return this.teamConfigService.addAccount(team.id, config)
             .then(() => {
               bot.reply(message, 'Configuration saved!', err => {
                 if (!err && message.callback_id === 'initialization_setup_dialog') {
-                  bot.reply(message, `Hi! If you want to learn what I can do, just type <@${bot.identity.id}> help.`, () => sendUsage(bot, message, ''));
+                  bot.reply(message, `Seems like this is the first configured account, to set as default account just type <@${bot.identity.id}> set workspace account ${alias}`);
+                  bot.reply(message, `If you want to learn what I can do, just type <@${bot.identity.id}> help.`, () => sendUsage(bot, message, ''));
                 }
               });
               logger.info(`Configuration for team ${team.id} (${team.domain}) changed by user ${user.id} (${user.name})`,
@@ -83,16 +101,15 @@ class SetupDialogHandler {
 
               bot.dialogOk();
             })
-            .catch(err => {
-              bot.reply(message, 'Unknown error occurred while saving configuration, please try again later or contact support.');
-              logger.error(`Failed to save configuration for team ${team.id} (${team.domain})`, err,
-                getEventMetadata(rawMessage, 'configuration_change_failed'));
-            });
+            .catch(onRejected);
         })
         .catch(() => sendInvalidConfigurationError(bot));
     });
   }
 
+  getRealName(token, region) {
+    this.httpClient.getRealName(token, region)
+  }
 }
 
-module.exports = SetupDialogHandler;
+module.exports = AddDialogHandler;

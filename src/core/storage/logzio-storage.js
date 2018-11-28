@@ -63,6 +63,24 @@ module.exports = function (dbConfig) {
     }
   }
 
+  function getAllConfiguredAccount(tableName) {
+    return (id, callback) => {
+      let connection = mysql.createConnection(dbConfig);
+      try {
+        connection.connect();
+        connection.query(SQL`SELECT * FROM `
+            .append(tableName)
+            .append(SQL`WHERE team_id=${id}`),
+          (err, rows) => {
+            callback(err, rows);
+          });
+      }
+      finally {
+        connection.end();
+      }
+    }
+  }
+
   return {
     teams: {
       get: storage.teams.get,
@@ -82,7 +100,8 @@ module.exports = function (dbConfig) {
     configuredAccounts: {
       get: getConfiguredAccounts('configured_accounts'),
       save: saveConfiguredAccount('configured_accounts'),
-      delete: deleteConfiguredAccount('configured_accounts')
+      delete: deleteConfiguredAccount('configured_accounts'),
+      all: getAllConfiguredAccount('configured_accounts')
     }
   };
 };

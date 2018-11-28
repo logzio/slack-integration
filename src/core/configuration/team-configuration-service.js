@@ -35,24 +35,25 @@ class TeamConfigurationService {
       });
   }
 
-  saveAccountForChannel(channelId, alias){
+  saveAccountForChannel(channelId, alias, teamId) {
     const storage = this.storage;
     return storage.channels.get(channelId)
       .then(currentChannelData => {
         return storage.channels.save({
           ...currentChannelData,
-          alias: alias
+          alias: alias,
+          team: teamId
         })
       })
   }
 
-  getAccountForChannel(teamId, channelId){
+  getAccountForChannel(teamId, channelId) {
     const storage = this.storage;
     let channelConfiguredAccountAlias = storage.channels.get(channelId).alias;
     if (channelConfiguredAccountAlias){
       let configuredAccount = storage.configuredAccounts.get(teamId, channelConfiguredAccountAlias);
       return !configuredAccount ?
-        new TeamConfiguration() :
+        null :
         new TeamConfiguration()
           .setLogzioApiToken(configuredAccount.token)
           .setLogzioAccountRegion(configuredAccount.region)
@@ -61,6 +62,35 @@ class TeamConfigurationService {
     }
   }
 
+  addAccount(teamId, teamConfiguration) {
+    const storage = this.storage.configuredAccounts;
+    return storage.save({
+        team_id: teamId,
+        alias: teamConfiguration.getAlias(),
+        region: teamConfiguration.getLogzioAccountRegion(),
+        token: teamConfiguration.getLogzioApiToken(),
+        real_name: teamConfiguration.getRealName()
+      });
+  }
+
+  removeAccount(teamId, alias) {
+    const storage = this.storage.configuredAccounts;
+    const channels = this.storage.channels;
+    channels.all().filter(channel => channel.team === teamId && channel.alias === alias).forEach(channel => {
+      delete channel['alias'];
+      channels.save(channel);
+    });
+    return this.isAccountUsedByChannel(teamId, alias) ? () => false : storage.delete(teamId, alias);
+  }
+
+  isAccountUsedByChannel(teamId, alias) {
+    return this.storage.channels.all().some(channel => channel.alias === alias && channel.teamId === teamId);
+  }
+
+  getOrDefault(teamId, channelId) {
+    let channelAccount = this.getAccountForChannel(teamId, channelId);
+    return channelAccount == null ? this.getDefault(teamId) : channelAccount;
+  }
 }
 
 module.exports = TeamConfigurationService;

@@ -11,7 +11,7 @@ const searchWithSpecificTimeWindow  = /search `(.+)` from (.+) to (.+)\s*$/;
 const logger = LoggerFactory.getLogger(__filename);
 
 function runSearchAndSendResults(command, bot, message, query, attachmentTitle) {
-  command.searchClient.search(message.team, query)
+  command.searchClient.search(message.channel, message.team, query)
     .then(searchResult => {
       bot.api.files.upload({
         content: JSON.stringify(searchResult, null, 2),

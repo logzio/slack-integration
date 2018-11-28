@@ -50,7 +50,7 @@ function sendMatchedKibanaObjectsTable(bot, message, objectType, matchedKibanaOb
 function sendSnapshotRequest(snapshotsClient, externalDomain, bot, message, objectType, objectId, fromTS, toTS, query) {
   const webhookUrl = `${externalDomain}/webhook/${message.team}/${message.channel}`;
   const queryWithFixedQuotes = query.replace('”', '"').replace('“', '"');
-  return snapshotsClient.createSnapshot(message.team, message.user, objectType, objectId, fromTS, toTS, queryWithFixedQuotes, webhookUrl)
+  return snapshotsClient.createSnapshot(message.channel, message.team, message.user, objectType, objectId, fromTS, toTS, queryWithFixedQuotes, webhookUrl)
     .then(() => {
       bot.reply(message, 'Snapshot request has been sent.')
     });
