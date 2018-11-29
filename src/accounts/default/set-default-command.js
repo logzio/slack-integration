@@ -1,7 +1,4 @@
 const Command = require('../../core/commands/command');
-const LoggerFactory = require('../../core/logging/logger-factory');
-
-const logger = LoggerFactory.getLogger(__filename);
 const commandRegex = /set workspace account `(.*)`/;
 
 class SetDefault extends Command {
@@ -17,6 +14,15 @@ class SetDefault extends Command {
       bot.reply(message, `account ${alias} was set as default`)
     });
   }
+  getCategory() {
+    return 'defaults';
+  }
+
+  getUsage() {
+    return [
+      '*set workspace account ${account alias}* - set the currently configured default account for the entire workspace.',
+    ];
+  }
 }
 
-module.exports(SetDefault);
+module.exports = SetDefault;

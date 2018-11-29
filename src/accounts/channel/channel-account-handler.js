@@ -1,6 +1,5 @@
 class ChannelAccountHandler {
-  constructor(storage, teamConfService) {
-    this.storage = storage;
+  constructor(teamConfService) {
     this.teamConfService = teamConfService;
   }
 
@@ -9,11 +8,8 @@ class ChannelAccountHandler {
   }
 
   clearDefault(teamId, channelId){
-    return this.storage.channels.get(channelId).then(channelSettings => {
-      delete channelSettings['alias'];
-      return this.storage.channels.save(channelSettings);
-    })
+    return this.teamConfService.clearDefaultForChannel(teamId, channelId)
   }
 }
 
-module.exports(ChannelAccountHandler);
+module.exports = ChannelAccountHandler;

@@ -1,4 +1,15 @@
 const TeamConfiguration = require('./team-configuration');
+const LoggerFactory = require('../../core/logging/logger-factory');
+const logger = LoggerFactory.getLogger(__filename);
+
+const makeid = (numberOfChars) => {
+  let text = "";
+  const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  for (let i = 0; i < numberOfChars; i++)
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  return text
+};
+
 
 class TeamConfigurationService {
 
@@ -90,6 +101,57 @@ class TeamConfigurationService {
   getOrDefault(teamId, channelId) {
     let channelAccount = this.getAccountForChannel(teamId, channelId);
     return channelAccount == null ? this.getDefault(teamId) : channelAccount;
+  }
+
+  clearDefaultForChannel(teamId, channelId){
+    return this.storage.channels.get(channelId).then(channelSettings => {
+      delete channelSettings['alias'];
+      return this.storage.channels.save(channelSettings);
+    })
+  }
+
+  extractDefaultFromOldAccount(teamId, httpClient) {
+    let storage = this.storage;
+    let defaultForTeam = storage.getDefault(teamId);
+    let isAccountConfigured = storage.configuredAccounts.all(teamId).some(account => account.getLogzioApiToken() === defaultForTeam.getLogzioApiToken() && account.getLogzioAccountRegion() === defaultForTeam.getLogzioAccountRegion());
+    if (defaultForTeam && !isAccountConfigured) storage.configuredAccounts.save({
+      team_id: teamId,
+      alias: "default-" + makeid(5),
+      token: defaultForTeam.getLogzioApiToken(),
+      region: defaultForTeam.getLogzioAccountRegion(),
+      real_name: httpClient.getRealName(defaultForTeam.getLogzioApiToken(), defaultForTeam.getLogzioAccountRegion())
+    });
+  }
+
+  setDefault(teamId, alias, httpClient) {
+    let storage = this.storage;
+    let accountToConfigure = storage.configuredAccounts.get(teamId, alias);
+    if (!accountToConfigure) return;
+    this.extractDefaultFromOldAccount(teamId, httpClient);
+    return storage.saveDefault(teamId, accountToConfigure)
+  }
+
+  clearDefault(teamId, httpClient) {
+    let storage = this.storage;
+    this.extractDefaultFromOldAccount(teamId, httpClient);
+    return storage.teams.get(teamId).then(teamAccount => {
+      return storage.teams.save({
+        ...teamAccount,
+        bot : {}
+      });
+    });
+  }
+
+  getAllAccountsSafeView(teamId) {
+    return this.storage.configuredAccounts.all(teamId).then(accounts => {
+      return accounts.map(configuredAccount => ({
+        accountName: configuredAccount.getRealName(),
+        accountAlias: configuredAccount.getAlias()
+      }));
+    }).catch(err => {
+      logger.info(err);
+      return [];
+    });
   }
 }
 

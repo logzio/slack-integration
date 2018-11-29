@@ -12,7 +12,7 @@ module.exports = function (dbConfig) {
         connection.connect();
         connection.query(SQL`SELECT * FROM `
             .append(tableName)
-            .append(SQL`WHERE team_id=${id} AND alias=${alias}`),
+            .append(SQL` WHERE team_id=${id} AND alias=${alias}`),
           (err, rows) => {
             callback(err, rows[0]);
           });
@@ -36,8 +36,8 @@ module.exports = function (dbConfig) {
         connection.connect();
         connection.query(SQL`INSERT into `.append(tableName)
             .append(SQL` (team_id, alias, token, region, real_name)`)
-            .append(SQL`VALUES (${team_id}, ${alias}, ${token}, ${region}, ${real_name})`)
-            .append(SQL`ON DUPLICATE KEY UPDATE alias = ${alias}, token = ${token}, region = ${region}, real_name = ${real_name}`),
+            .append(SQL` VALUES (${team_id}, ${alias}, ${token}, ${region}, ${real_name})`)
+            .append(SQL` ON DUPLICATE KEY UPDATE alias = ${alias}, token = ${token}, region = ${region}, real_name = ${real_name}`),
           err => callback(err)
         );
 
@@ -54,7 +54,7 @@ module.exports = function (dbConfig) {
         connection.connect();
         connection.query(
           SQL`DELETE FROM `.append(tableName)
-            .append(SQL`WHERE team_id=${id} AND alias=${alias}`),
+            .append(SQL` WHERE team_id=${id} AND alias=${alias}`),
           err => callback(err)
         );
       } finally {
@@ -70,7 +70,7 @@ module.exports = function (dbConfig) {
         connection.connect();
         connection.query(SQL`SELECT * FROM `
             .append(tableName)
-            .append(SQL`WHERE team_id=${id}`),
+            .append(SQL` WHERE team_id=${id}`),
           (err, rows) => {
             callback(err, rows);
           });

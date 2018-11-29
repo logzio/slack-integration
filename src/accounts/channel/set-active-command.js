@@ -1,8 +1,5 @@
 const Command = require('../../core/commands/command');
-const LoggerFactory = require('../../core/logging/logger-factory');
-
-const logger = LoggerFactory.getLogger(__filename);
-const commandRegex = /set active `(.*)`/;
+const commandRegex = /set channel account `(.*)`/;
 
 class SetActiveCommand extends Command {
 
@@ -21,6 +18,18 @@ class SetActiveCommand extends Command {
       bot.reply(message, `account ${alias} was set as default for channel ${message.channel}`)
     });
   }
+
+
+  getCategory() {
+    return 'channel configuration';
+  }
+
+  getUsage() {
+    return [
+      '*set channel account {account alias}* - set account for channel.',
+    ];
+  }
+
 }
 
-module.exports(SetActiveCommand);
+module.exports = SetActiveCommand;

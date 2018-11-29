@@ -1,7 +1,4 @@
 const Command = require('../../core/commands/command');
-const LoggerFactory = require('../../core/logging/logger-factory');
-
-const logger = LoggerFactory.getLogger(__filename);
 const commandRegex = /clear workspace account/;
 
 class ClearDefault extends Command {
@@ -17,6 +14,15 @@ class ClearDefault extends Command {
     });
   }
 
+  getCategory() {
+    return 'defaults';
+  }
+
+  getUsage() {
+    return [
+      '*clear workspace account* - clear the currently configured default account for the entire workspace.',
+    ];
+  }
 }
 
-module.exports(ClearDefault);
+module.exports = ClearDefault;

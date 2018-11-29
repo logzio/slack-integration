@@ -33,4 +33,4 @@ class RemoveCommand extends Command {
 
 }
 
-module.exports = AddCommand;
+module.exports = RemoveCommand;

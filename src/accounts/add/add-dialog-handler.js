@@ -72,38 +72,42 @@ class AddDialogHandler {
           }
           let onRejected = err => {
             bot.reply(message, 'Unknown error occurred while saving configuration, please try again later or contact support.');
-            logger.error(`Failed to save configuration for team ${team.id} (${team.domain})`, err,
+            logger.error(`Failed to save configuration for team ${message.teamId} (${message.domain})`, err,
               getEventMetadata(rawMessage, 'configuration_change_failed'));
           };
 
-          let realName = this.httpClient.getRealName(apiToken, accountRegion).catch(onRejected);
-          const config = new TeamConfiguration()
-            .setLogzioAccountRegion(accountRegion)
-            .setLogzioApiToken(apiToken)
-            .setAlias(alias)
-            .setRealName(realName);
+          return this.httpClient.getRealName(apiToken, accountRegion).catch(onRejected).then(realName => {
+            const config = new TeamConfiguration()
+              .setLogzioAccountRegion(accountRegion)
+              .setLogzioApiToken(apiToken)
+              .setAlias(alias)
+              .setRealName(realName);
 
-          const rawMessage = message.raw_message;
-          const team = rawMessage.team;
-          const user = rawMessage.user;
+            const rawMessage = message.raw_message;
+            const team = rawMessage.team;
+            const user = rawMessage.user;
 
 
-          return this.teamConfigService.addAccount(team.id, config)
-            .then(() => {
-              bot.reply(message, 'Configuration saved!', err => {
-                if (!err && message.callback_id === 'initialization_setup_dialog') {
-                  bot.reply(message, `Seems like this is the first configured account, to set as default account just type <@${bot.identity.id}> set workspace account ${alias}`);
-                  bot.reply(message, `If you want to learn what I can do, just type <@${bot.identity.id}> help.`, () => sendUsage(bot, message, ''));
-                }
-              });
-              logger.info(`Configuration for team ${team.id} (${team.domain}) changed by user ${user.id} (${user.name})`,
-                getEventMetadata(rawMessage, 'configuration_changed'));
+            return this.teamConfigService.addAccount(team.id, config)
+              .then(() => {
+                bot.reply(message, 'Configuration saved!', err => {
+                  if (!err && message.callback_id === 'initialization_setup_dialog') {
+                    bot.reply(message, `Seems like this is the first configured account, to set as default account just type <@${bot.identity.id}> set workspace account ${alias}`);
+                    bot.reply(message, `If you want to learn what I can do, just type <@${bot.identity.id}> help.`, () => sendUsage(bot, message, ''));
+                  }
+                });
+                logger.info(`Configuration for team ${team.id} (${team.domain}) changed by user ${user.id} (${user.name})`,
+                  getEventMetadata(rawMessage, 'configuration_changed'));
 
-              bot.dialogOk();
-            })
-            .catch(onRejected);
+                bot.dialogOk();
+              })
+              .catch(onRejected);
+          })
         })
-        .catch(() => sendInvalidConfigurationError(bot));
+        .catch(err => {
+          logger.error(err);
+          return sendInvalidConfigurationError(bot)
+        });
     });
   }
 

@@ -5,7 +5,7 @@ class EndpointResolver {
   }
 
   getEndpointUrl(region, path) {
-    const endpoint = this.getRegionEndpoint(this.config, region);
+    const endpoint = this.getRegionEndpoint(region);
     const trimmedPath = path.replace(/^\/|\/$/g, '');
 
     return `${endpoint}/${trimmedPath}`

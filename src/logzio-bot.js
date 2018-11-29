@@ -20,6 +20,18 @@ const SnapshotsClient = require('./snapshots/snapshots-client');
 const TeamConfigurationService = require('./core/configuration/team-configuration-service');
 const UnknownCommand = require('./help/unknown-command');
 
+const ChannelAccountHandler = require('./accounts/channel/channel-account-handler');
+const ClearActiveCommand = require('./accounts/channel/clear-active-command');
+const SetActiveCommand = require('./accounts/channel/set-active-command');
+
+const DefaultHandler = require('./accounts/default/default-handler');
+const ClearDefaultCommand = require('./accounts/default/clear-default-command');
+const SetDefaultCommand = require('./accounts/default/set-default-command');
+
+const GetAccountsCommand = require('./accounts/get/get-accounts-command');
+const RemoveAccountCommand = require('./accounts/remove/remove-command');
+
+
 const { createWebhookProxyEndpoint } = require('./core/webhook/webhook-proxy');
 
 const logger = LoggerFactory.getLogger(__filename);
@@ -79,6 +91,9 @@ function registerAndConfigureCommands(logzioBot) {
   const httpClient = new HttpClient(teamConfigurationService, endpointResolver);
   const alertsClient = new AlertsClient(httpClient);
   const kibanaClient = new KibanaClient(httpClient);
+  const channelAccountHandler = new ChannelAccountHandler(teamConfigurationService);
+  const defaultHandler = new DefaultHandler(teamConfigurationService, httpClient);
+
   logzioBot.setupDialogSender = new SetupDialogSender(teamConfigurationService, apiConfig);
 
   CommandsRegistry.register(new GetTriggeredAlertsCommand(alertsClient));
@@ -88,7 +103,14 @@ function registerAndConfigureCommands(logzioBot) {
   CommandsRegistry.register(new AddCommand(logzioBot.setupDialogSender));
   CommandsRegistry.register(new ShowAlertCommand(alertsClient));
   CommandsRegistry.register(new SnapshotCommand(externalDomain, kibanaClient, new SnapshotsClient(httpClient)));
+  CommandsRegistry.register(new ClearActiveCommand(channelAccountHandler));
+  CommandsRegistry.register(new SetActiveCommand(channelAccountHandler));
+  CommandsRegistry.register(new ClearDefaultCommand(defaultHandler));
+  CommandsRegistry.register(new SetDefaultCommand(defaultHandler));
+  CommandsRegistry.register(new GetAccountsCommand(teamConfigurationService));
+  CommandsRegistry.register(new RemoveAccountCommand(teamConfigurationService));
   CommandsRegistry.register(new UnknownCommand());
+
   CommandsRegistry.getCommands()
     .forEach(command => command.configure(logzioBot.controller));
 
