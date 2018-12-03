@@ -4,7 +4,13 @@ class ChannelAccountHandler {
   }
 
   setDefault(teamId, channelId, alias) {
-    return this.teamConfService.saveAccountForChannel(channelId, alias, teamId);
+    return this.teamConfService.doesAliasExist(teamId, alias).then(accountExist => {
+      if (accountExist) {
+        return this.teamConfService.saveAccountForChannel(channelId, alias, teamId).then(() => true);
+      } else {
+        return () => false;
+      }
+    });
   }
 
   clearDefault(teamId, channelId){

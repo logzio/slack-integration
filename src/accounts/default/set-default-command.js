@@ -1,5 +1,5 @@
 const Command = require('../../core/commands/command');
-const commandRegex = /set workspace account `(.*)`/;
+const commandRegex = /set workspace account (.*)/;
 
 class SetDefault extends Command {
 

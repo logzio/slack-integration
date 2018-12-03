@@ -14,8 +14,10 @@ class SetActiveCommand extends Command {
         return;
       }
       let alias = message.text.match(commandRegex)[1];
-      this.channelHandler.setDefault(message.team, message.channel, alias).then(() => {
-        bot.reply(message, `account ${alias} was set as default for channel ${message.channel}`);
+      this.channelHandler.setDefault(message.team, message.channel, alias).then(channelDefaultHandler => {
+        if (!channelDefaultHandler) bot.reply(message, `alias ${alias} does not exist`);
+        else
+          bot.reply(message, `account ${alias} was set as default for channel ${message.channel}`);
       });
     });
   }

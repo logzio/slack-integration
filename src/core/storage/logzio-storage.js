@@ -27,17 +27,17 @@ module.exports = function (dbConfig) {
     return (data, callback) => {
       let team_id = data.team_id;
       let alias = data.alias;
-      let token = data.token;
+      let apiToken = data.apiToken;
       let region = data.region;
-      let real_name = data.real_name;
+      let realName = data.realName;
 
       let connection = mysql.createConnection(dbConfig);
       try {
         connection.connect();
         connection.query(SQL`INSERT into `.append(tableName)
-            .append(SQL` (team_id, alias, token, region, real_name)`)
-            .append(SQL` VALUES (${team_id}, ${alias}, ${token}, ${region}, ${real_name})`)
-            .append(SQL` ON DUPLICATE KEY UPDATE alias = ${alias}, token = ${token}, region = ${region}, real_name = ${real_name}`),
+            .append(SQL` (team_id, alias, apiToken, region, realName)`)
+            .append(SQL` VALUES (${team_id}, ${alias}, ${apiToken}, ${region}, ${realName})`)
+            .append(SQL` ON DUPLICATE KEY UPDATE alias = ${alias}, apiToken = ${apiToken}, region = ${region}, realName = ${realName}`),
           err => callback(err)
         );
 

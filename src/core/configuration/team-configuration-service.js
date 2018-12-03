@@ -57,16 +57,21 @@ class TeamConfigurationService {
 
   getAccountForChannel(teamId, channelId) {
     const storage = this.storage;
-    let channelConfiguredAccountAlias = storage.channels.get(channelId).alias;
-    if (channelConfiguredAccountAlias){
-      let configuredAccount = storage.configuredAccounts.get(teamId, channelConfiguredAccountAlias);
-      return !configuredAccount ?
-        null :
-        new TeamConfiguration()
-          .setLogzioApiToken(configuredAccount.token)
-          .setLogzioAccountRegion(configuredAccount.region)
-          .setAlias(configuredAccount.alias)
-          .setRealName(configuredAccount.real_name);
+    try {
+      let channelConfiguredAccountAlias = storage.channels.get(channelId).alias;
+      if (channelConfiguredAccountAlias) {
+        let configuredAccount = storage.configuredAccounts.get(teamId, channelConfiguredAccountAlias);
+        return !configuredAccount ?
+          null :
+          new TeamConfiguration()
+            .setLogzioApiToken(configuredAccount.apiToken)
+            .setLogzioAccountRegion(configuredAccount.region)
+            .setAlias(configuredAccount.alias)
+            .setRealName(configuredAccount.realName);
+      }
+    }
+    catch (e) {
+      return null;
     }
   }
 
@@ -76,8 +81,8 @@ class TeamConfigurationService {
         team_id: teamId,
         alias: teamConfiguration.getAlias(),
         region: teamConfiguration.getLogzioAccountRegion(),
-        token: teamConfiguration.getLogzioApiToken(),
-        real_name: teamConfiguration.getRealName()
+      apiToken: teamConfiguration.getLogzioApiToken(),
+        realName: teamConfiguration.getRealName()
       });
   }
 
@@ -95,6 +100,10 @@ class TeamConfigurationService {
     return this.storage.channels.all().some(channel => channel.alias === alias && channel.teamId === teamId);
   }
 
+  doesAliasExist(teamId, alias) {
+    return this.storage.configuredAccounts.all(teamId).then(accounts => accounts.some(account => (new TeamConfiguration(account)).getAlias() === alias));
+  }
+
   getOrDefault(teamId, channelId) {
     let channelAccount = this.getAccountForChannel(teamId, channelId);
     return channelAccount == null ? this.getDefault(teamId) : channelAccount;
@@ -109,15 +118,19 @@ class TeamConfigurationService {
 
   extractDefaultFromOldAccount(teamId, httpClient) {
     let storage = this.storage;
-    let defaultForTeam = storage.getDefault(teamId);
-    let isAccountConfigured = storage.configuredAccounts.all(teamId).some(account => account.getLogzioApiToken() === defaultForTeam.getLogzioApiToken() && account.getLogzioAccountRegion() === defaultForTeam.getLogzioAccountRegion());
-    if (defaultForTeam && !isAccountConfigured) storage.configuredAccounts.save({
-      team_id: teamId,
-      alias: "default-" + makeid(5),
-      token: defaultForTeam.getLogzioApiToken(),
-      region: defaultForTeam.getLogzioAccountRegion(),
-      real_name: httpClient.getRealName(defaultForTeam.getLogzioApiToken(), defaultForTeam.getLogzioAccountRegion())
-    });
+    let defaultForTeam = this.getDefault(teamId);
+    return storage.configuredAccounts.all(teamId)
+      .then(isAccountConfigured => {
+        isAccountConfigured.some(account => account.getLogzioApiToken() === defaultForTeam.getLogzioApiToken() && account.getLogzioAccountRegion() === defaultForTeam.getLogzioAccountRegion());
+
+        if (defaultForTeam && !isAccountConfigured) storage.configuredAccounts.save({
+          team_id: teamId,
+          alias: "default-" + makeid(5),
+          apiToken: defaultForTeam.getLogzioApiToken(),
+          region: defaultForTeam.getLogzioAccountRegion(),
+          realName: httpClient.getRealName(defaultForTeam.getLogzioApiToken(), defaultForTeam.getLogzioAccountRegion())
+        });
+      });
   }
 
   setDefault(teamId, alias, httpClient) {
@@ -142,7 +155,7 @@ class TeamConfigurationService {
   getAllAccountsSafeView(teamId) {
     return this.storage.configuredAccounts.all(teamId).then(accounts => {
       return accounts.map(configuredAccount => ({
-        accountName: configuredAccount.real_name,
+        accountName: configuredAccount.realName,
         accountAlias: configuredAccount.alias
       }));
     }).catch(err => {
