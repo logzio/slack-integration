@@ -1,5 +1,5 @@
 const Command = require('../../core/commands/command');
-const commandRegex = /set channel account `(.*)`/;
+const commandRegex = /set channel account (.*)/;
 
 class SetActiveCommand extends Command {
 
@@ -13,9 +13,10 @@ class SetActiveCommand extends Command {
         bot.reply(message, "only allowed on channels");
         return;
       }
-      let alias = message.text.match(commandRegex)[0];
-      this.channelHandler.setDefault(message.team, message.channel, alias);
-      bot.reply(message, `account ${alias} was set as default for channel ${message.channel}`)
+      let alias = message.text.match(commandRegex)[1];
+      this.channelHandler.setDefault(message.team, message.channel, alias).then(() => {
+        bot.reply(message, `account ${alias} was set as default for channel ${message.channel}`);
+      });
     });
   }
 

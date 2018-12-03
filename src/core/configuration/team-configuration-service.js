@@ -48,14 +48,11 @@ class TeamConfigurationService {
 
   saveAccountForChannel(channelId, alias, teamId) {
     const storage = this.storage;
-    return storage.channels.get(channelId)
-      .then(currentChannelData => {
-        return storage.channels.save({
-          ...currentChannelData,
+    return storage.channels.save({
+          id: channelId,
           alias: alias,
           team: teamId
-        })
-      })
+      });
   }
 
   getAccountForChannel(teamId, channelId) {
@@ -145,8 +142,8 @@ class TeamConfigurationService {
   getAllAccountsSafeView(teamId) {
     return this.storage.configuredAccounts.all(teamId).then(accounts => {
       return accounts.map(configuredAccount => ({
-        accountName: configuredAccount.getRealName(),
-        accountAlias: configuredAccount.getAlias()
+        accountName: configuredAccount.real_name,
+        accountAlias: configuredAccount.alias
       }));
     }).catch(err => {
       logger.info(err);

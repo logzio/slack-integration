@@ -86,7 +86,7 @@ class HttpClient {
   }
 
   getRealName(token, region) {
-    return this.sendRequestWithRegionAndToken(region, token, HttpMethod.GET, '/v1/whoami')
+    return this.sendRequestWithRegionAndToken(region, token, HttpMethod.GET, '/v1/account-management/whoami')
   }
 }
 

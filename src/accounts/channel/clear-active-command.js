@@ -1,6 +1,6 @@
 const Command = require('../../core/commands/command');
 
-const commandRegex = /clear active account `(.*)`/;
+const commandRegex = /clear active account/;
 
 class ClearActiveCommand extends Command {
   constructor(defaultHandler) {
@@ -10,9 +10,8 @@ class ClearActiveCommand extends Command {
 
   configure(controller) {
     controller.hears([commandRegex], 'direct_message,direct_mention', (bot, message) => {
-      let alias = message.text.match(commandRegex)[0];
-      this.defaultHandler.clearDefaultForChannel(message.team, message.channel);
-      bot.reply(message, `account ${alias} was unset as default`)
+      this.defaultHandler.clearDefault(message.team, message.channel);
+      bot.reply(message, `channel was cleared of default account`)
     });
   }
 

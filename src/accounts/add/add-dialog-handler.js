@@ -73,10 +73,11 @@ class AddDialogHandler {
           let onRejected = err => {
             bot.reply(message, 'Unknown error occurred while saving configuration, please try again later or contact support.');
             logger.error(`Failed to save configuration for team ${message.teamId} (${message.domain})`, err,
-              getEventMetadata(rawMessage, 'configuration_change_failed'));
+              getEventMetadata(message.raw_message, 'configuration_change_failed'));
           };
 
           return this.httpClient.getRealName(apiToken, accountRegion).catch(onRejected).then(realName => {
+            realName = realName.accountName;
             const config = new TeamConfiguration()
               .setLogzioAccountRegion(accountRegion)
               .setLogzioApiToken(apiToken)

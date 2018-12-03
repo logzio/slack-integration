@@ -16,7 +16,8 @@ class GetAccountsCommand extends Command {
       return this.teamConfigService
         .getAllAccountsSafeView(message.team)
         .then(allAccountsSafeView => {
-          return bot.reply(message, allAccountsSafeView.length === 0 ? "no accounts found for this workspace" : allAccountsSafeView);
+          let accountsString = allAccountsSafeView.map(item => `Account name:${item.accountName}, Alias:${item.accountAlias}\n`).toString();
+          return bot.reply(message, allAccountsSafeView.length === 0 ? "no accounts found for this workspace" : accountsString);
         }).catch(err => logger.error(err));
     });
   }
