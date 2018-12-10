@@ -4,7 +4,7 @@ const { getEventMetadata } = require('../../core/logging/logging-metadata');
 
 const logger = LoggerFactory.getLogger(__filename);
 
-class AddCommand extends Command {
+class AddAccountCommand extends Command {
 
   constructor(setupDialogSender) {
     super();
@@ -33,4 +33,4 @@ class AddCommand extends Command {
 
 }
 
-module.exports = AddCommand;
+module.exports = AddAccountCommand;

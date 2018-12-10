@@ -38,7 +38,7 @@ class KibanaObjectsCommand extends Command {
           break;
       }
 
-      const promises = objectTypes.map(objectType => kibanaClient.listObjects(message.team, objectType));
+      const promises = objectTypes.map(objectType => kibanaClient.listObjects(message.channel, message.team, objectType).catch(err => logger.error(err))).filter(item => item === null);
       Promise.all(promises)
         .then(results => {
           const table = new Table();

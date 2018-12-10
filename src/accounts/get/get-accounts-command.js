@@ -12,11 +12,11 @@ class GetAccountsCommand extends Command {
 
   configure(controller) {
     controller.hears(/accounts/, 'direct_message,direct_mention', (bot, message) => {
-      bot.reply(message, "getting accounts for workspace");
       return this.teamConfigService
         .getAllAccountsSafeView(message.team)
         .then(allAccountsSafeView => {
-          let accountsString = allAccountsSafeView.map(item => `Account name:${item.accountName}, Alias:${item.accountAlias}\n`).toString();
+          bot.reply(message, "getting accounts for workspace");
+          let accountsString = allAccountsSafeView.map(item => `Account name:${item.accountName}, Alias:${item.accountAlias}\n`).join("");
           return bot.reply(message, allAccountsSafeView.length === 0 ? "no accounts found for this workspace" : accountsString);
         }).catch(err => logger.error(err));
     });

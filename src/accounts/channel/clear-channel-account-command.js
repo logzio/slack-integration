@@ -1,8 +1,8 @@
 const Command = require('../../core/commands/command');
 
-const commandRegex = /clear active account/;
+const commandRegex = /clear channel account/;
 
-class ClearActiveCommand extends Command {
+class ClearChannelAccountCommand extends Command {
   constructor(defaultHandler) {
     super();
     this.defaultHandler = defaultHandler;
@@ -21,10 +21,10 @@ class ClearActiveCommand extends Command {
 
   getUsage() {
     return [
-      '*clear active account {account alias}* - clear account for channel.',
+      '*clear channel account* - clear account for channel.',
     ];
   }
 
 }
 
-module.exports = ClearActiveCommand;
+module.exports = ClearChannelAccountCommand;

@@ -11,8 +11,8 @@ const LoggerFactory = require('./core/logging/logger-factory');
 const PromiseStorage = require('botkit-promise-storage');
 const SearchClient = require('./search/search-client');
 const SearchCommand = require('./search/search-command');
-const AddCommand = require('./accounts/add/add-command');
-const SetupDialogHandler = require('./accounts/add/add-dialog-handler');
+const AddAccountCommand = require('./accounts/add/add-account-command');
+const SetupDialogHandler = require('./accounts/add/add-account-dialog-handler');
 const SetupDialogSender = require('./accounts/add/add-dialog-sender');
 const ShowAlertCommand = require('./alerts/show-alert-command');
 const SnapshotCommand = require('./snapshots/snapshot-command');
@@ -21,8 +21,8 @@ const TeamConfigurationService = require('./core/configuration/team-configuratio
 const UnknownCommand = require('./help/unknown-command');
 
 const ChannelAccountHandler = require('./accounts/channel/channel-account-handler');
-const ClearActiveCommand = require('./accounts/channel/clear-active-command');
-const SetActiveCommand = require('./accounts/channel/set-active-command');
+const ClearActiveCommand = require('./accounts/channel/clear-channel-account-command');
+const SetActiveCommand = require('./accounts/channel/set-channel-account-command');
 
 const DefaultHandler = require('./accounts/default/default-handler');
 const ClearDefaultCommand = require('./accounts/default/clear-default-command');
@@ -100,7 +100,7 @@ function registerAndConfigureCommands(logzioBot) {
   CommandsRegistry.register(new HelpCommand());
   CommandsRegistry.register(new KibanaObjectsCommand(kibanaClient));
   CommandsRegistry.register(new SearchCommand(new SearchClient(httpClient)));
-  CommandsRegistry.register(new AddCommand(logzioBot.setupDialogSender));
+  CommandsRegistry.register(new AddAccountCommand(logzioBot.setupDialogSender));
   CommandsRegistry.register(new ShowAlertCommand(alertsClient));
   CommandsRegistry.register(new SnapshotCommand(externalDomain, kibanaClient, new SnapshotsClient(httpClient)));
   CommandsRegistry.register(new ClearActiveCommand(channelAccountHandler));
@@ -172,5 +172,9 @@ class LogzioBot {
   }
 
 }
+
+process.on('uncaughtException', err => {
+  logger.error('Caught exception: ' + err);
+});
 
 module.exports = LogzioBot;

@@ -80,7 +80,7 @@ function buildAndSendConfigurationDialog(bot, selectableRegionList, reply, confi
   });
 }
 
-class AddDialogSender {
+class AddAccountDialogSender {
 
   constructor(teamConfigurationService, apiConfig) {
     this.teamConfigurationService = teamConfigurationService;
@@ -112,4 +112,4 @@ class AddDialogSender {
 
 }
 
-module.exports = AddDialogSender;
+module.exports = AddAccountDialogSender;

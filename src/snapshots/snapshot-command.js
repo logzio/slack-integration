@@ -81,7 +81,7 @@ class SnapshotCommand extends Command {
 
       const query = matches[6] || '*';
 
-      this.kibanaClient.listObjects(message.team, objectType)
+      this.kibanaClient.listObjects(message.channel, message.team, objectType)
         .then(kibanaObjects => filterObjectsByIdOrName(kibanaObjects, objectName))
         .then(matchedKibanaObjects => {
           if (matchedKibanaObjects.length === 0) {

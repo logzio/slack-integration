@@ -7,12 +7,12 @@ class KibanaClient {
     this.httpClient = httpClient;
   }
 
-  listObjects(teamId, objectType) {
+  listObjects(channelId, teamId, objectType) {
     const body = {
       type: objectType
     };
 
-    return this.httpClient.post(teamId, '/v1/kibana/export', body)
+    return this.httpClient.post(channelId, teamId, '/v1/kibana/export', body)
       .then(data => this.kibanaObjects(data));
   }
 

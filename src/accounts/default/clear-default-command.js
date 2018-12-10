@@ -1,7 +1,7 @@
 const Command = require('../../core/commands/command');
 const commandRegex = /clear workspace account/;
 
-class ClearDefault extends Command {
+class ClearWorkspaceAccountCommand extends Command {
 
   constructor(defaultHandler) {
     super();
@@ -25,4 +25,4 @@ class ClearDefault extends Command {
   }
 }
 
-module.exports = ClearDefault;
+module.exports = ClearWorkspaceAccountCommand;

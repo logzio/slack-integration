@@ -7,7 +7,7 @@ exports.up = function (db) {
     region: {type: 'string', length: 100, notNull: true},
     realName: {type: 'string', length: 100, notNull: true}
   });
-  db.addIndex(tableName, "teamToAlias", ["team_id", "alias"], true, () => {});
+  db.addIndex(tableName, "teamToAlias", ["team_id", "alias"], true, (err) => {console.log(err)});
   return table;
 };
 

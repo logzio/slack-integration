@@ -1,4 +1,3 @@
-const HttpMethod = require('../../core/client/http-method');
 const LoggerFactory = require('../../core/logging/logger-factory');
 const TeamConfiguration = require('../../core/configuration/team-configuration');
 const { getEventMetadata } = require('../../core/logging/logging-metadata');
@@ -35,13 +34,13 @@ function validateConfigurationAndGetErrorsIfInvalid(configuredRegions, accountRe
 
 function sendInvalidConfigurationError(bot) {
   bot.dialogError([{
-    name: 'accountRegion',
+    name: 'Configuration error',
     error: 'Please make sure you selected the right account region, your API token is valid and that the alias is not blank.' +
     'If the error proceed please contact support.'
   }]);
 }
 
-class AddDialogHandler {
+class AddAccountDialogHandler {
 
   constructor(teamConfigService, httpClient, apiConfig) {
     this.teamConfigService = teamConfigService;
@@ -64,46 +63,40 @@ class AddDialogHandler {
         bot.dialogError(configErrors);
       }
 
-      this.httpClient.sendRequestWithRegionAndToken(accountRegion, apiToken, HttpMethod.GET, '/v1/user-management')
-        .then(users => {
-          if (!users || !(users instanceof Array) || users.length === 0) {
-            sendInvalidConfigurationError(bot);
-            return;
-          }
+      this.httpClient.getRealName(apiToken, accountRegion)
+        .then(realName => {
+
           let onRejected = err => {
             bot.reply(message, 'Unknown error occurred while saving configuration, please try again later or contact support.');
             logger.error(`Failed to save configuration for team ${message.teamId} (${message.domain})`, err,
               getEventMetadata(message.raw_message, 'configuration_change_failed'));
           };
+          realName = realName.accountName;
+          const config = new TeamConfiguration()
+            .setLogzioAccountRegion(accountRegion)
+            .setLogzioApiToken(apiToken)
+            .setAlias(alias)
+            .setRealName(realName);
 
-          return this.httpClient.getRealName(apiToken, accountRegion).catch(onRejected).then(realName => {
-            realName = realName.accountName;
-            const config = new TeamConfiguration()
-              .setLogzioAccountRegion(accountRegion)
-              .setLogzioApiToken(apiToken)
-              .setAlias(alias)
-              .setRealName(realName);
-
-            const rawMessage = message.raw_message;
-            const team = rawMessage.team;
-            const user = rawMessage.user;
+          const rawMessage = message.raw_message;
+          const team = rawMessage.team;
+          const user = rawMessage.user;
 
 
-            return this.teamConfigService.addAccount(team.id, config)
-              .then(() => {
-                bot.reply(message, 'Configuration saved!', err => {
-                  if (!err && message.callback_id === 'initialization_setup_dialog') {
-                    bot.reply(message, `Seems like this is the first configured account, to set as default account just type <@${bot.identity.id}> set workspace account ${alias}`);
-                    bot.reply(message, `If you want to learn what I can do, just type <@${bot.identity.id}> help.`, () => sendUsage(bot, message, ''));
-                  }
-                });
-                logger.info(`Configuration for team ${team.id} (${team.domain}) changed by user ${user.id} (${user.name})`,
-                  getEventMetadata(rawMessage, 'configuration_changed'));
+          return this.teamConfigService.addAccount(team.id, config)
+            .then(() => {
+              bot.reply(message, `Configuration saved! added ${realName} with account alias ${alias}`, err => {
+                if (!err && message.callback_id === 'initialization_setup_dialog') {
+                  bot.reply(message, `Seems like this is the first configured account, to set it as default account just type <@${bot.identity.id}> set workspace account ${alias}`);
+                  bot.reply(message, `If you want to learn what I can do, just type <@${bot.identity.id}> help.`, () => sendUsage(bot, message, ''));
+                }
+              });
+              logger.info(`Configuration for team ${team.id} (${team.domain}) changed by user ${user.id} (${user.name})`,
+                getEventMetadata(rawMessage, 'configuration_changed'));
 
-                bot.dialogOk();
-              })
-              .catch(onRejected);
-          })
+              bot.dialogOk();
+            })
+            .catch(onRejected);
         })
         .catch(err => {
           logger.error(err);
@@ -117,4 +110,4 @@ class AddDialogHandler {
   }
 }
 
-module.exports = AddDialogHandler;
+module.exports = AddAccountDialogHandler;

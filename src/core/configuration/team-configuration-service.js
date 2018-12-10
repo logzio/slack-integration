@@ -46,7 +46,7 @@ class TeamConfigurationService {
       });
   }
 
-  saveAccountForChannel(channelId, alias, teamId) {
+  saveAccountForChannel(teamId, channelId, alias) {
     const storage = this.storage;
     return storage.channels.save({
           id: channelId,
@@ -57,22 +57,16 @@ class TeamConfigurationService {
 
   getAccountForChannel(teamId, channelId) {
     const storage = this.storage;
-    try {
-      let channelConfiguredAccountAlias = storage.channels.get(channelId).alias;
-      if (channelConfiguredAccountAlias) {
-        let configuredAccount = storage.configuredAccounts.get(teamId, channelConfiguredAccountAlias);
-        return !configuredAccount ?
-          null :
-          new TeamConfiguration()
-            .setLogzioApiToken(configuredAccount.apiToken)
-            .setLogzioAccountRegion(configuredAccount.region)
-            .setAlias(configuredAccount.alias)
-            .setRealName(configuredAccount.realName);
-      }
-    }
-    catch (e) {
-      return null;
-    }
+    return storage.channels.get(channelId).then(channelConfiguredAccountAlias => {
+      if (channelConfiguredAccountAlias) return storage.configuredAccounts.get(teamId, channelConfiguredAccountAlias.alias).then(configuredAccount => !configuredAccount ?
+        null :
+        new TeamConfiguration()
+          .setLogzioApiToken(configuredAccount.apiToken)
+          .setLogzioAccountRegion(configuredAccount.region)
+          .setAlias(configuredAccount.alias)
+          .setRealName(configuredAccount.realName)).catch(() => {
+      });
+    }).catch(err => logger.error(err));
   }
 
   addAccount(teamId, teamConfiguration) {
@@ -105,8 +99,11 @@ class TeamConfigurationService {
   }
 
   getOrDefault(teamId, channelId) {
-    let channelAccount = this.getAccountForChannel(teamId, channelId);
-    return channelAccount == null ? this.getDefault(teamId) : channelAccount;
+    return this.getAccountForChannel(teamId, channelId).then(channelAccount =>
+    channelAccount == null ? this.getDefault(teamId) : channelAccount).catch(err => {
+      logger.error(err);
+      return new TeamConfiguration();
+    })
   }
 
   clearDefaultForChannel(teamId, channelId){

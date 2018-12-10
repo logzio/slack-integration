@@ -1,7 +1,7 @@
 const Command = require('../../core/commands/command');
 const commandRegex = /set channel account (.*)/;
 
-class SetActiveCommand extends Command {
+class SetChannelAccountCommand extends Command {
 
   constructor(channelHandler) {
     super();
@@ -13,7 +13,7 @@ class SetActiveCommand extends Command {
         bot.reply(message, "only allowed on channels");
         return;
       }
-      let alias = message.text.match(commandRegex)[1];
+      let alias = message.match[1];
       this.channelHandler.setDefault(message.team, message.channel, alias).then(channelDefaultHandler => {
         if (!channelDefaultHandler) bot.reply(message, `alias ${alias} does not exist`);
         else
@@ -35,4 +35,4 @@ class SetActiveCommand extends Command {
 
 }
 
-module.exports = SetActiveCommand;
+module.exports = SetChannelAccountCommand;

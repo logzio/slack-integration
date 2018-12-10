@@ -1,7 +1,7 @@
 const Command = require('../../core/commands/command');
 const commandRegex = /set workspace account (.*)/;
 
-class SetDefault extends Command {
+class SetWorkspaceAccountCommand extends Command {
 
   constructor(defaultHandler) {
     super();
@@ -11,7 +11,7 @@ class SetDefault extends Command {
     controller.hears([commandRegex], 'direct_message,direct_mention', (bot, message) => {
       let alias = message.text.match(commandRegex)[0];
       this.defaultHandler.setDefault(message.team, alias);
-      bot.reply(message, `account ${alias} was set as default`)
+      bot.reply(message, `Account ${alias} was set as default account for workspace`)
     });
   }
   getCategory() {
@@ -25,4 +25,4 @@ class SetDefault extends Command {
   }
 }
 
-module.exports = SetDefault;
+module.exports = SetWorkspaceAccountCommand;
