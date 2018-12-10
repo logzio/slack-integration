@@ -15,7 +15,7 @@ class AddAccountCommand extends Command {
     controller.hears(['setup', 'add account'], 'direct_message,direct_mention', (bot, message) => {
       logger.info(`User ${message.user} from team ${message.team} triggered setup command`, getEventMetadata(message, 'setup'));
       if (message.type !== 'direct_message') {
-        bot.reply(message, `<@${message.user}> sending you the configuration options privately.`);
+        bot.reply(message, `Sending you the configuration options privately <@${message.user}>`);
       }
       this.setupDialogSender.sendSetupMessage(bot, message.user);
     });
@@ -27,7 +27,7 @@ class AddAccountCommand extends Command {
 
   getUsage() {
     return [
-      '*add account* - Displays setup dialog.',
+      '*add account* - Add a new Logz.io account to Slack',
     ];
   }
 

@@ -15,7 +15,7 @@ class GetAccountsCommand extends Command {
       return this.teamConfigService
         .getAllAccountsSafeView(message.team)
         .then(allAccountsSafeView => {
-          bot.reply(message, "getting accounts for workspace");
+          bot.reply(message, "Sit tight while I get those accounts for you...");
           let accountsString = allAccountsSafeView.map(item => `Account name:${item.accountName}, Alias:${item.accountAlias}\n`).join("");
           return bot.reply(message, allAccountsSafeView.length === 0 ? "no accounts found for this workspace" : accountsString);
         }).catch(err => logger.error(err));
@@ -28,7 +28,7 @@ class GetAccountsCommand extends Command {
 
   getUsage() {
     return [
-      '*accounts* - list all configured accounts.',
+      '*accounts* - List the Logz.io accounts in this workspace.',
     ];
   }
 }

@@ -11,7 +11,7 @@ class SetWorkspaceAccountCommand extends Command {
     controller.hears([commandRegex], 'direct_message,direct_mention', (bot, message) => {
       let alias = message.text.match(commandRegex)[0];
       this.defaultHandler.setDefault(message.team, alias);
-      bot.reply(message, `Account ${alias} was set as default account for workspace`)
+      bot.reply(message, `Okay, ${alias} is the workspace account now`)
     });
   }
   getCategory() {
@@ -20,7 +20,7 @@ class SetWorkspaceAccountCommand extends Command {
 
   getUsage() {
     return [
-      '*set workspace account ${account alias}* - set the currently configured default account for the entire workspace.',
+      '*set workspace account ${account alias}* - Set a default account for Alice to use for this workspace.',
     ];
   }
 }

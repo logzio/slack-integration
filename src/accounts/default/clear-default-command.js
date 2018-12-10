@@ -10,7 +10,7 @@ class ClearWorkspaceAccountCommand extends Command {
   configure(controller) {
     controller.hears([commandRegex], 'direct_message,direct_mention', (bot, message) => {
       this.defaultHandler.clearDefault(message.team);
-      bot.reply(message, `default account was removed`)
+      bot.reply(message, `Okay, I cleared the workspace account.`)
     });
   }
 
@@ -20,7 +20,7 @@ class ClearWorkspaceAccountCommand extends Command {
 
   getUsage() {
     return [
-      '*clear workspace account* - clear the currently configured default account for the entire workspace.',
+      '*clear workspace account* - Clear the default account for this workspace',
     ];
   }
 }

@@ -17,7 +17,7 @@ class RemoveCommand extends Command {
       let account = message.text.match(commandRegex)[0];
       logger.info(`User ${message.user} from team ${message.team} triggered remove command on ${account}`, getEventMetadata(message, 'remove account'));
       this.removeAccountHandler.removeAccount(message.team, alias);
-      bot.reply(message, `account ${account} was removed`)
+      bot.reply(message, `Okay, I removed ${account} from Slack.`)
     });
   }
 
@@ -27,7 +27,7 @@ class RemoveCommand extends Command {
 
   getUsage() {
     return [
-      '*remove account* - remove account.',
+      '*remove account* - Remove a Logz.io account from Slack',
     ];
   }
 

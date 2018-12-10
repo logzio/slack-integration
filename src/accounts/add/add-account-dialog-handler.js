@@ -11,21 +11,21 @@ function validateConfigurationAndGetErrorsIfInvalid(configuredRegions, accountRe
   if (!configuredRegions.hasOwnProperty(accountRegion)) {
     errors.push({
       name: 'accountRegion',
-      error: 'Invalid account region.'
+      error: 'Account region must be US or EU.'
     });
   }
 
   if (!apiToken || apiToken.trim() === '') {
     errors.push({
       name: 'apiToken',
-      error: 'Api token cannot be blank.'
+      error: 'API token can\'t be blank'
     });
   }
 
   if (!alias || alias.trim() === ''){
     errors.push({
       name: 'alias',
-      error: 'Alias cannot be blank.'
+      error: 'Alias can\'t be blank'
     });
   }
 
@@ -35,8 +35,7 @@ function validateConfigurationAndGetErrorsIfInvalid(configuredRegions, accountRe
 function sendInvalidConfigurationError(bot) {
   bot.dialogError([{
     name: 'Configuration error',
-    error: 'Please make sure you selected the right account region, your API token is valid and that the alias is not blank.' +
-    'If the error proceed please contact support.'
+    error: 'I couldn\'t connect to your account. Please double-check your API token and region, and try again. If that doesn\'t fix the problem, email [Support](mailto:help@logz.io).'
   }]);
 }
 
@@ -67,7 +66,7 @@ class AddAccountDialogHandler {
         .then(realName => {
 
           let onRejected = err => {
-            bot.reply(message, 'Unknown error occurred while saving configuration, please try again later or contact support.');
+            bot.reply(message, 'Yikes! I\'m not sure what happened, but I couldn\'t save your configuration. Please try again, and contact [Support](mailto:help@logz.io) if this keeps happening.');
             logger.error(`Failed to save configuration for team ${message.teamId} (${message.domain})`, err,
               getEventMetadata(message.raw_message, 'configuration_change_failed'));
           };

@@ -11,7 +11,7 @@ class ClearChannelAccountCommand extends Command {
   configure(controller) {
     controller.hears([commandRegex], 'direct_message,direct_mention', (bot, message) => {
       this.defaultHandler.clearDefault(message.team, message.channel);
-      bot.reply(message, `channel was cleared of default account`)
+      bot.reply(message, `Okay, I cleared the channel account.`)
     });
   }
 
@@ -21,7 +21,7 @@ class ClearChannelAccountCommand extends Command {
 
   getUsage() {
     return [
-      '*clear channel account* - clear account for channel.',
+      '*clear channel account* - Clear the default account for this channel.',
     ];
   }
 

@@ -2,8 +2,8 @@ const LoggerFactory = require('../../core/logging/logger-factory');
 
 const logger = LoggerFactory.getLogger(__filename);
 
-const title = 'Configure your Logz.io integration with Slack';
-const question = 'Do you want to connect your Logz.io account?';
+const title = 'Add an account';
+const question = 'Do you want to connect a Logz.io account?';
 
 const messageWithButtons = {
   attachments: [
@@ -70,8 +70,9 @@ function buildAndSendConfigurationDialog(bot, selectableRegionList, reply, confi
 
   const dialog = bot.createDialog('Logz.io Configuration', callback_id, 'Save')
     .addSelect('Account region', 'accountRegion', accountRegion, selectableRegionList)
-    .addText('API Token', 'apiToken', null, { placeholder: apiToken, hint:'Create an API token in your Logz.io Enterprise account, or request one from help@logz.io' })
-    .addText('Alias', 'alias', null, {placeholder: '', hint: 'Choose alias to represent your newly configured account'});
+    .addText('API Token', 'apiToken', null, { placeholder: apiToken, hint:'Create an API token in your Logz.io Enterprise account or email help@logz.io to request one.' })
+    .addText('Alias', 'alias', null, {placeholder: '', hint: 'When you ask for something in Slack, you\'ll use this alias to let Alice know which Logz.io account you want her to use. You can use letters, numbers, hyphens, and underscores.' +
+        '\n'});
 
   bot.replyWithDialog(reply, dialog.asObject(), (err) => {
     if (err) {
