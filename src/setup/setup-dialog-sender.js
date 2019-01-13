@@ -3,7 +3,7 @@ const LoggerFactory = require('../core/logging/logger-factory');
 const logger = LoggerFactory.getLogger(__filename);
 
 const title = 'Configure your Logz.io integration with Slack';
-const question = 'Do you want to connect your Logz.io account?';
+const question = 'All Slack users will be able to ask me for information on the account, even if they don\'t have access to Logz.io. Do you still want to add the account?';
 
 const messageWithButtons = {
   attachments: [
@@ -14,12 +14,12 @@ const messageWithButtons = {
       attachment_type: 'default',
       delete_original: true,
       actions: [{
-        text: 'Yes',
+        text: 'Add the account',
         value: 'yes',
         type: 'button',
         name: 'answer',
       }, {
-        text: 'No',
+        text: 'Never mind',
         value: 'no',
         type: 'button',
         name: 'answer',
