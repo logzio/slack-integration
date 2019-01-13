@@ -2,8 +2,8 @@ const LoggerFactory = require('../core/logging/logger-factory');
 
 const logger = LoggerFactory.getLogger(__filename);
 
-const title = 'Add an account';
-const question = 'All Slack users will be able to ask me for information on the account, even if they don\'t have access to Logz.io. Do you still want to add the account?';
+const title = 'Important: You’ll give all users access to Logz.io';
+const question = 'If you add this account, all workspace users can see information on the account, even if they can’t sign in to Logz.io. Do you still want to add the account?';
 
 const messageWithButtons = {
   attachments: [
