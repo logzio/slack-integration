@@ -8,8 +8,8 @@ class AlertsClient {
     this.httpClient = httpClient;
   }
 
-  getAlertByName(teamId, alertName) {
-    return this.httpClient.get(teamId, '/v1/alerts')
+  getAlertByName(channelId, teamId, alertName, alias) {
+    return this.httpClient.get(channelId, teamId, '/v1/alerts',alias)
       .then(alerts => filterAlertsByName(alerts, alertName))
       .then(matchedAlerts => {
         if (matchedAlerts.length === 0) {
@@ -24,11 +24,11 @@ class AlertsClient {
       });
   }
 
-  getAlertById(teamId, alertId) {
-    return this.httpClient.get(teamId, `/v1/alerts/${alertId}`);
+  getAlertById(channelId, teamId, alertId,alias) {
+    return this.httpClient.get(channelId, teamId, `/v1/alerts/${alertId}`,alias);
   }
 
-  getTriggeredAlerts(teamId, size, severity, sortBy, sortOrder) {
+  getTriggeredAlerts(alias,channelId, teamId, size, severity, sortBy, sortOrder) {
     const body = {
       from: 0,
       size,
@@ -37,7 +37,7 @@ class AlertsClient {
       sortOrder
     };
 
-    return this.httpClient.post(teamId, '/v1/alerts/triggered-alerts', body);
+    return this.httpClient.post(channelId, teamId, '/v1/alerts/triggered-alerts', body ,alias);
   }
 
 }

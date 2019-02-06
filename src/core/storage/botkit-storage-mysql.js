@@ -5,7 +5,7 @@
  * - https://github.com/asafalima/botkit-storage-mysql/blob/update-users-and-channels-tables-on-duplicate/src/index.js
  */
 /**
- Apache License
+ Apache LicenseΩ
  Version 2.0, January 2004
  http://www.apache.org/licenses/
  TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
@@ -167,8 +167,9 @@
  limitations under the License.
  */
 
-var mysql = require('mysql');
-var SQL = require('sql-template-strings');
+const mysql = require('mysql');
+const SQL = require('sql-template-strings');
+const util = require('util');
 
 module.exports = function (config) {
   if (!config || !config.host) {
@@ -189,23 +190,67 @@ module.exports = function (config) {
     };
   };
 
+  var get_async = function (tableName, translator) {
+    return function (id) {
+      const connection = mysql.createConnection(config);
+      let response;
+      connection.connect();
+      const queryPromise = util.promisify(connection.query).bind(connection);
+      return queryPromise(SQL`SELECT * from `.append(tableName).append(SQL` where id = ${id}`))
+        .then(ans => {
+          if (ans.length > 0) {
+            response = translator(ans[0]);
+          }
+          connection.end();
+          return Promise.resolve(response);
+        }).catch(err => {
+          connection.end();
+          console.log(err);
+        })
+    };
+  }
+
+  var delete_async = function (tableName, translator) {
+    return function (id) {
+      const connection = mysql.createConnection(config);
+      let response;
+      connection.connect();
+      const queryPromise = util.promisify(connection.query).bind(connection);
+      return queryPromise(SQL`DELETE from `.append(tableName).append(SQL` where id = ${id}`))
+        .then(ans => {
+          if (ans.length > 0) {
+            response = translator(ans[0]);
+          }
+          connection.end();
+          return Promise.resolve(response);
+        }).catch(err => {
+          connection.end();
+          console.log(err);
+        })
+    };
+  }
+
+
+
+
+
   var saveUser = function (tableName) {
-    return function (data, callback) {
+    return function (data) {
       var id = data.id;
       var access_token = data.access_token;
       var scopes = JSON.stringify(data.scopes);
       var team_id = data.team_id;
       var user = data.user;
 
-      save(SQL`INSERT into `.append(tableName).append(SQL` (id, access_token, scopes, team_id, user)`)
+      return save_async(SQL`INSERT into `.append(tableName).append(SQL` (id, access_token, scopes, team_id, user)`)
           .append(SQL`VALUES (${id}, ${access_token}, ${scopes}, ${team_id}, ${user})`)
-          .append(SQL`ON DUPLICATE KEY UPDATE id=${id}, access_token=${access_token}, scopes=${scopes}, team_id=${team_id}, user=${user}`),
-        callback);
+          .append(SQL`ON DUPLICATE KEY UPDATE id=${id}, access_token=${access_token}, scopes=${scopes}, team_id=${team_id}, user=${user}`)
+        );
     };
   };
 
   var saveTeam = function (tableName) {
-    return function (data, callback) {
+    return function (data) {
       var id = data.id;
       var createdBy = data.createdBy;
       var name = data.name;
@@ -213,15 +258,14 @@ module.exports = function (config) {
       var token = data.token;
       var bot = JSON.stringify(data.bot);
 
-      save(SQL`INSERT into `.append(tableName).append(SQL` (id, createdBy, name, url, token, bot)`)
+      return save_async(SQL`INSERT into `.append(tableName).append(SQL` (id, createdBy, name, url, token, bot)`)
           .append(SQL`VALUES (${id}, ${createdBy}, ${name}, ${url}, ${token}, ${bot})`)
-          .append(SQL`ON DUPLICATE KEY UPDATE createdBy = ${createdBy}, name = ${name}, url = ${url}, token = ${token}, bot = ${bot}`),
-        callback);
+          .append(SQL`ON DUPLICATE KEY UPDATE createdBy = ${createdBy}, name = ${name}, url = ${url}, token = ${token}, bot = ${bot}`));
     };
   };
 
   var saveChannel = function (tableName) {
-    return function (data, callback) {
+    return function (data) {
       var keys = Object.keys(data);
       var json = {};
       for (var i = 0; i < keys.length; i++) {
@@ -232,9 +276,9 @@ module.exports = function (config) {
       }
 
       var stringifiedJson = JSON.stringify(json);
-      save(SQL`INSERT into `.append(tableName).append(SQL` (id, json)`)
+      return save_async(SQL`INSERT into `.append(tableName).append(SQL` (id, json)`)
         .append(SQL`VALUES (${data.id}, ${stringifiedJson})`)
-        .append(SQL`ON DUPLICATE KEY UPDATE json=${stringifiedJson}`), callback);
+        .append(SQL`ON DUPLICATE KEY UPDATE json=${stringifiedJson}`));
     };
   };
 
@@ -249,6 +293,21 @@ module.exports = function (config) {
       connection.end();
     }
   };
+
+  var save_async =  async function (statement) {
+    var connection = mysql.createConnection(config);
+    try {
+      connection.connect();
+      const queryPromise = util.promisify(connection.query).bind(connection);
+      const ans = await queryPromise(statement);
+      return  ans;
+    } catch(err) {
+      throw Error(err);
+    } finally {
+      connection.end();
+    }
+  };
+
 
   var all = function (tableName, translator) {
     return function (callback) {
@@ -268,6 +327,52 @@ module.exports = function (config) {
     };
   };
 
+  // var all_async = function (tableName, translator) {
+  //   return async function () {
+  //     var connection = mysql.createConnection(config);
+  //     try {
+  //       connection.connect();
+  //       const queryPromise = util.promisify(connection.query).bind(connection);
+  //       const rows = await queryPromise(SQL`SELECT * from `.append(tableName));
+  //       if(rows.length===0){
+  //         return undefined;
+  //       }
+  //       var translatedData = [];
+  //       for (var i = 0; i < rows.length; i++) {
+  //         translatedData.push(translator(rows[i]))
+  //       }
+  //       return translatedData;
+  //     } catch(err) {
+  //       throw Error(err);
+  //     } finally {
+  //       connection.end();
+  //     }
+  //   };
+  // };
+
+
+  var all_async = function (tableName,translator) {
+    return function (id) {
+      const connection = mysql.createConnection(config);
+      connection.connect();
+      const queryPromise = util.promisify(connection.query).bind(connection);
+      return queryPromise(SQL`SELECT * from `.append(tableName))
+        .then(ans => {
+          connection.end();
+          var translatedData = [];
+                 for (var i = 0; i < ans.length; i++) {
+                   translatedData.push(translator(ans[i]))
+                }
+
+          return Promise.resolve(translatedData);
+        }).catch(err => {
+          connection.end();
+          console.log(err);
+        })
+    };
+  }
+
+
   var dbToUserJson = function (userDataFromDB) {
     if (userDataFromDB) {
       userDataFromDB.scopes = JSON.parse(userDataFromDB.scopes);
@@ -278,37 +383,46 @@ module.exports = function (config) {
   var dbToTeamJson = function (teamDataFromDB) {
     if (teamDataFromDB) {
       teamDataFromDB.bot = JSON.parse(teamDataFromDB.bot);
+      teamDataFromDB.bot.name = teamDataFromDB.name;
     }
     return teamDataFromDB;
   };
 
   var dbToChannelJson = function (input) {
-    var output = {id: input.id};
-    var json = JSON.parse(input.json);
-    var keys = Object.keys(json);
-    for (var i = 0; i < keys.length; i++) {
-      var key = keys[i];
-      output[key] = json[key];
+    if(input!==undefined){
+      var output = {id: input.id};
+      var json = JSON.parse(input.json);
+      var keys = Object.keys(json);
+      for (var i = 0; i < keys.length; i++) {
+        var key = keys[i];
+        output[key] = json[key];
+      }
+      return output;
     }
-    return output;
   };
 
   var storage = {
     teams: {
       get: get('botkit_team', dbToTeamJson),
+      get_async: get_async('botkit_team', dbToTeamJson),
       save: saveTeam('botkit_team'),
-      all: all('botkit_team', dbToTeamJson)
+      all: all('botkit_team', dbToTeamJson),
+      all_async: all_async('botkit_team', dbToTeamJson)
     },
     channels: {
       get: get('botkit_channel', dbToChannelJson),
+      get_async: get_async('botkit_channel', dbToChannelJson),
       save: saveChannel('botkit_channel'),
-      all: all('botkit_channel', dbToChannelJson)
+      all: all('botkit_channel', dbToChannelJson),
+      all_async: all_async('botkit_channel', dbToChannelJson)
     },
     users: {
       get: get('botkit_user', dbToUserJson),
+      get_async: get_async('botkit_user', dbToUserJson),
       save: saveUser('botkit_user'),
       all: all('botkit_user', dbToUserJson)
     }
   };
+
   return storage;
 };

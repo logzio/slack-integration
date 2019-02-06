@@ -4,14 +4,17 @@ const QueryBuilder = require('./query-builder');
 const TimeUnit = require('../core/time/time-unit');
 const { getEventMetadata } = require('../core/logging/logging-metadata');
 
-const searchWithDefaultWindow       = /search `(.+)`\s*$/;
-const searchWithTimeToSearch        = /search `(.+)` last (\d+) ?(minutes?|mins?|m|hours?|h)\s*$/;
-const searchWithSpecificTimeWindow  = /search `(.+)` from (.+) to (.+)\s*$/;
+const searchWithDefaultWindow                = /search `(.+)`\s*$/;
+const searchWithDefaultWindowWithAlias       = /(.+) search `(.+)`\s*$/;
+const searchWithTimeToSearch                 = /search `(.+)` last (\d+) ?(minutes?|mins?|m|hours?|h)\s*$/;
+const searchWithTimeToSearchWithAlias        = /(.+) search `(.+)` last (\d+) ?(minutes?|mins?|m|hours?|h)\s*$/;
+const searchWithSpecificTimeWindow           = /search `(.+)` from (.+) to (.+)\s*$/;
+const searchWithSpecificTimeWindowWithAlias  = /(.+) search `(.+)` from (.+) to (.+)\s*$/;
 
 const logger = LoggerFactory.getLogger(__filename);
 
-function runSearchAndSendResults(command, bot, message, query, attachmentTitle) {
-  command.searchClient.search(message.team, query)
+function runSearchAndSendResults(command, bot, message, query, attachmentTitle, alias) {
+  command.searchClient.search(message.channel, message.team, query, alias)
     .then(searchResult => {
       bot.api.files.upload({
         content: JSON.stringify(searchResult, null, 2),
@@ -41,46 +44,85 @@ class SearchCommand extends Command {
   }
 
   configure(controller) {
-    controller.hears([searchWithDefaultWindow], 'direct_message,direct_mention', (bot, message) => {
-      logger.info(`User ${message.user} from team ${message.team} triggered a search with default time frame`, getEventMetadata(message, 'search'));
-      const matches = message.text.match(searchWithDefaultWindow);
-      const queryString = matches[1];
-      const query = new QueryBuilder()
-        .withQueryString(queryString)
-        .build();
 
-      runSearchAndSendResults(this, bot, message, query, `Search results for query: \`${queryString}\``);
+    controller.hears([searchWithDefaultWindowWithAlias], 'direct_message,direct_mention', (bot, message) => {
+      this.searchWithDefaultWindow(message, bot, true);
+    });
+
+    controller.hears([searchWithDefaultWindow], 'direct_message,direct_mention', (bot, message) => {
+      this.searchWithDefaultWindow(message, bot, false);
+    });
+
+    controller.hears([searchWithTimeToSearchWithAlias], 'direct_message,direct_mention', (bot, message) => {
+      this.searchWithTimeToSearch(message, bot, true);
     });
 
     controller.hears([searchWithTimeToSearch], 'direct_message,direct_mention', (bot, message) => {
-      logger.info(`User ${message.user} from team ${message.team} triggered a search with relative time frame`, getEventMetadata(message, 'search'));
-      const matches = message.text.match(searchWithTimeToSearch);
-      const queryString = matches[1];
-      const timeValue = matches[2];
-      const timeUnitStr = matches[3];
+      this.searchWithTimeToSearch(message, bot, false);
+    });
 
-      const query = new QueryBuilder()
-        .withQueryString(queryString)
-        .withRelativeTime(timeValue, TimeUnit.parse(timeUnitStr))
-        .build();
-
-      runSearchAndSendResults(this, bot, message, query, `Search results for query: \`${queryString}\``);
+    controller.hears([searchWithSpecificTimeWindowWithAlias], 'direct_message,direct_mention', (bot, message) => {
+      this.searchWithSpecificTimeWindow(message, bot, true)
     });
 
     controller.hears([searchWithSpecificTimeWindow], 'direct_message,direct_mention', (bot, message) => {
-      logger.info(`User ${message.user} from team ${message.team} triggered a search with absolute time frame`, getEventMetadata(message, 'search'));
-      const matches = message.text.match(searchWithSpecificTimeWindow);
-      const queryString = matches[1];
-      const fromTS = matches[2];
-      const toTS = matches[3];
-
-      const query = new QueryBuilder()
-        .withQueryString(queryString)
-        .withExactTime(fromTS, toTS)
-        .build();
-
-      runSearchAndSendResults(this, bot, message, query, `Search results for query: \`${queryString}\``);
+      this.searchWithSpecificTimeWindow(message, bot, false)
     });
+  }
+
+  searchWithSpecificTimeWindow(message, bot, withAlias) {
+    logger.info(`User ${message.user} from team ${message.team} triggered a search with absolute time frame`, getEventMetadata(message, 'search'));
+    const matches = message.match;
+    let alias,queryString,fromTS,toTS;
+    let index = 1;
+    if(withAlias){
+      alias = matches[index++];
+    }
+    queryString = matches[index++];
+    fromTS = matches[index++];
+    toTS = matches[index];
+    const query = new QueryBuilder()
+      .withQueryString(queryString)
+      .withExactTime(fromTS, toTS)
+      .build();
+
+    runSearchAndSendResults(this, bot, message, query, `Search results for query: \`${queryString}\``, alias );
+  }
+
+  searchWithTimeToSearch(message, bot, withAlias) {
+    logger.info(`User ${message.user} from team ${message.team} triggered a search with relative time frame`, getEventMetadata(message, 'search'));
+    const matches = message.match;
+
+    let alias,queryString,timeValue,timeUnitStr;
+    let index = 1;
+    if(withAlias){
+      alias = matches[index++];
+    }
+    queryString = matches[index++];
+    timeValue = matches[index++];
+    timeUnitStr = matches[index];
+
+    const query = new QueryBuilder()
+      .withQueryString(queryString)
+      .withRelativeTime(timeValue, TimeUnit.parse(timeUnitStr))
+      .build();
+
+    runSearchAndSendResults(this, bot, message, query, `Search results for query: \`${queryString}\``,alias);
+  }
+
+  searchWithDefaultWindow(message, bot, withAlias) {
+    logger.info(`User ${message.user} from team ${message.team} triggered a search with default time frame`, getEventMetadata(message, 'search'));
+    const matches = message.match;
+    let alias,queryString;
+    let index = 1;
+    if(withAlias){
+      alias = matches[index++];
+    }
+    queryString = matches[index];
+    const query = new QueryBuilder()
+      .withQueryString(queryString)
+      .build();
+    runSearchAndSendResults(this, bot, message, query, `Search results for query: \`${queryString}\``,alias);
   }
 
   getCategory() {

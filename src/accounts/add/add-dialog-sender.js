@@ -1,5 +1,4 @@
-const LoggerFactory = require('../core/logging/logger-factory');
-
+const LoggerFactory = require('../../core/logging/logger-factory');
 const logger = LoggerFactory.getLogger(__filename);
 
 const title = 'Important: You’ll give all users access to Logz.io';
@@ -70,7 +69,8 @@ function buildAndSendConfigurationDialog(bot, selectableRegionList, reply, confi
 
   const dialog = bot.createDialog('Logz.io Configuration', callback_id, 'Save')
     .addSelect('Account region', 'accountRegion', accountRegion, selectableRegionList)
-    .addText('API Token', 'apiToken', null, { placeholder: apiToken, hint:'Create an API token in your Logz.io Enterprise account, or request one from help@logz.io' });
+    .addText('API Token', 'apiToken', null, { placeholder: apiToken, hint:'Create an API token in your Logz.io Enterprise account or email help@logz.io to request one.' })
+    .addText('Alias', 'alias', null, {placeholder: '', hint: 'A Slack alias for your Logz.io account. (Letters, numbers, hyphens, and underscores only.)'});
 
   bot.replyWithDialog(reply, dialog.asObject(), (err) => {
     if (err) {
@@ -79,7 +79,7 @@ function buildAndSendConfigurationDialog(bot, selectableRegionList, reply, confi
   });
 }
 
-class SetupDialogSender {
+class AddAccountDialogSender {
 
   constructor(teamConfigurationService, apiConfig) {
     this.teamConfigurationService = teamConfigurationService;
@@ -88,10 +88,15 @@ class SetupDialogSender {
 
   sendSetupMessage(bot, user, isInitializationPhase) {
     bot.startPrivateConversation({ user }, (err, convo) => {
-      convo.ask(messageWithButtons, [{
+
+      convo.addMessage({
+        text: `Okay, I won't add an account now. When you're ready, just type @Alice add account.`,
+      }, 'canceled');
+      convo.addQuestion(messageWithButtons
+         , [{
         pattern: 'yes',
         callback: (reply, convo) => {
-          this.teamConfigurationService.get(reply.team.id)
+          this.teamConfigurationService.getDefault(reply.team.id)
             .then(config => {
               convo.stop();
               bot.replyInteractive(reply, messageWithoutButtons);
@@ -99,16 +104,26 @@ class SetupDialogSender {
                 isInitializationPhase ? 'initialization_setup_dialog' : 'setup_dialog');
             });
         }
-      }, {
+      },
+        {
+        pattern: 'no',
+          callback: (reply, convo) => {
+            convo.gotoThread('canceled');
+           // convo.stop();
+        }
+      }
+      , {
         default: true,
         callback: (reply, convo) => {
-          convo.stop();
-          bot.replyInteractive(reply, messageWithoutButtons);
+          convo.gotoThread('canceled');
+        //  convo.stop();
         }
-      }]);
+      }
+
+  ], {}, 'default');
+    convo.activate();
     });
   }
-
 }
 
-module.exports = SetupDialogSender;
+module.exports = AddAccountDialogSender;

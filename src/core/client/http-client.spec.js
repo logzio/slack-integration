@@ -1,27 +1,29 @@
-const EndpointResolver = require('./endpoint-resolver');
-const findFreePort = require("find-free-port");
-const HttpClient = require('./http-client');
-const JasmineHttpServerSpy = require('jasmine-http-server-spy');
-const TeamConfiguration = require('../configuration/team-configuration');
 const RateLimitExceededError = require('../errors/rate-limit-exceeded-error');
+const AliasNotExistError = require('../errors/alias-not-exist-error');
+const GlobalConfiguration = require('../../core/utils/globalTestConfiguration');
+const CommandName = require('../../tests/CommandName');
 
 describe('HttpClient', () => {
 
-  const configuredTeamId = 'configured-team';
-  const configuredTeamToken = 'configured-team-token';
-  const teamIdWithOnlyRegionConfigured = 'team-with-only-region';
+  const configuredTeamId = 'team1';
+  const configuredTeamToken = 'token1';
+  const teamIdWithOnlyRegionConfigured = 'teamx';
+  const globalTestConfiguration = new GlobalConfiguration();
+  const chanelId = 'chanelId';
 
   it('should include account api token and user-agent with each request', done => {
     const test = (httpMethodName, mockServerMethodName) => {
-      return this.httpClient[httpMethodName](configuredTeamId, '/mocked-url')
+      return globalTestConfiguration.httpClient[httpMethodName](chanelId,configuredTeamId, '/mocked-url')
         .then(() => {
-          expect(this.httpSpy[mockServerMethodName]).toHaveBeenCalledWith(jasmine.objectContaining({
-            headers: jasmine.objectContaining({
+          expect(globalTestConfiguration.httpSpy[mockServerMethodName]).toHaveBeenCalledWith(
+            jasmine.objectContaining({
+              headers: jasmine.objectContaining({
               'user-agent': 'logzio-slack-integration',
-              'x-api-token': configuredTeamToken,
-              'x-user-token': configuredTeamToken,
+               'x-api-token': configuredTeamToken,
+                'x-user-token': configuredTeamToken
             })
           }));
+
 
           return Promise.resolve();
         })
@@ -36,19 +38,30 @@ describe('HttpClient', () => {
       .catch(done.fail);
   });
 
+  it('wrong alias post', done => {
+    globalTestConfiguration.httpClient.post(chanelId,configuredTeamId, '/mocked-url', {},'wrong_alias')
+      .then(done.fail)
+      .catch(err => {
+        expect(err.constructor).toBe(AliasNotExistError);
+        expect(err.message).toBe('Sorry, there isn\'t an account with that alias. If you want to see your accounts, type `@Alice accounts`.');
+        done();
+      })
+  });
+
+
   it('rate limit propagation to the user', done => {
-    this.httpClient.post(configuredTeamId, '/mocked-rate-limit-url', {})
+    globalTestConfiguration.httpClient.post(chanelId,configuredTeamId, '/mocked-rate-limit-url', {})
       .then(done.fail)
       .catch(err => {
         expect(err.constructor).toBe(RateLimitExceededError);
         expect(err.message).toBe('rate limit not ok');
         done();
-    })
+      })
   });
 
   it('should throw exception when the region is not configured', done => {
     const unconfiguredTeam = 'unconfigured_team';
-    this.httpClient.get(unconfiguredTeam, '/whoami')
+    globalTestConfiguration.httpClient.get(chanelId,unconfiguredTeam, '/whoami')
       .then(() => done.fail('Promise should not be resolved!'))
       .catch(err => {
         expect(err.message).toBe('Logz.io account region is not configured!');
@@ -57,7 +70,7 @@ describe('HttpClient', () => {
   });
 
   it('should throw exception when the api token is not configured', done => {
-    this.httpClient.get(teamIdWithOnlyRegionConfigured, '/whoami')
+    globalTestConfiguration.httpClient.get(chanelId,teamIdWithOnlyRegionConfigured, '/whoami')
       .then(() => done.fail('Promise should not be resolved!'))
       .catch(err => {
         expect(err.message).toBe('Logz.io api token is not configured!');
@@ -65,10 +78,23 @@ describe('HttpClient', () => {
       });
   });
 
-  beforeAll(done => {
-    findFreePort(3000, (err, freePort) => {
-      this.port = freePort;
-      this.httpSpy = JasmineHttpServerSpy.createSpyObj('mockServer', [{
+  beforeAll(async (done) => {
+
+    const response = {
+      statusCode: 200,
+      body: {
+        message: 'ok'
+      }
+    };
+
+    const rateLimitResponse = {
+      statusCode: 429,
+      body: {
+        message: 'rate limit not ok'
+      }
+    };
+
+    await globalTestConfiguration.beforeAll([{
         method: 'get',
         url: '/mocked-url',
         handlerName: 'getMockedUrl'
@@ -80,72 +106,20 @@ describe('HttpClient', () => {
         method: 'post',
         url: '/mocked-rate-limit-url',
         handlerName: 'mockedRateLimitUrl'
-      }]);
+      }],
+      [response,response,rateLimitResponse])
 
-      this.httpSpy.server.start(this.port, () => {
-        const response = {
-          statusCode: 200,
-          body: {
-            message: 'ok'
-          }
-        };
+    await globalTestConfiguration.mockFirstInstall(configuredTeamId,'us-east-1',configuredTeamToken,configuredTeamToken);
+    await globalTestConfiguration.mockFirstInstall(teamIdWithOnlyRegionConfigured,'us-east-1','');
 
-        const rateLimitResponse = {
-          statusCode: 429,
-          body: {
-            message: 'rate limit not ok'
-          }
-        };
-
-        this.httpSpy.getMockedUrl.and.returnValue(response);
-        this.httpSpy.postMockedUrl.and.returnValue(response);
-        this.httpSpy.mockedRateLimitUrl.and.returnValue(rateLimitResponse);
-
-        createMockClasses();
-        done();
-      });
+    done()
     });
+
+  afterAll(done => { globalTestConfiguration.afterAll(done);});
+  afterEach(() => {globalTestConfiguration.afterEach();});
+  beforeEach(async () => {
+    const kibanaClient = globalTestConfiguration.createKibanaClientMock([]);
+    await globalTestConfiguration.initBeforeEach(kibanaClient);
   });
-
-  afterAll(done => {
-    this.httpSpy.server.stop(done)
-  });
-
-  afterEach(() => {
-    this.httpSpy.getMockedUrl.calls.reset();
-    this.httpSpy.postMockedUrl.calls.reset();
-    this.httpSpy.mockedRateLimitUrl.calls.reset();
-  });
-
-  const createMockClasses = () => {
-    const config = {
-      regions: {
-        'us-east-1': {
-          endpoint: `http://localhost:${this.port}`
-        }
-      }
-    };
-
-    const get = (id) => {
-      const teamConfiguration = new TeamConfiguration();
-
-      switch (id) {
-        case configuredTeamId:
-          teamConfiguration
-            .setLogzioAccountRegion('us-east-1')
-            .setLogzioApiToken(configuredTeamToken);
-          break;
-        case teamIdWithOnlyRegionConfigured:
-          teamConfiguration
-            .setLogzioAccountRegion('us-east-1');
-          break;
-      }
-
-      return Promise.resolve(teamConfiguration);
-    };
-
-    this.endpointResolver = new EndpointResolver(config);
-    this.httpClient = new HttpClient({ get }, this.endpointResolver);
-  }
 
 });
