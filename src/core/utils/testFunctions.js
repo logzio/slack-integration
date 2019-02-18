@@ -88,14 +88,31 @@ class TestFunctions {
     return [{
       user: userId, channel: channelId, team: teamId,
       messages: [{
-        text: `set channel account ${alias}`,
+        text: !alias?'set channel account': `set channel account ${alias}`,
         isAssertion: true,
         team: teamId
       }]
     }];
   }
 
+  static setWorkspaceAccount(userId,teamId,channelId,alias) {
+    return [{
+      user: userId, channel: channelId, team: teamId,
+      messages: [{
+        text: !alias?'set workspace account': `set workspace account ${alias}`,
+        isAssertion: true,
+        team: teamId
+      }]
+    }];
+  }
 
+  static setWorkspaceAccountWithoutAlias(userId,teamId,channelId) {
+    return this.setWorkspaceAccount(userId,teamId,channelId);
+  }
+
+  static setChannelAccountWithoutAlias(userId,teamId,channelId) {
+    return this.setChannelAccount(userId,teamId,channelId);
+  }
 
   static aliaGetTriggers(userId,teamId,channelId,alias) {
     return [{

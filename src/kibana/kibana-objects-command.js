@@ -90,7 +90,7 @@ class KibanaObjectsCommand extends Command {
 
   getUsage() {
     return [
-      '*get kibana &lt;objects|dashboards|visualizations|searches&gt;* - Lists all available kibana objects'
+      '*get kibana &lt;objects|dashboards|visualizations|searches&gt;* - List Kibana objects, dashboards, visualizations, or searches'
     ];
   }
 

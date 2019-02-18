@@ -9,7 +9,7 @@ const alias2 = 'mixed2';
 
 
 
-describe('Migration Mixed1',() => {
+describe('Migration',() => {
 
   const globalTestConfiguration = new GlobalConfiguration();
   const channelId = globalTestConfiguration.openChannelId;
@@ -26,6 +26,81 @@ describe('Migration Mixed1',() => {
       }]}];
   }
 
+
+  //clear channel account
+
+  it('set workspace account with not existed alias', (done) => {
+    globalTestConfiguration.bot.usersInput(TestFunctions.setWorkspaceAccount(userId,teamId,channelId,alias1))
+      .then((message) => {
+        expect(message.text).toBe(`Sorry, there isn't an account with that alias. If you want to see your accounts, type \`@Alice accounts\`.`);
+        done();
+      })
+  });
+
+  it('set workspace account without alias', (done) => {
+    globalTestConfiguration.bot.usersInput(TestFunctions.setWorkspaceAccountWithoutAlias(userId,teamId,channelId))
+      .then((message) => {
+        expect(message.text).toBe(`Which account do you want to set as the workspace account?`);
+        done();
+      })
+  });
+
+  it('set channel account with not existed alias', (done) => {
+    globalTestConfiguration.bot.usersInput(TestFunctions.setChannelAccount(userId,teamId,channelId,alias1))
+      .then((message) => {
+        expect(message.text).toBe(`Sorry, there isn't an account with that alias. If you want to see your accounts, type \`@Alice accounts\`.`);
+        done();
+      })
+  });
+
+  //todo ARIE - set channel account
+  it('set channel account', (done) => {
+    globalTestConfiguration.bot.usersInput(TestFunctions.setChannelAccountWithoutAlias(userId,teamId,channelId))
+      .then((message) => {
+        expect(message.text).toBe(`Which account do you want to set as the channel account?`);
+        //INPUT => Sorry, there isn't an account with that alias. If you want to see your accounts, type
+        //REFACTOR
+        done();
+      })
+  });
+
+
+  //TODO ask Arie
+  it('remove account', (done) => {
+    globalTestConfiguration.bot.usersInput(TestFunctions.removeAccountWithoutAlias(userId,teamId,channelId))
+      .then((message) => {
+        expect(message.attachments[0].text).toBe(`This is your workspace account. Are you sure you want to remove it from Slack?`);
+        done();
+      })
+  });
+
+  it('get triggers - after migration', (done) => {
+    globalTestConfiguration.bot.usersInput(getTriggers(channelId))
+      .then((message) => {
+        expect(message.text).toBe(`Displaying ${pageSize} out of ${total} events`);
+        expect(globalTestConfiguration.httpSpy.alerts).toHaveBeenCalledWith(jasmine.objectContaining({
+          body: jasmine.objectContaining({
+            from: 0,
+            size: pageSize,
+            severity: ["HIGH", "MEDIUM", "LOW"],
+            sortBy: "DATE",
+            sortOrder: "DESC"
+          })
+        }))
+        done();
+      })
+  })
+
+  // //Todo- arie
+  // it('get-accounts', (done) => {
+  //   globalTestConfiguration.bot.usersInput(TestFunctions.getAccounts(userId,teamId,channelId))
+  //     .then((message) => {
+  //       expect(message.channel).toBe(channelId);
+  //       expect(message.text).toBe(`These are the accounts in this workspace:\n• \`${alias1}\`: Slack alias for Logzio App Test 1 Prod. *This is the default workspace account.*\n• \`${alias2}\`: Slack alias for Logzio App Test 2 Prod.\n`);
+  //
+  //       done();
+  //     })
+  // })
 
   it('mixed', (done) => {
 
@@ -220,6 +295,7 @@ describe('Migration Mixed1',() => {
     const handlersReturnValues = new Object();
     handlersReturnValues['alerts'] = {}
     handlersReturnValues['alerts']['mixed-1-api-token'] = alertsReturnValue;
+    handlersReturnValues['alerts']['api-token'] = alertsReturnValue;
     handlersReturnValues['alerts']['mixed-2-api-token'] = alertsReturnValue2;
 
     await globalTestConfiguration.beforeAll(handlers,handlersReturnValues,true)

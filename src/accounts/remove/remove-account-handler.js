@@ -62,9 +62,6 @@ class removeAccountHandler {
         if (!userAlias && accountConfiguration) {
           alias = accountConfiguration.getAlias();
         }
-        if (!alias) {
-          alias = 'my-account';
-        }
         return alias;
       })
       .then(alias => this.ConfirmRemove(teamConfiguration, alias, bot, user, teamId)
@@ -72,7 +69,12 @@ class removeAccountHandler {
   }
 
   ConfirmRemove(teamConfiguration, alias, bot, user, teamId) {
-    if (teamConfiguration.config.alias === alias) {
+    let noAlias = alias===undefined;
+    if (noAlias || teamConfiguration.config.alias === alias) {
+      if(noAlias){
+        alias = 'This'
+      }
+
       const messageWithButtons = getMessageWithButtons(alias, shouldDeleteDefaultAccountQuestion, '');
       this.askForApproval(alias, bot, user, teamId, messageWithButtons, true);
     } else {

@@ -296,19 +296,39 @@ class TeamConfigurationService {
     const defaultAccount = await this.getDefault(teamId);
     return this.storage.configuredAccounts.all(teamId)
       .then(accounts => {
-        let map = accounts.map(configuredAccount =>
-          this.getAliasAccountsUsedByChannel(teamId, configuredAccount.alias)
-            .then(aliasAccounts =>
-              ApiExtract.extractAccountsChannelsWithId(bot, aliasAccounts))
-            .then(channels =>
-              ({
-                accountName: configuredAccount.realName,
-                accountAlias: configuredAccount.alias,
-                isDefault: defaultAccount.config.alias === configuredAccount.alias,
-                channels: channels
-              })
-            )
-        )
+
+        let map;
+
+        if(accounts.length === 0 && defaultAccount.getAlias()){
+
+          map = {};
+          map["default"] = {
+            accountName: defaultAccount.realName,
+            accountAlias: 'no alias',
+            isDefault: true,
+            channels: []
+          }
+
+        }
+
+
+      else {
+          map = accounts.map(configuredAccount =>
+            this.getAliasAccountsUsedByChannel(teamId, configuredAccount.alias)
+              .then(aliasAccounts =>
+                ApiExtract.extractAccountsChannelsWithId(bot, aliasAccounts))
+              .then(channels =>
+                ({
+                  accountName: configuredAccount.realName,
+                  accountAlias: configuredAccount.alias,
+                  isDefault: defaultAccount.config.alias === configuredAccount.alias,
+                  channels: channels
+                })
+              )
+          )
+        }
+
+
         return Promise.all(map)
       })
       .catch(err => {

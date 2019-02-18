@@ -109,8 +109,8 @@ class ShowAlertCommand extends Command {
 
   getUsage() {
     return [
-      '*show alert &lt;alert-name&gt;* - Displays alert details',
-      '*show alert by id &lt;alert-id&gt;* - Displays alert details',
+      '*show alert &lt;alert-name&gt;* - Show alert definition',
+      '*show alert by id &lt;alert-id&gt;* - Show alert definition',
     ];
   }
 

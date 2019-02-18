@@ -11,8 +11,7 @@ class GetAccountsCommand extends Command {
 
   configure(controller) {
     controller.hears(/accounts/, 'direct_message,direct_mention', (bot, message) => {
-      return this.teamConfigService
-        .getAllAccountsSafeView(message.team, bot)
+      return this.teamConfigService.getAllAccountsSafeView(message.team, bot)
         .then(allAccountsSafeView => {
           let accountsString = 'These are the accounts in this workspace:\n'+ allAccountsSafeView.map(item => {
               let channelNames = item.channels.length > 0 ? ` This is the channel account for ` +

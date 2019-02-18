@@ -29,6 +29,7 @@ const ChannelAccountHandler = require('../../accounts/channel/channel-account-ha
 const ClearActiveCommand = require('../../accounts/channel/clear-channel-account-command');
 const SetChannelAccountCommand = require('../../accounts/channel/set-channel-account-command');
 
+const SetDefaultCommand = require('../../accounts/default/set-default-command');
 const DefaultHandler = require('../../accounts/default/default-handler');
 const RemoveAccountCommand = require('../../accounts/remove/remove-command');
 const RemoveAccountHandler = require('../../accounts/remove/remove-account-handler');
@@ -73,7 +74,6 @@ class GlobalTestConfigurationSetup {
     this.httpSpy = JasmineHttpServerSpy.createSpyObj('mockServer', jasmineSpyHandlers);
     this.handlers = [];
 
-    jasmineSpyHandlerReturnValues
     jasmineSpyHandlerReturnValues['whoami'] = {}
     jasmineSpyHandlerReturnValues['whoami']['mixed-1-api-token'] = {
       statusCode: 200,
@@ -180,6 +180,10 @@ class GlobalTestConfigurationSetup {
            setChannelAccountCommand.configure(this.controller);
 
            const defaultHandler = new DefaultHandler(this.teamConfigurationService, this.httpClient);
+
+           const setDefaultCommand = new SetDefaultCommand(defaultHandler);
+           setDefaultCommand.configure(this.controller);
+
            const removeAccountHandler = new RemoveAccountHandler(this.teamConfigurationService, defaultHandler);
            const removeAccountCommand = new RemoveAccountCommand(removeAccountHandler)
            removeAccountCommand.configure(this.controller);
