@@ -36,60 +36,39 @@ class removeAccountHandler {
   }
 
   removeAccount(teamId,channel, userAlias, bot, user) {
-
-    let alias = userAlias;
-    let teamConfiguration;
-    if (!alias) {
-      return this.teamConfigService.getDefault(teamId)
-        .then(configuration =>
-          HttpClient.validateConfiguration(configuration))
-        .then((validTeamConfiguration) => {
-          teamConfiguration = validTeamConfiguration;
-          if(!alias) {
-            alias = teamConfiguration.getAlias();
-          }
-          return this.teamConfigService.getAccountForChannel(teamId, channel);
-        })
-        .then(accountConfiguration=>{
-          if(!userAlias && accountConfiguration){
-            alias = accountConfiguration.getAlias();
-          }
-          if(!alias){
-            alias = 'my-account';
-          }
-          return alias;
-        })
-        .then(alias=> this.ConfirmRemove(teamConfiguration, alias, bot, user, teamId)
-    );
+    if (!userAlias) {
+      return this.PromiseToRemove(teamId, channel, userAlias, bot, user)
     }else{
-      return HttpClient.validateAlias(this.teamConfigService,teamId,alias)
-        .then(()=> {
-
-          return this.teamConfigService.getDefault(teamId)
-            .then(configuration =>
-              HttpClient.validateConfiguration(configuration))
-            .then((validTeamConfiguration) => {
-              teamConfiguration = validTeamConfiguration;
-              if (!alias) {
-                alias = teamConfiguration.getAlias();
-              }
-              return this.teamConfigService.getAccountForChannel(teamId, channel);
-            })
-            .then(accountConfiguration => {
-              if (!userAlias && accountConfiguration) {
-                alias = accountConfiguration.getAlias();
-              }
-              if (!alias) {
-                alias = 'my-account';
-              }
-              return alias;
-            })
-            .then(alias => this.ConfirmRemove(teamConfiguration, alias, bot, user, teamId)
-            );
-        })
-
+      return HttpClient.validateAlias(this.teamConfigService,teamId,userAlias)
+        .then(()=> this.PromiseToRemove(teamId, channel, userAlias, bot, user))
     }
 
+  }
+
+  PromiseToRemove(teamId, channel, userAlias, bot, user) {
+    let teamConfiguration;
+    let alias = userAlias;
+    return this.teamConfigService.getDefault(teamId)
+      .then(configuration =>
+        HttpClient.validateConfiguration(configuration))
+      .then((validTeamConfiguration) => {
+        teamConfiguration = validTeamConfiguration;
+        if (!alias) {
+          alias = teamConfiguration.getAlias();
+        }
+        return this.teamConfigService.getAccountForChannel(teamId, channel);
+      })
+      .then(accountConfiguration => {
+        if (!userAlias && accountConfiguration) {
+          alias = accountConfiguration.getAlias();
+        }
+        if (!alias) {
+          alias = 'my-account';
+        }
+        return alias;
+      })
+      .then(alias => this.ConfirmRemove(teamConfiguration, alias, bot, user, teamId)
+      );
   }
 
   ConfirmRemove(teamConfiguration, alias, bot, user, teamId) {
