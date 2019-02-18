@@ -281,9 +281,6 @@ class GlobalTestConfigurationSetup {
 
     await this.storage.teams.save(botTeam);
 
-       // .setLogzioAccountRegion(region)
-        //.setRealName('realName');
-
     if(apiToken || region || alias){
       const teamConfiguration = new TeamConfiguration();
     if(apiToken) {
@@ -303,6 +300,31 @@ class GlobalTestConfigurationSetup {
 
 
 
+  }
+
+
+  async mockFirstInstallForMigration(id,createdBy,name,region,token,appToken, apiToken){
+
+    const botTeam = {
+      "id": `${id}`,
+      "createdBy": `${createdBy}`,
+      "url": "https://logzio.slack.com/",
+      "name": `${name}`,
+      "bot": {
+        "token": `${token}`,
+        "user_id": `${createdBy}`,
+        "createdBy": `${createdBy}`,
+        "app_token":`${appToken}`,
+        "name": `${name}`,
+        "configuration": {
+          "accountRegion":`${region}`,
+          "apiToken":`${apiToken}`
+        }
+      },
+      "token": `${token}`
+    };
+
+    await this.storage.teams.save(botTeam);
   }
 
 }

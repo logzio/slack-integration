@@ -41,7 +41,7 @@ describe('Mixed1',() => {
   }
 
 
-  it('mixed', (done) => {
+  it('migration-mixed-1', (done) => {
 
     let sequence = TestFunctions.createOneAccount(userId, teamId, channelId,'mixed-1-api-token', 'us-east-1', alias1);
     globalTestConfiguration.bot.usersInput(sequence)
@@ -236,8 +236,8 @@ describe('Mixed1',() => {
     handlersReturnValues['alerts']['mixed-1-api-token'] = alertsReturnValue;
     handlersReturnValues['alerts']['mixed-2-api-token'] = alertsReturnValue2;
 
-    await globalTestConfiguration.beforeAll(handlers,handlersReturnValues,true)
-    await globalTestConfiguration.mockFirstInstall(teamId,userId,'Logz.io Mixed1','us-east-1','xoxb-357770700357','xoxp-8241711843-408');
+    await globalTestConfiguration.beforeAll(handlers,handlersReturnValues,true);
+    await globalTestConfiguration.mockFirstInstall(teamId,userId,'Logz.io Mixed1','us-east-1','xoxb-357770700357','xoxp-8241711843-408','mixed-1-api-token');
     done()
   });
 
