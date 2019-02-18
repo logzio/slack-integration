@@ -1,6 +1,6 @@
 const moment = require('moment');
 const userId = 'UserId1';
-const GlobalConfiguration = require('../core/utils/globalTestConfiguration');
+const GlobalConfiguration = require('../core/utils/globalTestConfigurationSetup');
 const CommandName = require('../tests/CommandName');
 
 describe('SnapshotCommand',() => {
@@ -74,8 +74,8 @@ describe('SnapshotCommand',() => {
       });
   });
 
-   const kibanaObjectId = 'test-dashboard-id';
-   const kibanaObjectId2 = 'test-dashboard2-id-2';
+     const kibanaObjectId = 'test-dashboard-id';
+     const kibanaObjectId2 = 'test-dashboard2-id-2';
 
   it('there are multiple results with the specified name', done => {
     const kibanaClient = globalTestConfiguration.createKibanaClientMock([
@@ -136,7 +136,8 @@ it('there are multiple results with the specified name - when more then one titl
         }}
         ])
 
-    await globalTestConfiguration.mockFirstInstall('teamId2','us-east-1','token2');
+    await globalTestConfiguration.mockFirstInstall(teamId,userId,'Logz.io Add account test','us-east-1','xoxb-357770700357','xoxp-8241711843-408','token2');
+
     done()
   });
 

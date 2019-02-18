@@ -7,24 +7,6 @@ const util = require('util');
 module.exports = function (dbConfig) {
   const storage = new BotkitStorageMySQL(dbConfig);
 
-  // function getConfiguredAccounts(tableName) {
-  //   return (id, alias, callback) => {
-  //     let connection = mysql.createConnection(dbConfig);
-  //     try {
-  //       connection.connect();
-  //       connection.query(SQL`SELECT * FROM `
-  //           .append(tableName)
-  //           .append(SQL` WHERE team_id=${id} AND alias=${alias}`),
-  //         (err, rows) => {
-  //           callback(err, rows[0]);
-  //         });
-  //     }
-  //     finally {
-  //       connection.end();
-  //     }
-  //   }
-  // }
-
   var getConfiguredAccounts = function (tableName) {
     return async function (id,alias) {
       var connection = mysql.createConnection(dbConfig);
@@ -40,31 +22,6 @@ module.exports = function (dbConfig) {
       }
     };
   };
-
-  // function saveConfiguredAccount(tableName) {
-  //   //   return (data, callback) => {
-  //   //     let team_id = data.team_id;
-  //   //     let alias = data.alias;
-  //   //     let apiToken = data.apiToken;
-  //   //     let region = data.region;
-  //   //     let realName = data.realName;
-  //   //
-  //   //     let connection = mysql.createConnection(dbConfig);
-  //   //     try {
-  //   //       connection.connect();
-  //   //       connection.query(SQL`INSERT into `.append(tableName)
-  //   //           .append(SQL` (team_id, alias, apiToken, region, realName)`)
-  //   //           .append(SQL` VALUES (${team_id}, ${alias}, ${apiToken}, ${region}, ${realName})`)
-  //   //           .append(SQL` ON DUPLICATE KEY UPDATE alias = ${alias}, apiToken = ${apiToken}, region = ${region}, realName = ${realName}`),
-  //   //         err => callback(err)
-  //   //       );
-  //   //
-  //   //     } finally {
-  //   //       connection.end();
-  //   //     }
-  //   //   }
-  //   // }
-
 
   var saveConfiguredAccount = function (tableName) {
     return async function (data) {
@@ -87,24 +44,6 @@ module.exports = function (dbConfig) {
     };
   };
 
-
-
-  // function deleteConfiguredAccount(tableName) {
-  //   return (id, alias, callback) => {
-  //     let connection = mysql.createConnection(dbConfig);
-  //     try{
-  //       connection.connect();
-  //       connection.query(
-  //         SQL`DELETE FROM `.append(tableName)
-  //           .append(SQL` WHERE team_id=${id} AND alias=${alias}`),
-  //         err => callback(err)
-  //       );
-  //     } finally {
-  //       connection.end();
-  //     }
-  //   }
-  // }
-
   var deleteConfiguredAccount = function (tableName) {
     return async function (id, alias) {
       var connection = mysql.createConnection(dbConfig);
@@ -118,7 +57,6 @@ module.exports = function (dbConfig) {
       }
     };
   };
-
 
   var getAllConfiguredAccount = function (tableName) {
     return async function (id) {
@@ -137,34 +75,6 @@ module.exports = function (dbConfig) {
       }
     };
   };
-
-
-
-
-
-
-
-
-  // var dbToJson = function (input) {
-  //   if(input!==undefined){
-  //
-  //     // input.getAllKeys()
-  //     //
-  //     //
-  //     // var output = {};
-  //     // output.team_id = input.team_id;
-  //     // output.
-  //     // var json = JSON.parse(input);
-  //     // var keys = Object.keys(json);
-  //     // for (var i = 0; i < keys.length; i++) {
-  //     //   var key = keys[i];
-  //     //   output[key] = json[key];
-  //     // }
-  //     return JSON.stringify(input);
-  //   }
-  // };
-
-
 
   return {
     teams: {

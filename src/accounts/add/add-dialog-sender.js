@@ -27,6 +27,36 @@ const messageWithButtons = {
   ]
 };
 
+
+const shouldConfigureAliasForCurrentAccount = ' is your default workspace. We need to configure your alias.';
+
+function getMessageWithButtonsForAliasConfiguration(prefix, question, suffix){
+  return  {
+    attachments: [
+      {
+        title: 'Alias Configuration',
+        text: prefix + question + suffix,
+        callback_id: 'add-alias-to-default',
+        attachment_type: 'default',
+        delete_original: true,
+        actions: [{
+          text: 'Add alias',
+          value: 'yes',
+          type: 'button',
+          name: 'yes',
+        }, {
+          text: 'Not now',
+          value: 'no',
+          type: 'button',
+          name: 'no',
+        }]
+      }
+    ]
+  };
+
+}
+
+
 const messageWithoutButtons = {
   response_type: "ephemeral",
   attachments: [{
@@ -79,6 +109,17 @@ function buildAndSendConfigurationDialog(bot, selectableRegionList, reply, confi
   });
 }
 
+function buildAndSendAliasConfigurationDialog(bot, reply, config, callback_id) {
+  const dialog = bot.createDialog('Alias Configuration', callback_id, 'Save')
+    .addText('Alias', 'alias', null, {placeholder: '', hint: 'A Slack alias for your Logz.io account. (Letters, numbers, hyphens, and underscores only.)'});
+
+  bot.replyWithDialog(reply, dialog.asObject(), (err) => {
+    if (err) {
+      logger.error('Unknown error while replying with dialog', err);
+    }
+  });
+}
+
 class AddAccountDialogSender {
 
   constructor(teamConfigurationService, apiConfig) {
@@ -92,38 +133,83 @@ class AddAccountDialogSender {
       convo.addMessage({
         text: `Okay, I won't add an account now. When you're ready, just type @Alice add account.`,
       }, 'canceled');
-      convo.addQuestion(messageWithButtons
-         , [{
-        pattern: 'yes',
-        callback: (reply, convo) => {
-          this.teamConfigurationService.getDefault(reply.team.id)
-            .then(config => {
-              convo.stop();
-              bot.replyInteractive(reply, messageWithoutButtons);
-              buildAndSendConfigurationDialog(bot, this.selectableRegionList, reply, config,
-                isInitializationPhase ? 'initialization_setup_dialog' : 'setup_dialog');
-            });
-        }
-      },
-        {
-        pattern: 'no',
-          callback: (reply, convo) => {
-            convo.gotoThread('canceled');
-           // convo.stop();
-        }
-      }
-      , {
-        default: true,
-        callback: (reply, convo) => {
-          convo.gotoThread('canceled');
-        //  convo.stop();
-        }
-      }
 
-  ], {}, 'default');
-    convo.activate();
+      convo.addQuestion(messageWithButtons
+        , [{
+          pattern: 'yes',
+          callback: (reply, convo) => {
+            this.teamConfigurationService.getDefault(reply.team.id)
+              .then(config => {
+                convo.stop();
+                bot.replyInteractive(reply, messageWithoutButtons);
+                buildAndSendConfigurationDialog(bot, this.selectableRegionList, reply, config,
+                  isInitializationPhase ? 'initialization_setup_dialog' : 'setup_dialog');
+              });
+          }
+        },
+          {
+            pattern: 'no',
+            callback: (reply, convo) => {
+              convo.gotoThread('canceled');
+              // convo.stop();
+            }
+          }
+          , {
+            default: true,
+            callback: (reply, convo) => {
+              convo.gotoThread('canceled');
+              //  convo.stop();
+            }
+          }
+
+        ], {}, 'default');
+      convo.activate();
     });
   }
+
+
+  sendSetupAliasMessage(bot, user , config, message) {
+    bot.startConversation(message, (err, convo) => {
+
+      convo.addMessage({
+        text: `Okay, I won't add an alias now. When you're ready, just type @Alice add account.`,
+      }, 'canceled');
+
+
+
+      const messageWithButtons2 = getMessageWithButtonsForAliasConfiguration(config.getOldName(), shouldConfigureAliasForCurrentAccount, '');
+      convo.addQuestion(messageWithButtons2
+        , [{
+          pattern: 'yes',
+          callback: (reply, convo) => {
+            this.teamConfigurationService.getDefault(reply.team.id)
+              .then(config => {
+                convo.stop();
+                bot.replyInteractive(reply, messageWithButtons2);
+                buildAndSendAliasConfigurationDialog(bot, reply, config, 'setup_alias_for_current_dialog');
+              });
+          }
+        },
+          {
+            pattern: 'no',
+            callback: (reply, convo) => {
+              convo.gotoThread('canceled');
+              // convo.stop();
+            }
+          }
+          , {
+            default: true,
+            callback: (reply, convo) => {
+              convo.gotoThread('canceled');
+              //  convo.stop();
+            }
+          }
+
+        ], {}, 'default');
+      convo.activate();
+    });
+  }
+
 }
 
 module.exports = AddAccountDialogSender;

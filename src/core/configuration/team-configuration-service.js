@@ -18,18 +18,14 @@ class TeamConfigurationService {
     this.teamStore = storage.teams;
     this.storage = storage;
   }
-
    getDefault(teamId) {
      return  this.storage.teams.get_async(teamId)
         .then(teamDate => {
           if (!teamDate || !teamDate.bot.configuration) {
             return new TeamConfiguration();
           } else {
-            return new TeamConfiguration(teamDate.bot.configuration);
+            return new TeamConfiguration(teamDate.bot.configuration,teamDate.name);
           }
-        })
-        .catch(err=>{
-          const r = 8;
         })
   }
 
@@ -61,6 +57,29 @@ class TeamConfigurationService {
             return true;
         })
       ;
+  }
+
+  saveDefaultAlias(teamId, alias) {
+
+    return  this.storage.teams.get_async(teamId)
+      .then(teamDate => {
+        teamDate.bot.configuration.alias = alias;
+        teamDate.bot.configuration.realName = teamDate.name;
+        return this.teamStore.save(teamDate);
+      })
+      .then((data) =>
+      {
+        return this.getDefault(teamId)
+      })
+      .then(defaultTeam => {
+        if (defaultTeam.config.alias !== alias) {
+          throw Error();
+        }
+        return defaultTeam;
+      })
+      .then(defaultTeam=>{
+        return this.addAccount(teamId, defaultTeam);
+      })
   }
 
   saveAccountForChannel(teamId, channelId, alias) {
@@ -106,23 +125,34 @@ class TeamConfigurationService {
         region: teamConfiguration.getLogzioAccountRegion(),
         apiToken: teamConfiguration.getLogzioApiToken(),
         realName: teamConfiguration.getRealName()
-      });
+      })
+      .then(()=>this.getAccountForAlias(teamConfiguration.getAlias(), teamId))
+      .then(result =>{
+        if(!result){
+          throw Error()
+        }
+      })
+
+
   }
 
-  removeChannel(teamId, alias) {
+   removeChannel(teamId, alias) {
     return this.storage.channels.all_async()
       .then(channels => {
-        channels.filter(channel => channel.team === teamId && channel.alias === alias).forEach(channel => {
-          delete channel['alias'];
-          channels.save(channel);
-        });
+         const filterdChannels = channels.filter(
+          channel => channel.team === teamId && channel.alias === alias)
+           .map(channel => {
+             delete channel['alias'];
+             return channel;
+           })
+
+        const PromiseList = filterdChannels.map((channel) => this.storage.channels.save(channel));
+        return Promise.all(PromiseList);
       })
       .then(() => {
         return this.isAccountUsedByChannel(teamId, alias)
       })
-  }
-
-
+   }
   removeConfiguredAccount(teamId, alias) {
     return this.storage.configuredAccounts.delete(teamId, alias)
       .then(()=>{

@@ -28,7 +28,7 @@ class RemoveCommand extends Command {
 
   removeAccount(message, alias, bot) {
     logger.info(`User ${message.user} from team ${message.team} triggered remove command on ${alias}`, getEventMetadata(message, 'remove account'));
-    this.removeAccountHandler.removeAccount(message.team, alias, bot, message.user)
+    this.removeAccountHandler.removeAccount(message.team,message.channel, alias, bot, message.user)
       .catch(err => {
         this.handleError(bot, message, err, err => {
           logger.warn('Failed to remove account', err, getEventMetadata(message, 'failed-to-remove-account'));

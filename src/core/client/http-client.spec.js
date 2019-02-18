@@ -1,12 +1,11 @@
 const RateLimitExceededError = require('../errors/rate-limit-exceeded-error');
 const AliasNotExistError = require('../errors/alias-not-exist-error');
-const GlobalConfiguration = require('../../core/utils/globalTestConfiguration');
-const CommandName = require('../../tests/CommandName');
+const GlobalConfiguration = require('../utils/globalTestConfigurationSetup');
 
 describe('HttpClient', () => {
 
   const configuredTeamId = 'team1';
-  const configuredTeamToken = 'token1';
+  const configuredTeamToken = 'apitoken';
   const teamIdWithOnlyRegionConfigured = 'teamx';
   const globalTestConfiguration = new GlobalConfiguration();
   const chanelId = 'chanelId';
@@ -109,8 +108,8 @@ describe('HttpClient', () => {
       }],
       [response,response,rateLimitResponse])
 
-    await globalTestConfiguration.mockFirstInstall(configuredTeamId,'us-east-1',configuredTeamToken,configuredTeamToken);
-    await globalTestConfiguration.mockFirstInstall(teamIdWithOnlyRegionConfigured,'us-east-1','');
+    await globalTestConfiguration.mockFirstInstall(configuredTeamId,'userId','Logz.io http client 1','us-east-1','xoxb-357770700358','xoxp-8241711843-4088' ,configuredTeamToken);
+    await globalTestConfiguration.mockFirstInstall(teamIdWithOnlyRegionConfigured,'userId2','Logz.io http client 2','us-east-1','xoxb-357770700359','xoxp-8241711843-4089');
 
     done()
     });
@@ -118,6 +117,7 @@ describe('HttpClient', () => {
   afterAll(done => { globalTestConfiguration.afterAll(done);});
   afterEach(() => {globalTestConfiguration.afterEach();});
   beforeEach(async () => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000000;
     const kibanaClient = globalTestConfiguration.createKibanaClientMock([]);
     await globalTestConfiguration.initBeforeEach(kibanaClient);
   });

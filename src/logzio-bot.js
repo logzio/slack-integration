@@ -101,7 +101,7 @@ function registerAndConfigureCommands(logzioBot) {
   CommandsRegistry.register(new HelpCommand());
   CommandsRegistry.register(new KibanaObjectsCommand(kibanaClient));
   CommandsRegistry.register(new SearchCommand(new SearchClient(httpClient)));
-  CommandsRegistry.register(new AddAccountCommand(logzioBot.setupDialogSender));
+  CommandsRegistry.register(new AddAccountCommand(logzioBot.setupDialogSender,teamConfigurationService));
   CommandsRegistry.register(new ShowAlertCommand(alertsClient));
   CommandsRegistry.register(new SnapshotCommand(externalDomain, kibanaClient, new SnapshotsClient(httpClient)));
   CommandsRegistry.register(new ClearActiveCommand(channelAccountHandler));
@@ -115,7 +115,7 @@ function registerAndConfigureCommands(logzioBot) {
   CommandsRegistry.getCommands()
     .forEach(command => command.configure(logzioBot.controller));
 
-  const setupDialogHandler = new SetupDialogHandler(teamConfigurationService, httpClient, apiConfig);
+  const setupDialogHandler = new SetupDialogHandler(teamConfigurationService, httpClient, apiConfig, logzioBot.setupDialogSender);
   setupDialogHandler.configure(logzioBot.controller);
 }
 

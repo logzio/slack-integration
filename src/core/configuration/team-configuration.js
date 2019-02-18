@@ -1,7 +1,8 @@
 class TeamConfiguration {
 
-  constructor(config) {
+  constructor(config,oldName) {
     this.config = config || {};
+    this.oldName = oldName;
   }
 
   getLogzioAccountRegion() {
@@ -24,6 +25,10 @@ class TeamConfiguration {
 
   getAlias() {
     return this.config['alias'];
+  }
+
+  getOldName() {
+    return this.oldName;
   }
 
   setAlias(alias) {

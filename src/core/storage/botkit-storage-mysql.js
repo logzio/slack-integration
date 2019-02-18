@@ -264,7 +264,7 @@ module.exports = function (config) {
     };
   };
 
-  var saveChannel = function (tableName) {
+   var saveChannel =  function (tableName) {
     return function (data) {
       var keys = Object.keys(data);
       var json = {};
@@ -327,30 +327,6 @@ module.exports = function (config) {
     };
   };
 
-  // var all_async = function (tableName, translator) {
-  //   return async function () {
-  //     var connection = mysql.createConnection(config);
-  //     try {
-  //       connection.connect();
-  //       const queryPromise = util.promisify(connection.query).bind(connection);
-  //       const rows = await queryPromise(SQL`SELECT * from `.append(tableName));
-  //       if(rows.length===0){
-  //         return undefined;
-  //       }
-  //       var translatedData = [];
-  //       for (var i = 0; i < rows.length; i++) {
-  //         translatedData.push(translator(rows[i]))
-  //       }
-  //       return translatedData;
-  //     } catch(err) {
-  //       throw Error(err);
-  //     } finally {
-  //       connection.end();
-  //     }
-  //   };
-  // };
-
-
   var all_async = function (tableName,translator) {
     return function (id) {
       const connection = mysql.createConnection(config);
@@ -371,7 +347,6 @@ module.exports = function (config) {
         })
     };
   }
-
 
   var dbToUserJson = function (userDataFromDB) {
     if (userDataFromDB) {
