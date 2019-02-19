@@ -1,11 +1,13 @@
 const GlobalConfiguration = require('../core/utils/globalTestConfigurationSetup');
 const CommandName = require('../tests/CommandName');
+const DBUtils = require('../core/utils/basicUp');
 const TestFunctions = require('../core/utils/testFunctions');
 const userId = 'u_mixed1';
 const teamId = 't_mixed1';
 const channelId2 = 'chan2';
 const alias1 = 'mixed1';
 const alias2 = 'mixed2';
+const aliasFromMigration = 'my-account';
 
 
 
@@ -26,9 +28,6 @@ describe('Migration',() => {
       }]}];
   }
 
-
-  //clear channel account
-
   it('set workspace account with not existed alias', (done) => {
     globalTestConfiguration.bot.usersInput(TestFunctions.setWorkspaceAccount(userId,teamId,channelId,alias1))
       .then((message) => {
@@ -45,6 +44,15 @@ describe('Migration',() => {
       })
   });
 
+  it('set channel account with my-account', (done) => {
+    globalTestConfiguration.bot.usersInput(TestFunctions.setChannelAccount(userId,teamId,channelId,aliasFromMigration))
+      .then((message) => {
+        expect(message.text).toBe(`Okay, 'my-account' is the channel account now.`);
+        done();
+      })
+  });
+
+
   it('set channel account with not existed alias', (done) => {
     globalTestConfiguration.bot.usersInput(TestFunctions.setChannelAccount(userId,teamId,channelId,alias1))
       .then((message) => {
@@ -53,7 +61,7 @@ describe('Migration',() => {
       })
   });
 
-  //todo ARIE - set channel account
+  // //todo ARIE - set channel account
   it('set channel account', (done) => {
     globalTestConfiguration.bot.usersInput(TestFunctions.setChannelAccountWithoutAlias(userId,teamId,channelId))
       .then((message) => {
@@ -65,11 +73,10 @@ describe('Migration',() => {
   });
 
 
-  //TODO ask Arie
   it('remove account', (done) => {
     globalTestConfiguration.bot.usersInput(TestFunctions.removeAccountWithoutAlias(userId,teamId,channelId))
       .then((message) => {
-        expect(message.attachments[0].text).toBe(`This is your workspace account. Are you sure you want to remove it from Slack?`);
+        expect(message.attachments[0].text).toBe(`my-account is your workspace account. Are you sure you want to remove it from Slack?`);
         done();
       })
   });
@@ -91,16 +98,14 @@ describe('Migration',() => {
       })
   })
 
-  // //Todo- arie
-  // it('get-accounts', (done) => {
-  //   globalTestConfiguration.bot.usersInput(TestFunctions.getAccounts(userId,teamId,channelId))
-  //     .then((message) => {
-  //       expect(message.channel).toBe(channelId);
-  //       expect(message.text).toBe(`These are the accounts in this workspace:\n• \`${alias1}\`: Slack alias for Logzio App Test 1 Prod. *This is the default workspace account.*\n• \`${alias2}\`: Slack alias for Logzio App Test 2 Prod.\n`);
-  //
-  //       done();
-  //     })
-  // })
+  it('get-accounts', (done) => {
+    globalTestConfiguration.bot.usersInput(TestFunctions.getAccounts(userId,teamId,channelId))
+      .then((message) => {
+        expect(message.channel).toBe(channelId);
+        expect(message.text).toBe(`These are the accounts in this workspace:\n• \`my-account\`: Slack alias for Logz.io Mixed1. *This is the default workspace account.*\n`);
+        done();
+      })
+  })
 
   it('mixed', (done) => {
 
@@ -116,8 +121,8 @@ describe('Migration',() => {
       .then(() => globalTestConfiguration.bot.usersInput(TestFunctions.getAccounts(userId,teamId,channelId)))
       .then((message) => {
         expect(message.channel).toBe(channelId);
-        expect(message.text).toBe(`These are the accounts in this workspace:\n• \`${alias1}\`: Slack alias for Logzio App Test 1 Prod. *This is the default workspace account.*\n• \`${alias2}\`: Slack alias for Logzio App Test 2 Prod.\n`);
-       })
+        expect(message.text).toBe(`These are the accounts in this workspace:\n• \`${alias1}\`: Slack alias for Logzio App Test 1 Prod.\n• \`${alias2}\`: Slack alias for Logzio App Test 2 Prod.\n• \`${aliasFromMigration}\`: Slack alias for Logz.io Mixed1. *This is the default workspace account.*\n`);
+      })
        .then(() => globalTestConfiguration.bot.usersInput(getTriggers(channelId)))
        .then((message) => {
           expect(message.text).toBe(`Displaying ${pageSize} out of ${total} events`);
@@ -181,12 +186,10 @@ describe('Migration',() => {
       .then(() => globalTestConfiguration.bot.usersInput(TestFunctions.getAccounts(userId,teamId,channelId)))
       .then((message) => {
         expect(message.channel).toBe(channelId);
-        expect(message.text).toBe('These are the accounts in this workspace:\n' +
-          `• \`${alias1}\`: Slack alias for Logzio App Test 1 Prod. *This is the default workspace account.*\n` +
-          `• \`${alias2}\`: Slack alias for Logzio App Test 2 Prod. This is the channel account for <#${channelId2}|${channelId2}_name>.\n`)
+        expect(message.text)
+          .toBe(`These are the accounts in this workspace:\n• \`${alias1}\`: Slack alias for Logzio App Test 1 Prod.\n• \`${alias2}\`: Slack alias for Logzio App Test 2 Prod. This is the channel account for <#${channelId2}|${channelId2}_name>.\n• \`${aliasFromMigration}\`: Slack alias for Logz.io Mixed1. *This is the default workspace account.*\n`);
       })
-
-      .then(() => globalTestConfiguration.bot.usersInput(TestFunctions.removeAccount(userId,teamId,alias2,channelId)))
+  .then(() => globalTestConfiguration.bot.usersInput(TestFunctions.removeAccount(userId,teamId,alias2,channelId)))
       .then((message) => {
         expect(message.attachments[0].text).toBe(`${alias2} is used in these channels:chan2_name. Are you sure you want to remove it from Slack?`);
       })
@@ -299,15 +302,29 @@ describe('Migration',() => {
     handlersReturnValues['alerts']['mixed-2-api-token'] = alertsReturnValue2;
 
     await globalTestConfiguration.beforeAll(handlers,handlersReturnValues,true)
+
+
+
     //id, createdBy, name, region, token, appToken, apiToken, alias
-    await globalTestConfiguration.mockFirstInstallForMigration(teamId,userId,'Logz.io Mixed1','us-east-1','xoxb-357770700357','xoxp-8241711843-408','api-token');
 
     done()
   });
 
   beforeEach(async () => {
+
+
+    await globalTestConfiguration.createTestStorage({
+      "user": "root",
+      "password": "test",
+      "host": "localhost"
+    });
+    await globalTestConfiguration.mockFirstInstallForMigration(teamId,userId,'Logz.io Mixed1','us-east-1','xoxb-357770700357','xoxp-8241711843-408','api-token');
+    await globalTestConfiguration.executeGoToVersionTwoMigration();
+    await DBUtils.migrateDatabase(globalTestConfiguration.dbConfig);
+
+
     const kibanaClient = globalTestConfiguration.createKibanaClientMock([]);
-    await globalTestConfiguration.initBeforeEach(kibanaClient, CommandName.SETUP);
+    await globalTestConfiguration.initBeforeEach(kibanaClient, CommandName.SETUP ,true);
   });
 
   afterAll(done => { globalTestConfiguration.afterAll(done);});

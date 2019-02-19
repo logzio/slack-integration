@@ -52,7 +52,7 @@ class GlobalTestConfigurationSetup {
       password: DBUtils.getRequiredValueFromEnv('MYSQL_PASSWORD'),
       host: DBUtils.getRequiredValueFromEnv('MYSQL_HOST'),
     };
-    this.storage = await createTestStorage(this.dbConfig);
+    this.storage = await this.createTestStorage(this.dbConfig);
     this.teamConfigurationService = new TeamConfigurationService(this.storage);
     await this.saveDefaultTeams();
     this.port = await findFreePort(3000);
@@ -152,7 +152,7 @@ class GlobalTestConfigurationSetup {
     }
   }
 
-  async initBeforeEach(kibanaClient, commandType) {
+  async initBeforeEach(kibanaClient, commandType , migration) {
     this.controller = Botmock({});
 
     this.bot = this.controller.spawn({type: 'slack' , token:'token'});
@@ -197,8 +197,17 @@ class GlobalTestConfigurationSetup {
            this.httpClient = new HttpClient(this.teamConfigurationService, this.endpointResolver);
          }
 
+         if(!migration){
+           await executeSqlStatement(this.dbConfig,"truncate table configured_accounts");
+         }
 
-       await executeSqlStatement(this.dbConfig,"truncate table configured_accounts");
+
+
+  }
+
+  async executeGoToVersionTwoMigration(){
+    await executeSqlStatement(this.dbConfig,"delete from migrations where id > 3");
+    await executeSqlStatement(this.dbConfig,"drop table configured_accounts");
   }
 
   prapareBotApiMock() {
@@ -306,6 +315,21 @@ class GlobalTestConfigurationSetup {
 
   }
 
+  async createTestStorage(dbConfig) {
+
+    logger.info("createTestStorage:step1");
+    await executeSqlStatement(dbConfig,"DROP DATABASE IF EXISTS logzbot_tests");
+    await executeSqlStatement(dbConfig,"CREATE DATABASE logzbot_tests");
+    logger.info("createTestStorage:finished");
+
+    dbConfig.database = 'logzbot_tests';
+    await DBUtils.migrateDatabase(dbConfig);
+    this.storage =  new LogzStorageMySQL(dbConfig);
+
+    return this.storage;
+
+  }
+
 
   async mockFirstInstallForMigration(id,createdBy,name,region,token,appToken, apiToken){
 
@@ -331,22 +355,11 @@ class GlobalTestConfigurationSetup {
     await this.storage.teams.save(botTeam);
   }
 
-}
 
-async function createTestStorage(dbConfig) {
-
-  logger.info("createTestStorage:step1");
-  await executeSqlStatement(dbConfig,"DROP DATABASE IF EXISTS logzbot_tests");
-  await executeSqlStatement(dbConfig,"CREATE DATABASE logzbot_tests");
-  logger.info("createTestStorage:finished");
-
-  dbConfig.database = 'logzbot_tests';
-  await DBUtils.migrateDatabase(dbConfig);
-  const storage =  new LogzStorageMySQL(dbConfig);
-
-  return storage;
 
 }
+
+
 
 const executeSqlStatement =  async function (config,statement) {
   var connection = mysql.createConnection(config);
