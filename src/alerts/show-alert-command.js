@@ -92,7 +92,7 @@ class ShowAlertCommand extends Command {
     ];
   }
 
-   ucFirst(text) {
+   static ucFirst(text) {
     return text ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : '';
   }
 
@@ -107,11 +107,11 @@ class ShowAlertCommand extends Command {
         text: alert.description,
         fields: [{
           title: "Severity",
-          value: this.ucFirst(alert.severity),
+          value: ShowAlertCommand.ucFirst(alert.severity),
           short: true
         }, {
           title: "Enabled",
-          value: this.ucFirst(`${alert.isEnabled}`),
+          value: ShowAlertCommand.ucFirst(`${alert.isEnabled}`),
           short: true
         }],
       }]

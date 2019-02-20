@@ -135,13 +135,75 @@ class TestFunctions {
   }
 
   static getAlertByName(userId,teamId,channelId,alertName) {
-    return [{ user: userId, channel: channelId, team: teamId,
-      messages: [{
-        text: `get alert ${alertName}`,
-        isAssertion: true,
-        team: teamId
-      }]}];
+    let request = [{
+      user: userId,
+      channel: channelId,
+      messages: [
+        {team: teamId, text: `get alert ${alertName}`,isAssertion:true},
+      ]
+    }];
+    return request;
   }
+
+  static showAlertByName(userId,teamId,channelId,alertName) {
+    let request = [{
+      user: userId,
+      channel: channelId,
+      messages: [
+        {team: teamId, text: `show alert ${alertName}`,isAssertion:true},
+      ]
+    }];
+    return request;
+  }
+
+  static showAliasAlertByName(userId,teamId,channelId,alertName,alias) {
+    let request = [{
+      user: userId,
+      channel: channelId,
+      messages: [
+        {team: teamId, text: `${alias} show alert ${alertName}`,isAssertion:true},
+      ]
+    }];
+    return request;
+  }
+
+
+  static getAliasAlertByName(userId,teamId,channelId,alertName,alias) {
+    let request = [{
+      user: userId,
+      channel: channelId,
+      messages: [
+        {team: teamId, text: `${alias} get alert ${alertName}`,isAssertion:true},
+      ]
+    }];
+    return request;
+  }
+
+  static getAliasById(userId,teamId,channelId,id,alias) {
+    let request = [{
+      user: userId,
+      channel: channelId,
+      messages: [
+        {team: teamId, text: `${alias} get alert by id ${id}`,isAssertion:true},
+      ]
+    }];
+    return request;
+  }
+
+  static getAlertById(userId,teamId,channelId,id) {
+    let request = [{
+      user: userId,
+      channel: channelId,
+      messages: [
+        {team: teamId, text: `get alert by id ${id}`,isAssertion:true},
+      ]
+    }];
+    return request;
+  }
+
+
+
+
 
   static listTriggers(userId,teamId,channelId) {
     return [{ user: userId, channel: channelId, team: teamId,
