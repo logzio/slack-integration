@@ -33,6 +33,14 @@ class ApiExtract {
               }
             )
           );
+        }else{
+          resolve(
+            ({
+                channelName: 'no-channel',
+                channelId: channelId
+              }
+            )
+          );
         }
       })
     })
