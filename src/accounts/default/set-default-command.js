@@ -60,7 +60,7 @@ class SetWorkspaceAccountCommand extends Command {
 
   getUsage() {
     return [
-      '*set workspace account ${account alias}* - Set a default account for Alice to use for this workspace.',
+      '*set workspace account &lt;alias&gt;* - Set a default account for Alice to use for this workspace',
     ];
   }
 }

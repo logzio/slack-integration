@@ -133,8 +133,8 @@ class SnapshotCommand extends Command {
 
   getUsage() {
     return [
-      '*snapshot &lt;dashboard|visualization&gt; &lt;object-name&gt; last &lt;time-value&gt; &lt;time-unit&gt;* - Create a snapshot of a dashboard or visualization',
-      '*snapshot &lt;dashboard|visualization&gt; &lt;object-name&gt; last &lt;time-value&gt; &lt;time-unit&gt; query &lt;query-string&gt;* - Create a snapshot of a dashboard or visualization'
+      '*[&lt;alias&gt;] snapshot &lt;dashboard|visualization&gt; &lt;object-name&gt; last &lt;time-value&gt; &lt;time-unit&gt;* - Create a snapshot of a dashboard or visualization\n\tExample: _snapshot dashboard ELB logs last 1 h query ͏`*͏`_',
+      '*[&lt;alias&gt;] snapshot &lt;dashboard|visualization&gt; &lt;object-name&gt; last &lt;time-value&gt; &lt;time-unit&gt; query &lt;query-string&gt;* - Create a snapshot of a dashboard or visualization\n\tExample: _snapshot dashboard ELB logs last 15 m_'
     ];
   }
 

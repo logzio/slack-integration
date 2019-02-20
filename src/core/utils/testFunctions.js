@@ -125,6 +125,68 @@ class TestFunctions {
     }];
   }
 
+  static getTriggers(userId,teamId,channelId) {
+    return [{ user: userId, channel: channelId, team: teamId,
+      messages: [{
+        text: `get triggered alerts`,
+        isAssertion: true,
+        team: teamId
+      }]}];
+  }
+
+  static getAlertByName(userId,teamId,channelId,alertName) {
+    return [{ user: userId, channel: channelId, team: teamId,
+      messages: [{
+        text: `get alert ${alertName}`,
+        isAssertion: true,
+        team: teamId
+      }]}];
+  }
+
+  static listTriggers(userId,teamId,channelId) {
+    return [{ user: userId, channel: channelId, team: teamId,
+      messages: [{
+        text: `get triggered alerts`,
+        isAssertion: true,
+        team: teamId
+      }]}];
+  }
+
+  static aliaListTriggers(userId,teamId,channelId,alias) {
+    return [{
+      user: userId, channel: channelId, team: teamId,
+      messages: [{
+        text: `${alias} list triggered alerts`,
+        isAssertion: true,
+        team: teamId
+      }]
+    }];
+  }
+
+
+  static search(userId,teamId,channelId,text,suffix) {
+    let request = [{
+      user: userId,
+      channel: channelId,
+      messages: [
+        {team: teamId, text: `search \`${text}\` ${suffix}`,isAssertion:true},
+      ]
+    }];
+    return request;
+  }
+
+  static searchWithAlias(userId,teamId,channelId,text,suffix,alias) {
+    let request = [{
+      user: userId,
+      channel: channelId,
+      messages: [
+        {team: teamId, text: `${alias} search \`${text}\` ${suffix}`,isAssertion:true},
+      ]
+    }];
+    return request;
+  }
+
+
 }
 
 module.exports = TestFunctions;

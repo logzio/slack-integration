@@ -1,6 +1,7 @@
 const GlobalTestConfigurationSetup = require('../core/utils/globalTestConfigurationSetup');
 const TestFunctions = require('../core/utils/testFunctions');
 const CommandName = require('../tests/CommandName');
+const Messages = require('../core/messages/messages');
 const userId = 'r_user';
 const teamId = 'rm_t';
 const alias1 = 'alias_remove1';
@@ -66,38 +67,31 @@ describe('Remove account command',() => {
       })
   });
 
-
- // v
   it('add account and then try to remove not existed alias', (done) => {
     globalTestConfigurationSetup.bot.usersInput(TestFunctions.createOneAccount(userId,teamId,channelId,'mixed-1-api-token', 'us-east-1', alias1))
       .then((message) => expect(message.text).toBe(`Okay, you\'re ready to use ${alias1} in Slack!`))
       .then(() => globalTestConfigurationSetup.bot.usersInput(TestFunctions.removeAccount(userId,teamId,alias2,channelId)))
       .then((message) => {
-        expect(message.text).toBe(`Sorry, there isn't an account with that alias. If you want to see your accounts, type \`@Alice accounts\`.`);
+        expect(message.text).toBe(Messages.THERE_IS_NO_ACCOUNT_WITH_THAT_ALIAS);
         done();
       })
   });
 
-
-  //v
   it('remove not existed alias when no api token configured', (done) => {
       globalTestConfigurationSetup.bot.usersInput(TestFunctions.removeAccount(userId,teamId,alias2,channelId))
         .then((message) => {
-        expect(message.text).toBe(`Sorry, there isn't an account with that alias. If you want to see your accounts, type \`@Alice accounts\`.`);
+        expect(message.text).toBe(Messages.THERE_IS_NO_ACCOUNT_WITH_THAT_ALIAS);
         done();
       })
   });
-//
+
   it('remove without alias where there is not accounts configured yet', (done) => {
     globalTestConfigurationSetup.bot.usersInput(TestFunctions.removeAccountWithoutAlias(userId,teamId,channelId))
       .then((message) => {
-        expect(message.text).toBe(`Logz.io integration is not configured!\nUse \`setup\` command to configure the Logz.io integration and try again.`);
+        expect(message.text).toBe(Messages.LOFZ_IO_IS_NOT_CONFIGURED);
         done();
       })
   });
-
-
-
 
   it('add two accounts. set the second to a channel and then try to remove it', (done) => {
     globalTestConfigurationSetup.bot.usersInput(TestFunctions.createOneAccount(userId, teamId, channelId, 'mixed-1-api-token', 'us-east-1', alias1))
@@ -151,10 +145,9 @@ describe('Remove account command',() => {
       .then(() => globalTestConfigurationSetup.bot.usersInput(TestFunctions.confirm(userId,teamId,alias1,channelId,'yes')))
       .then(message => expect(message.text).toBe(`Okay, I removed ${alias1} from Slack.`))
       .then(() => globalTestConfigurationSetup.bot.usersInput(TestFunctions.aliaGetTriggers(userId,teamId,channelId,alias1)))
-      .then((message) => expect(message.text).toBe('Sorry, there isn\'t an account with that alias. If you want to see your accounts, type \`@Alice accounts\`.'))
+      .then((message) => expect(message.text).toBe(Messages.THERE_IS_NO_ACCOUNT_WITH_THAT_ALIAS))
       .then(() => globalTestConfigurationSetup.bot.usersInput(TestFunctions.removeAccountWithoutAlias(userId,teamId,channelId)))
-      .then((message) =>
-              expect(message.text).toBe('Logz.io integration is not configured!\n'+'Use `setup` command to configure the Logz.io integration and try again.' ))
+      .then((message) => expect(message.text).toBe(Messages.LOFZ_IO_IS_NOT_CONFIGURED))
       .then(()=>done())
   });
 

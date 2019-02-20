@@ -69,7 +69,7 @@ class GetTriggeredAlertsCommand extends Command {
 
   getUsage() {
     return [
-      '*get triggered alerts* - List triggered alerts',
+      '*[&lt;alias&gt;] get triggered alerts* - List triggered alerts',
     ];
   }
 

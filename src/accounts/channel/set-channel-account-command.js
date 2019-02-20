@@ -62,7 +62,7 @@ class SetChannelAccountCommand extends Command {
 
   getUsage() {
     return [
-      '*set channel account {account alias}* - Set a default account for Alice to use in this channel. You can set this for as many channels as you want.',
+      '*set channel account &lt;alias&gt;* - Set a default account for Alice to use in this channel. You can set this for as many channels as you want.',
     ];
   }
 

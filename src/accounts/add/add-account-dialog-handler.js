@@ -2,6 +2,7 @@ const LoggerFactory = require('../../core/logging/logger-factory');
 const TeamConfiguration = require('../../core/configuration/team-configuration');
 const { getEventMetadata } = require('../../core/logging/logging-metadata');
 const { sendUsage } = require('../../help/usage-message-supplier');
+const Messages = require('../../core/messages/messages');
 
 const logger = LoggerFactory.getLogger(__filename);
 
@@ -18,7 +19,7 @@ function validateConfigurationAndGetErrorsIfInvalid(configuredRegions, accountRe
   if (!apiToken || apiToken.trim() === '') {
     errors.push({
       name: 'apiToken',
-      error: 'API token can\'t be blank.'
+      error: Messages.BLANk_API_TOKEN
     });
   }
 
@@ -32,7 +33,7 @@ function validateRealNameAndGetErrorsIfInvalid(realName){
   if(!realName.accountName){
     errors.push({
       name: 'apiToken',
-      error: 'API token should be valid.'
+      error: Messages.WRONG_API_TOKEN
     });
   }
   return errors.length > 0 ? errors : null;

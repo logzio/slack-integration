@@ -44,7 +44,7 @@ class ClearChannelAccountCommand extends Command {
 
   getUsage() {
     return [
-      '*clear channel account* - Clear the default account for this channel.',
+      '*clear channel account* - Clear the default account for this channel',
     ];
   }
 

@@ -43,7 +43,7 @@ class RemoveCommand extends Command {
 
   getUsage() {
     return [
-      '*remove account* - Remove a Logz.io account from Slack',
+      '*remove account <alias>* - Remove a Logz.io account from Slack',
     ];
   }
 

@@ -33,6 +33,11 @@ const SetDefaultCommand = require('../../accounts/default/set-default-command');
 const DefaultHandler = require('../../accounts/default/default-handler');
 const RemoveAccountCommand = require('../../accounts/remove/remove-command');
 const RemoveAccountHandler = require('../../accounts/remove/remove-account-handler');
+const ShowAlertCommand = require('../../alerts/show-alert-command');
+
+
+const SearchClient = require('../../search/search-client');
+const SearchCommand = require('../../search/search-command');
 
 
 class GlobalTestConfigurationSetup {
@@ -54,7 +59,6 @@ class GlobalTestConfigurationSetup {
     };
     this.storage = await this.createTestStorage(this.dbConfig);
     this.teamConfigurationService = new TeamConfigurationService(this.storage);
-    await this.saveDefaultTeams();
     this.port = await findFreePort(3000);
     this.externalDomain = `http://localhost:${this.port}`;
     apiConfig['regions']['us-east-1'].endpoint = this.externalDomain;
@@ -116,33 +120,6 @@ class GlobalTestConfigurationSetup {
     await this.httpSpy.server.start(this.port[0]);
   }
 
-  async saveDefaultTeams() {
-    // const botTeams = [{
-    //   "id": 'teamId66',
-    //   "createdBy": 'userId',
-    //   "url": "https://logzio.slack.com/",
-    //   "name": "Test Logz IO Account",
-    //   "state": "botkit",
-    //   "bot": {
-    //     "token": "bot-token",
-    //     "user_id": 'userId',
-    //     "createdBy": 'userId',
-    //     "app_token": "app-token"
-    //   },
-    //   "token": "api-token"
-    // }];
-    //
-    // for (let i = 0; i < botTeams.length; i++) {
-    //   await this.storage.teams.save(botTeams[i]);
-    //   const teamConfiguration = new TeamConfiguration()
-    //     .setLogzioAccountRegion('us-east-1')
-    //     .setLogzioApiToken('api-token')
-    //     .setAlias('alis_' + botTeams[i].id)
-    //     .setRealName('realName');
-    //   await this.teamConfigurationService.saveDefault(botTeams[i].id, teamConfiguration);
-    // }
-  }
-
   afterAll(done){
     this.httpSpy.server.stop(done)
   }
@@ -175,6 +152,9 @@ class GlobalTestConfigurationSetup {
            const getTriggers = new GetTriggeredAlertsCommand(alertsClient)
            getTriggers.configure(this.controller);
 
+           const showAlerts = new ShowAlertCommand(alertsClient);
+           showAlerts.configure(this.controller);
+
            const channelAccountHandler = new ChannelAccountHandler(this.teamConfigurationService);
            const setChannelAccountCommand = new SetChannelAccountCommand(channelAccountHandler);
            setChannelAccountCommand.configure(this.controller);
@@ -185,8 +165,11 @@ class GlobalTestConfigurationSetup {
            setDefaultCommand.configure(this.controller);
 
            const removeAccountHandler = new RemoveAccountHandler(this.teamConfigurationService, defaultHandler);
-           const removeAccountCommand = new RemoveAccountCommand(removeAccountHandler)
+           const removeAccountCommand = new RemoveAccountCommand(removeAccountHandler);
            removeAccountCommand.configure(this.controller);
+
+           const searchCommand = new SearchCommand(new SearchClient(this.httpClient));
+           searchCommand.configure(this.controller);
 
          }else if (commandType === CommandName.SNAPSHOT) {
            const snapshotsClient = this.createSnapshotClient();
@@ -196,12 +179,9 @@ class GlobalTestConfigurationSetup {
          }else{
            this.httpClient = new HttpClient(this.teamConfigurationService, this.endpointResolver);
          }
-
          if(!migration){
            await executeSqlStatement(this.dbConfig,"truncate table configured_accounts");
          }
-
-
 
   }
 
@@ -217,6 +197,11 @@ class GlobalTestConfigurationSetup {
 
     this.bot.dialogError = function (errors) {
       this.dialogErrors = errors;
+    };
+
+
+    this.bot.api.files.upload = function (files) {
+      this.files = files;
     };
 
   }

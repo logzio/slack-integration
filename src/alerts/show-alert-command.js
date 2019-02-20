@@ -7,31 +7,8 @@ const commandShowById = /(show|get) alert by id (\d*)/;
 const commandShowByNameWithAlias = /(.+) (show|get) alert (.*)/;
 const commandShowByName = /(show|get) alert (.*)/;
 
-function ucFirst(text) {
-  return text ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : '';
-}
 
-function createAlertDetailsMessage(alert) {
-  if (typeof alert === 'string') {
-    return alert;
-  }
 
-  return {
-    attachments: [{
-      title: alert.title,
-      text: alert.description,
-      fields: [{
-        title: "Severity",
-        value: ucFirst(alert.severity),
-        short: true
-      }, {
-        title: "Enabled",
-        value: ucFirst(`${alert.isEnabled}`),
-        short: true
-      }],
-    }]
-  };
-}
 
 class ShowAlertCommand extends Command {
 
@@ -70,7 +47,8 @@ class ShowAlertCommand extends Command {
     }
     const alertName = matches[index];
     this.alertsClient.getAlertByName(channel, message.team, alertName, alias)
-      .then(createAlertDetailsMessage)
+      .then(alert =>
+        this.createAlertDetailsMessage(alert))
       .then(alertMessage =>
         bot.reply(message, alertMessage))
       .catch(err => {
@@ -92,7 +70,7 @@ class ShowAlertCommand extends Command {
     }
     const alertId = matches[index];
     this.alertsClient.getAlertById(channel, message.team, alertId, alias)
-      .then(createAlertDetailsMessage)
+      .then(this.createAlertDetailsMessage)
       .then(alertMessage =>
         bot.reply(message, alertMessage))
       .catch(err => {
@@ -109,9 +87,35 @@ class ShowAlertCommand extends Command {
 
   getUsage() {
     return [
-      '*show alert &lt;alert-name&gt;* - Show alert definition',
-      '*show alert by id &lt;alert-id&gt;* - Show alert definition',
+      '*[&lt;alias&gt;] show alert &lt;alert-name&gt;* - Show alert definition',
+      '*[&lt;alias&gt;] show alert by id &lt;alert-id&gt;* - Show alert definition',
     ];
+  }
+
+   ucFirst(text) {
+    return text ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : '';
+  }
+
+   createAlertDetailsMessage(alert) {
+    if (typeof alert === 'string') {
+      return alert;
+    }
+
+    return {
+      attachments: [{
+        title: alert.title,
+        text: alert.description,
+        fields: [{
+          title: "Severity",
+          value: this.ucFirst(alert.severity),
+          short: true
+        }, {
+          title: "Enabled",
+          value: this.ucFirst(`${alert.isEnabled}`),
+          short: true
+        }],
+      }]
+    };
   }
 
 }

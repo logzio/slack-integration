@@ -32,7 +32,7 @@ class GetAccountsCommand extends Command {
 
   getUsage() {
     return [
-      '*accounts* - List the Logz.io accounts in this workspace.',
+      '*accounts* - List the Logz.io accounts in this workspace',
     ];
   }
 }

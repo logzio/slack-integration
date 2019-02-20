@@ -10,6 +10,12 @@ const searchWithTimeToSearch                 = /search `(.+)` last (\d+) ?(minut
 const searchWithTimeToSearchWithAlias        = /(.+) search `(.+)` last (\d+) ?(minutes?|mins?|m|hours?|h)\s*$/;
 const searchWithSpecificTimeWindow           = /search `(.+)` from (.+) to (.+)\s*$/;
 const searchWithSpecificTimeWindowWithAlias  = /(.+) search `(.+)` from (.+) to (.+)\s*$/;
+const searchWithDefaultWindowEscape                = /search \u034f`(.+)`\s*$/;
+const searchWithDefaultWindowWithAliasEscape       = /(.+) search \u034f`(.+)`\s*$/;
+const searchWithTimeToSearchEscape                 = /search \u034f`(.+)` last (\d+) ?(minutes?|mins?|m|hours?|h)\s*$/;
+const searchWithTimeToSearchWithAliasEscape        = /(.+) search \u034f`(.+)` last (\d+) ?(minutes?|mins?|m|hours?|h)\s*$/;
+const searchWithSpecificTimeWindowEscape           = /search \u034f`(.+)` from (.+) to (.+)\s*$/;
+const searchWithSpecificTimeWindowWithAliasEscape  = /(.+) search \u034f`(.+)` from (.+) to (.+)\s*$/;
 
 const logger = LoggerFactory.getLogger(__filename);
 
@@ -45,27 +51,27 @@ class SearchCommand extends Command {
 
   configure(controller) {
 
-    controller.hears([searchWithDefaultWindowWithAlias], 'direct_message,direct_mention', (bot, message) => {
+    controller.hears([searchWithDefaultWindowWithAlias,searchWithDefaultWindowWithAliasEscape], 'direct_message,direct_mention', (bot, message) => {
       this.searchWithDefaultWindow(message, bot, true);
     });
 
-    controller.hears([searchWithDefaultWindow], 'direct_message,direct_mention', (bot, message) => {
+    controller.hears([searchWithDefaultWindow,searchWithDefaultWindowEscape], 'direct_message,direct_mention', (bot, message) => {
       this.searchWithDefaultWindow(message, bot, false);
     });
 
-    controller.hears([searchWithTimeToSearchWithAlias], 'direct_message,direct_mention', (bot, message) => {
+    controller.hears([searchWithTimeToSearchWithAlias,searchWithTimeToSearchWithAliasEscape], 'direct_message,direct_mention', (bot, message) => {
       this.searchWithTimeToSearch(message, bot, true);
     });
 
-    controller.hears([searchWithTimeToSearch], 'direct_message,direct_mention', (bot, message) => {
+    controller.hears([searchWithTimeToSearch,searchWithTimeToSearchEscape], 'direct_message,direct_mention', (bot, message) => {
       this.searchWithTimeToSearch(message, bot, false);
     });
 
-    controller.hears([searchWithSpecificTimeWindowWithAlias], 'direct_message,direct_mention', (bot, message) => {
+    controller.hears([searchWithSpecificTimeWindowWithAlias,searchWithSpecificTimeWindowWithAliasEscape], 'direct_message,direct_mention', (bot, message) => {
       this.searchWithSpecificTimeWindow(message, bot, true)
     });
 
-    controller.hears([searchWithSpecificTimeWindow], 'direct_message,direct_mention', (bot, message) => {
+    controller.hears([searchWithSpecificTimeWindow,searchWithSpecificTimeWindowEscape], 'direct_message,direct_mention', (bot, message) => {
       this.searchWithSpecificTimeWindow(message, bot, false)
     });
   }
@@ -131,9 +137,9 @@ class SearchCommand extends Command {
 
   getUsage() {
     return [
-      '*search `&lt;query-string&gt;`* - Get the query results for the last 15 minutes',
-      '*search `&lt;query-string&gt;` last &lt;time-value&gt; &lt;time-unit&gt;* - Get the query results for the last _x_ minutes or hours',
-      '*search `&lt;query-string&gt;` from &lt;from-timestamp&gt; to &lt;to-timestamp&gt;* - Get the query results between the start and end times',
+      '*search \u034f`&lt;query-string&gt;`* - Get the query results for the last 15 minutes\n\tExample: _search ͏`*͏`_',
+      '*search \u034f`&lt;query-string&gt;` last &lt;time-value&gt; &lt;time-unit&gt;* - Get the query results for the last _x_ minutes or hours\n\tExample: _search ͏`*͏` last',
+      '*search \u034f`&lt;query-string&gt;` from &lt;from-timestamp&gt; to &lt;to-timestamp&gt;* - Get the query results between the start and end times\n\tExample: _search ͏`*͏` from 2019-02-17T13:01:46.000Z to 2019-02-17T13:01:06.057+0000_',
     ];
   }
 

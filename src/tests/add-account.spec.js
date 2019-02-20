@@ -1,6 +1,7 @@
 const GlobalTestConfigurationSetup = require('../core/utils/globalTestConfigurationSetup');
 const TestFunctions = require('../core/utils/testFunctions');
 const CommandName = require('../tests/CommandName');
+const Messages = require('../core/messages/messages');
 const userId = 'u_mixed1';
 const teamId = 't_mixed1';
 
@@ -76,7 +77,7 @@ describe('Add account command',() => {
   it('try to add account with wrong token', (done) => {
     globalTestConfigurationSetup.bot.usersInput(TestFunctions.createOneAccount(userId, teamId, channelId,'no-such-token', 'us-east-1', alias1))
       .then(() => {
-        expect(globalTestConfigurationSetup.bot.dialogErrors[0].error).toBe(`API token should be valid.`);
+        expect(globalTestConfigurationSetup.bot.dialogErrors[0].error).toBe(Messages.WRONG_API_TOKEN);
         expect(globalTestConfigurationSetup.bot.dialogErrors[0].name).toBe(`apiToken`);
         done();
       })
