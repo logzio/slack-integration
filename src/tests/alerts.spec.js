@@ -223,6 +223,7 @@ describe('get alerts', () => {
 
   beforeAll(async (done) => {
 
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000000;
     var handlers = [
       {
         method: 'get',

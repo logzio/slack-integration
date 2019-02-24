@@ -95,6 +95,28 @@ class TestFunctions {
     }];
   }
 
+  static clearChannelAccount(userId,teamId,channelId) {
+    return [{
+      user: userId, channel: channelId, team: teamId,
+      messages: [{
+        text:'clear channel account',
+        isAssertion: true,
+        team: teamId
+      }]
+    }];
+  }
+
+  static clearWorkspaceAccount(userId,teamId,channelId) {
+    return [{
+      user: userId, channel: channelId, team: teamId,
+      messages: [{
+        text:'clear workspace account',
+        isAssertion: true,
+        team: teamId
+      }]
+    }];
+  }
+
   static setWorkspaceAccount(userId,teamId,channelId,alias) {
     return [{
       user: userId, channel: channelId, team: teamId,

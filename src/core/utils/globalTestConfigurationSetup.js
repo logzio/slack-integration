@@ -38,6 +38,8 @@ const ShowAlertCommand = require('../../alerts/show-alert-command');
 
 const SearchClient = require('../../search/search-client');
 const SearchCommand = require('../../search/search-command');
+const ClearDefaultCommand = require('../../accounts/default/clear-default-command');
+
 
 
 class GlobalTestConfigurationSetup {
@@ -170,6 +172,12 @@ class GlobalTestConfigurationSetup {
 
            const searchCommand = new SearchCommand(new SearchClient(this.httpClient));
            searchCommand.configure(this.controller);
+
+           const clearActiveCommand = new ClearActiveCommand(channelAccountHandler);
+           clearActiveCommand.configure(this.controller);
+
+           const clearWorkspaceCommand = new ClearDefaultCommand(defaultHandler);
+           clearWorkspaceCommand.configure(this.controller);
 
          }else if (commandType === CommandName.SNAPSHOT) {
            const snapshotsClient = this.createSnapshotClient();

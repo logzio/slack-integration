@@ -265,14 +265,17 @@ class TeamConfigurationService {
       .then(accountToConfigure=>{
         if (!accountToConfigure)
           return false;
-        this.extractDefaultFromOldAccount(teamId, httpClient);
+      //  this.extractDefaultFromOldAccount(teamId, httpClient);
         return new TeamConfiguration(accountToConfigure)
           .setLogzioApiToken(accountToConfigure.apiToken)
           .setLogzioAccountRegion(accountToConfigure.region)
           .setAlias(accountToConfigure.alias)
           ;
       })
-      .then(teamConfiguration=> this.saveDefault(teamId, teamConfiguration))
+      .then(teamConfiguration=>
+        this.saveDefault(teamId, teamConfiguration))
+     // .then(()=>
+     // true)
   }
 
   clearDefault(teamId) {
