@@ -11,14 +11,26 @@ const LoggerFactory = require('./core/logging/logger-factory');
 const PromiseStorage = require('botkit-promise-storage');
 const SearchClient = require('./search/search-client');
 const SearchCommand = require('./search/search-command');
-const SetupCommand = require('./setup/setup-command');
-const SetupDialogHandler = require('./setup/setup-dialog-handler');
-const SetupDialogSender = require('./setup/setup-dialog-sender');
+const AddAccountCommand = require('./accounts/add/add-account-command');
+const SetupDialogHandler = require('./accounts/add/add-account-dialog-handler');
+const SetupDialogSender = require('./accounts/add/add-dialog-sender');
 const ShowAlertCommand = require('./alerts/show-alert-command');
 const SnapshotCommand = require('./snapshots/snapshot-command');
 const SnapshotsClient = require('./snapshots/snapshots-client');
 const TeamConfigurationService = require('./core/configuration/team-configuration-service');
 const UnknownCommand = require('./help/unknown-command');
+
+const ChannelAccountHandler = require('./accounts/channel/channel-account-handler');
+const ClearActiveCommand = require('./accounts/channel/clear-channel-account-command');
+const SetActiveCommand = require('./accounts/channel/set-channel-account-command');
+
+const DefaultHandler = require('./accounts/default/default-handler');
+const ClearDefaultCommand = require('./accounts/default/clear-default-command');
+const SetDefaultCommand = require('./accounts/default/set-default-command');
+
+const GetAccountsCommand = require('./accounts/get/get-accounts-command');
+const RemoveAccountCommand = require('./accounts/remove/remove-command');
+const RemoveAccountHandler = require('./accounts/remove/remove-account-handler');
 
 const { createWebhookProxyEndpoint } = require('./core/webhook/webhook-proxy');
 
@@ -73,26 +85,37 @@ function registerAndConfigureCommands(logzioBot) {
   const externalDomain = logzioBot.externalDomain;
 
   const storage = logzioBot.storage;
-  const teamConfigurationService = new TeamConfigurationService(storage.teams);
+  const teamConfigurationService = new TeamConfigurationService(storage);
   const endpointResolver = new EndpointResolver(apiConfig);
 
   const httpClient = new HttpClient(teamConfigurationService, endpointResolver);
   const alertsClient = new AlertsClient(httpClient);
   const kibanaClient = new KibanaClient(httpClient);
+  const channelAccountHandler = new ChannelAccountHandler(teamConfigurationService);
+  const defaultHandler = new DefaultHandler(teamConfigurationService, httpClient);
+  const removeAccountHandler = new RemoveAccountHandler(teamConfigurationService, defaultHandler);
+
   logzioBot.setupDialogSender = new SetupDialogSender(teamConfigurationService, apiConfig);
 
   CommandsRegistry.register(new GetTriggeredAlertsCommand(alertsClient));
   CommandsRegistry.register(new HelpCommand());
   CommandsRegistry.register(new KibanaObjectsCommand(kibanaClient));
   CommandsRegistry.register(new SearchCommand(new SearchClient(httpClient)));
-  CommandsRegistry.register(new SetupCommand(logzioBot.setupDialogSender));
+  CommandsRegistry.register(new AddAccountCommand(logzioBot.setupDialogSender,teamConfigurationService));
   CommandsRegistry.register(new ShowAlertCommand(alertsClient));
   CommandsRegistry.register(new SnapshotCommand(externalDomain, kibanaClient, new SnapshotsClient(httpClient)));
+  CommandsRegistry.register(new ClearActiveCommand(channelAccountHandler));
+  CommandsRegistry.register(new SetActiveCommand(channelAccountHandler));
+  CommandsRegistry.register(new ClearDefaultCommand(defaultHandler));
+  CommandsRegistry.register(new SetDefaultCommand(defaultHandler));
+  CommandsRegistry.register(new GetAccountsCommand(teamConfigurationService));
+  CommandsRegistry.register(new RemoveAccountCommand(removeAccountHandler));
   CommandsRegistry.register(new UnknownCommand());
+
   CommandsRegistry.getCommands()
     .forEach(command => command.configure(logzioBot.controller));
 
-  const setupDialogHandler = new SetupDialogHandler(teamConfigurationService, httpClient, apiConfig);
+  const setupDialogHandler = new SetupDialogHandler(teamConfigurationService, httpClient, apiConfig, logzioBot.setupDialogSender);
   setupDialogHandler.configure(logzioBot.controller);
 }
 
@@ -102,7 +125,7 @@ class LogzioBot {
     this.bots = {};
     this.apiConfig = apiConfig;
     this.externalDomain = externalDomain;
-    this.storage = new PromiseStorage({ storage });
+    this.storage = storage;
   }
 
   bootstrap(clientId, clientSecret, clientVerificationToken, port) {
@@ -118,6 +141,7 @@ class LogzioBot {
       clientSecret: clientSecret,
       clientVerificationToken: clientVerificationToken,
       scopes: ['bot'],
+     // retry: 10,
     });
 
     this.controller.setupWebserver(port, (err, webserver) => {
@@ -137,7 +161,8 @@ class LogzioBot {
       });
     });
 
-    this.controller.on('create_bot', (bot, config) => createBot(this, bot, config));
+    this.controller.on('create_bot', (bot, config) =>
+      createBot(this, bot, config));
 
     this.controller.on('rtm_close', (bot, err) => {
       delete this.bots[bot.config.token];
@@ -150,5 +175,9 @@ class LogzioBot {
   }
 
 }
+
+process.on('uncaughtException', err => {
+  logger.error('Caught exception: ' + err);
+});
 
 module.exports = LogzioBot;

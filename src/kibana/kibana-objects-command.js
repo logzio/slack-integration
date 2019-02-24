@@ -6,7 +6,7 @@ const { getEventMetadata } = require('../core/logging/logging-metadata');
 const logger = LoggerFactory.getLogger(__filename);
 
 const commandRegex = /get kibana (objects|vis|visualizations?|dash|dashboards?|search|searches)/;
-
+const commandRegexWithAlias = /(.+) get kibana (objects|vis|visualizations?|dash|dashboards?|search|searches)/;
 class KibanaObjectsCommand extends Command {
 
   constructor(kibanaClient) {
@@ -15,59 +15,73 @@ class KibanaObjectsCommand extends Command {
   }
 
   configure(controller) {
-    const kibanaClient = this.kibanaClient;
+    controller.hears([commandRegexWithAlias], 'direct_message,direct_mention', (bot, message) => {
+      this.getKibanaObjects(message, bot, true);
+    })
     controller.hears([commandRegex], 'direct_message,direct_mention', (bot, message) => {
-      logger.info(`User ${message.user} from team ${message.team} requested kibana objects list`, getEventMetadata(message, 'get-kibana-objects'));
-      const objectType = message.text.match(commandRegex)[1].toLocaleLowerCase();
+      this.getKibanaObjects(message, bot, false);
+    })
+  }
 
-      let objectTypes = ['dashboard', 'visualization', 'search'];
-      switch (objectType) {
-        case 'vis':
-        case 'visualization':
-        case 'visualizations':
-          objectTypes = ['visualization'];
-          break;
-        case 'dash':
-        case 'dashboard':
-        case 'dashboards':
-          objectTypes = ['dashboard'];
-          break;
-        case 'search':
-        case 'searches':
-          objectTypes = ['search'];
-          break;
-      }
+  getKibanaObjects(message, bot, withAlias) {
+    logger.info(`User ${message.user} from team ${message.team} requested kibana objects list`, getEventMetadata(message, 'get-kibana-objects'));
 
-      const promises = objectTypes.map(objectType => kibanaClient.listObjects(message.team, objectType));
-      Promise.all(promises)
-        .then(results => {
-          const table = new Table();
+    const matches = message.match;
+    let alias, objectType;
+    if(withAlias){
+      alias = matches[1];
+      objectType = matches[2].toLocaleLowerCase();
+    }else{
+      objectType = matches[1].toLocaleLowerCase();
+    }
 
-          results.forEach(objects => {
-            objects.forEach(kibanaObject => {
-              table.cell('Object Type', kibanaObject['_type']);
-              table.cell('Object Name', kibanaObject['_source']['title']);
-              table.newRow();
-            });
-          });
+    let objectTypes = ['dashboard', 'visualization', 'search'];
+    switch (objectType) {
+      case 'vis':
+      case 'visualization':
+      case 'visualizations':
+        objectTypes = ['visualization'];
+        break;
+      case 'dash':
+      case 'dashboard':
+      case 'dashboards':
+        objectTypes = ['dashboard'];
+        break;
+      case 'search':
+      case 'searches':
+        objectTypes = ['search'];
+        break;
+    }
 
-          bot.api.files.upload({
-            content: table.toString(),
-            channels: message.channel,
-            filename: `Kibana objects of the following types: ${objectTypes.join(', ')}`,
-            filetype: 'text'
-          }, err => {
-            if (err) {
-              logger.error('Failed to send kibana objects table', getEventMetadata(message, 'failed_to_send_kibana_objects_table'), err);
-            }
-          });
-        })
-        .catch(err => {
-          this.handleError(bot, message, err, err => {
-            logger.error('Failed to send kibana objects table', getEventMetadata(message, 'failed_to_get_kibana_objects'), err);
+    const promises = objectTypes.map(objectType => this.kibanaClient.listObjects(message.channel, message.team, objectType, alias));
+    Promise.all(promises)
+      .then(results => {
+        const table = new Table();
+
+        results.forEach(objects => {
+          objects.forEach(kibanaObject => {
+            table.cell('Object Type', kibanaObject['_type']);
+            table.cell('Object Name', kibanaObject['_source']['title']);
+            table.newRow();
           });
         });
-    })
+
+        bot.api.files.upload({
+          content: table.toString(),
+          channels: message.channel,
+          filename: `Kibana objects of the following types: ${objectTypes.join(', ')}`,
+          filetype: 'text'
+        }, err => {
+          if (err) {
+            logger.error('Failed to send kibana objects table', getEventMetadata(message, 'failed_to_send_kibana_objects_table'), err);
+          }
+        });
+      })
+      .catch(err => {
+        this.handleError(bot, message, err, err => {
+          logger.error('Failed to send kibana objects table', getEventMetadata(message, 'failed_to_get_kibana_objects'), err);
+        });
+      });
   }
 
   getCategory() {
@@ -76,7 +90,7 @@ class KibanaObjectsCommand extends Command {
 
   getUsage() {
     return [
-      '*get kibana &lt;objects|dashboards|visualizations|searches&gt;* - Lists all available kibana objects'
+      '*[&lt;alias&gt;] get kibana &lt;objects|dashboards|visualizations|searches&gt;* - List Kibana objects, dashboards, visualizations, or searches'
     ];
   }
 
