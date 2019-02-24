@@ -1,5 +1,7 @@
 const TeamNotConfiguredError = require('../errors/team-not-configured-error');
 const RateLimitExceededError = require('../errors/rate-limit-exceeded-error');
+const AliasNotExistError = require('../errors/alias-not-exist-error');
+const Messages = require('../../core/messages/messages');
 
 class Command {
 
@@ -16,13 +18,15 @@ class Command {
     throw new Error('Method `getUsage` must be overridden!');
   }
 
-  handleError(bot, userMessage, err, unknownErrorHandler) {
+  handleError(bot, userMessage, err, unknownErrorHandler, defaultError) {
     if (err instanceof TeamNotConfiguredError) {
-      bot.reply(userMessage, 'Logz.io integration is not configured!\n' +
-        'Use `setup` command to configure the Logz.io integration and try again.');
+      bot.reply(userMessage, Messages.LOFZ_IO_IS_NOT_CONFIGURED);
     }
-    if (err instanceof RateLimitExceededError) {
+    else if (err instanceof RateLimitExceededError || err instanceof AliasNotExistError) {
           bot.reply(userMessage, err.message);
+    }else if(defaultError){
+      bot.reply(userMessage, Messages.DEFAULT_ERROR_MESSAGE);
+      unknownErrorHandler(err);
     }
     else {
       unknownErrorHandler(err);
