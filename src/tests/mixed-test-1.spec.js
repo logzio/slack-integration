@@ -1,12 +1,11 @@
 const GlobalConfiguration = require('../core/utils/globalTestConfigurationSetup');
 const CommandName = require('../tests/CommandName');
 const TestFunctions = require('../core/utils/testFunctions');
-const userId = 'u_mixed1';
-const teamId = 't_mixed1';
+const userId = 'u_mixed2';
+const teamId = 't_mixed3';
 const channelId2 = 'chan2';
-const alias1 = 'mixed1';
-const alias2 = 'mixed2';
-
+const alias1 = 'mixed3';
+const alias2 = 'mixed4';
 
 // This test is used for the following scenario:
 // 1. team login
@@ -40,9 +39,7 @@ describe('Mixed1',() => {
       }]}];
   }
 
-
   it('migration-mixed-1', (done) => {
-
     let sequence = TestFunctions.createOneAccount(userId, teamId, channelId,'mixed-1-api-token', 'us-east-1', alias1);
     globalTestConfiguration.bot.usersInput(sequence)
       .then((message) =>
@@ -127,7 +124,7 @@ describe('Mixed1',() => {
 
       .then(() => globalTestConfiguration.bot.usersInput(TestFunctions.removeAccount(userId,teamId,alias2,channelId)))
       .then((message) => {
-        expect(message.attachments[0].text).toBe(`${alias2} is used in these channels:chan2_name. Are you sure you want to remove it from Slack?`);
+        expect(message.attachments[0].text).toBe(`${alias2} is used in these channels:${channelId2}_name. Are you sure you want to remove it from Slack?`);
       })
       .then(() => {
         globalTestConfiguration.bot.usersInput(TestFunctions.confirm(userId,teamId,alias2,channelId,'yes')).then(message => {

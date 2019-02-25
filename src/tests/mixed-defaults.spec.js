@@ -181,12 +181,10 @@ describe('Mixed1',() => {
       .then((message) => validateTriggersResult(message, pageSize, total,triggersResults))
       .then(() => globalTestConfiguration.bot.usersInput(getTriggers(channelId)))
       .then((message) => validateTriggersResult(message, pageSize, total,triggersResults))
-
       .then(()=> done())
   })
 
 
-r5
    it('workspace and channel defaults - 2', (done) => {
 
      globalTestConfiguration.bot.usersInput(TestFunctions.createOneAccount(userId, teamId, channelId,'mixed-1-api-token', 'us-east-1', alias1))
@@ -198,10 +196,7 @@ r5
        .then(() => globalTestConfiguration.bot.usersInput(TestFunctions.setWorkspaceAccount(userId,teamId,channelId2,alias2)))
        .then(() => globalTestConfiguration.bot.usersInput(getTriggers(channelId2)))
        .then((message) => validateTriggersResult(message, pageSize, total2,triggersResults2))
-
-
-
-     done();
+       .then(()=> done());
    })
 
 
