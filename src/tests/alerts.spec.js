@@ -106,13 +106,6 @@ const responseById = {
   }
 }
 
-function validateAlertResults(alertMessage, expectedResponse) {
-  expect(alertMessage.attachments[0].title).toBe(expectedResponse.body[0].title);
-  expect(alertMessage.attachments[0].text).toBe(expectedResponse.body[0].description);
-  expect(alertMessage.attachments[0].fields[0].value).toBe(AlertsCommand.ucFirst(expectedResponse.body[0].severity));
-  expect(alertMessage.attachments[0].fields[1].value).toBe(AlertsCommand.ucFirst(expectedResponse.body[0].isEnabled.toString()));
-}
-
 describe('get alerts', () => {
 
   const globalTestConfiguration = new GlobalConfiguration();
@@ -124,9 +117,9 @@ describe('get alerts', () => {
       .then(() => globalTestConfiguration.bot.usersInput(TestFunctions.createOneAccount(userId, teamId, channelId, 'mixed-2-api-token', 'us-east-1', alias2)))
       .then((message) => expect(message.text).toBe(`Okay, you\'re ready to use ${alias2} in Slack!`))
       .then(() => globalTestConfiguration.bot.usersInput(TestFunctions.getAlertByName(userId, teamId, channelId, 'Change in user plan')))
-      .then((alertMessage) => validateAlertResults(alertMessage, responseByName))
+      .then((alertMessage) => TestFunctions.validateAlertResults(alertMessage, responseByName))
       .then(() => globalTestConfiguration.bot.usersInput(TestFunctions.showAlertByName(userId, teamId, channelId, 'Change in user plan')))
-      .then((alertMessage) => validateAlertResults(alertMessage, responseByName))
+      .then((alertMessage) => TestFunctions.validateAlertResults(alertMessage, responseByName))
       .then(() => {
         done();
       })
@@ -150,13 +143,13 @@ describe('get alerts', () => {
       .then(() => globalTestConfiguration.bot.usersInput(TestFunctions.createOneAccount(userId, teamId, channelId, 'mixed-2-api-token', 'us-east-1', alias2)))
       .then((message) => expect(message.text).toBe(`Okay, you\'re ready to use ${alias2} in Slack!`))
       .then(() => globalTestConfiguration.bot.usersInput(TestFunctions.getAliasAlertByName(userId, teamId, channelId, "Change in user plan", alias1)))
-      .then((alertMessage) => validateAlertResults(alertMessage, responseByName))
+      .then((alertMessage) => TestFunctions.validateAlertResults(alertMessage, responseByName))
       .then(() => globalTestConfiguration.bot.usersInput(TestFunctions.getAliasAlertByName(userId, teamId, channelId, "Change in user plan2", alias2)))
-      .then((alertMessage) => validateAlertResults(alertMessage, responseByName2))
+      .then((alertMessage) => TestFunctions.validateAlertResults(alertMessage, responseByName2))
       .then(() => globalTestConfiguration.bot.usersInput(TestFunctions.showAliasAlertByName(userId, teamId, channelId, "Change in user plan", alias1)))
-      .then((alertMessage) => validateAlertResults(alertMessage, responseByName))
+      .then((alertMessage) => TestFunctions.validateAlertResults(alertMessage, responseByName))
       .then(() => globalTestConfiguration.bot.usersInput(TestFunctions.showAliasAlertByName(userId, teamId, channelId, "Change in user plan2", alias2)))
-      .then((alertMessage) => validateAlertResults(alertMessage, responseByName2))
+      .then((alertMessage) => TestFunctions.validateAlertResults(alertMessage, responseByName2))
       .then(() => {
         done();
       })

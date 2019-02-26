@@ -1,4 +1,4 @@
-
+const AlertsCommand = require('../../alerts/show-alert-command');
 class TestFunctions {
 
 
@@ -270,6 +270,16 @@ class TestFunctions {
     return request;
   }
 
+  static validateAlertResults(alertMessage, expectedResponse) {
+    expect(alertMessage.attachments[0].title).toBe(expectedResponse.body[0].title);
+    expect(alertMessage.attachments[0].text).toBe(expectedResponse.body[0].description);
+    expect(alertMessage.attachments[0].fields[0].value).toBe(AlertsCommand.ucFirst(expectedResponse.body[0].severity));
+    expect(alertMessage.attachments[0].fields[1].value).toBe(AlertsCommand.ucFirst(expectedResponse.body[0].isEnabled.toString()));
+  }
+
+  static validateTriggeredResults(alertMessage, expectedResponse) {
+    expect(alertMessage.attachments[0].title).toBe(expectedResponse.body.results[0].name);
+  }
 
 }
 

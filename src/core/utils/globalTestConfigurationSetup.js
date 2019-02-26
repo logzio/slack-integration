@@ -95,6 +95,13 @@ class GlobalTestConfigurationSetup {
       }
     }
 
+    jasmineSpyHandlerReturnValues['whoami']['mixed-3-api-token'] = {
+      statusCode: 200,
+      body: {
+        accountName: 'Team2 App Test Prod'
+      }
+    }
+
     jasmineSpyHandlerReturnValues['whoami']['no-such-token'] = {
       statusCode: 200,
       body: {
@@ -347,6 +354,8 @@ class GlobalTestConfigurationSetup {
 
     await this.storage.teams.save(botTeam);
   }
+
+
 
 
 
