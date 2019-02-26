@@ -17,46 +17,90 @@ function getAuthHeaders(token) {
 }
 
 class HttpClient {
-
   constructor(teamConfigurationService, endpointResolver) {
     this.teamConfigurationService = teamConfigurationService;
     this.endpointResolver = endpointResolver;
 
     const axiosInstance = Axios.create();
-    axiosInstance.defaults.headers.common['User-Agent'] = 'logzio-slack-integration';
-    this.axios = axiosInstance
+    axiosInstance.defaults.headers.common['User-Agent'] =
+      'logzio-slack-integration';
+    this.axios = axiosInstance;
   }
 
   get(channelId, teamId, path, alias) {
-    return this.sendRequest(channelId, teamId, HttpMethod.GET, path, undefined, alias);
+    return this.sendRequest(
+      channelId,
+      teamId,
+      HttpMethod.GET,
+      path,
+      undefined,
+      alias
+    );
   }
 
   post(channelId, teamId, path, body, alias) {
-    return this.sendRequest(channelId, teamId, HttpMethod.POST, path, body, alias);
+    return this.sendRequest(
+      channelId,
+      teamId,
+      HttpMethod.POST,
+      path,
+      body,
+      alias
+    );
   }
 
-  validateConfigurationAndSendRequest(alias, teamId, channelId, method, path, body) {
-    return this.teamConfigurationService.getOrDefault(alias, teamId, channelId)
-      .then(configuration =>
-        HttpClient.validateConfiguration(configuration))
+  validateConfigurationAndSendRequest(
+    alias,
+    teamId,
+    channelId,
+    method,
+    path,
+    body
+  ) {
+    return this.teamConfigurationService
+      .getOrDefault(alias, teamId, channelId)
+      .then(configuration => HttpClient.validateConfiguration(configuration))
       .then(configuration => {
         const accountRegion = configuration.getLogzioAccountRegion();
         const apiToken = configuration.getLogzioApiToken();
-        return this.sendRequestWithRegionAndToken(accountRegion, apiToken, method, path, body)
-      })
+        return this.sendRequestWithRegionAndToken(
+          accountRegion,
+          apiToken,
+          method,
+          path,
+          body
+        );
+      });
   }
   sendRequest(channelId, teamId, method, path, body, alias) {
     if (alias) {
-      return this.teamConfigurationService.doesAliasExist(teamId, alias)
+      return this.teamConfigurationService
+        .doesAliasExist(teamId, alias)
         .then(isValid => {
-            if (!isValid) {
-              throw new AliasNotExistError('Sorry, there isn\'t an account with that alias. If you want to see your accounts, type `@Alice accounts`.');
-            }
-            return this.validateConfigurationAndSendRequest(alias, teamId, channelId, method, path, body)
-          })
-     } else {
-      return this.validateConfigurationAndSendRequest(alias, teamId, channelId, method, path, body)
-     }
+          if (!isValid) {
+            throw new AliasNotExistError(
+              "Sorry, there isn't an account with that alias. If you want to see your accounts, type `@Alice accounts`."
+            );
+          }
+          return this.validateConfigurationAndSendRequest(
+            alias,
+            teamId,
+            channelId,
+            method,
+            path,
+            body
+          );
+        });
+    } else {
+      return this.validateConfigurationAndSendRequest(
+        alias,
+        teamId,
+        channelId,
+        method,
+        path,
+        body
+      );
+    }
   }
 
   sendRequestWithRegionAndToken(accountRegion, apiToken, method, path, body) {
@@ -76,8 +120,7 @@ class HttpClient {
     }
 
     return requestPromise
-      .then(response =>
-        response.data)
+      .then(response => response.data)
       .catch(err => {
         logger.error(err);
         if (err.response.status === 429) {
@@ -88,13 +131,19 @@ class HttpClient {
   }
 
   getRealName(token, region) {
-    return this.sendRequestWithRegionAndToken(region, token, HttpMethod.GET, '/v1/account-management/whoami')
+    return this.sendRequestWithRegionAndToken(
+      region,
+      token,
+      HttpMethod.GET,
+      '/v1/account-management/whoami'
+    );
   }
 
   static validateConfiguration(configuration) {
-
     if (!configuration.getLogzioAccountRegion()) {
-      throw new TeamNotConfiguredError('Logz.io account region is not configured!');
+      throw new TeamNotConfiguredError(
+        'Logz.io account region is not configured!'
+      );
     }
 
     if (!configuration.getLogzioApiToken()) {
@@ -105,13 +154,16 @@ class HttpClient {
   }
 
   static validateAlias(teamConfigurationService, teamId, alias) {
-    return teamConfigurationService.doesAliasExist(teamId, alias)
+    return teamConfigurationService
+      .doesAliasExist(teamId, alias)
       .then(isValid => {
         if (!isValid) {
-          throw new AliasNotExistError('Sorry, there isn\'t an account with that alias. If you want to see your accounts, type `@Alice accounts`.');
+          throw new AliasNotExistError(
+            "Sorry, there isn't an account with that alias. If you want to see your accounts, type `@Alice accounts`."
+          );
         }
         return isValid;
-      })
+      });
   }
 }
 

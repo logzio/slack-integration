@@ -1,5 +1,3 @@
-class RateLimitExceededError extends Error {
-
-}
+class RateLimitExceededError extends Error {}
 
 module.exports = RateLimitExceededError;

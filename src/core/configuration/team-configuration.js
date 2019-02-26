@@ -1,6 +1,5 @@
 class TeamConfiguration {
-
-  constructor(config,oldName) {
+  constructor(config, oldName) {
     this.config = config || {};
     this.oldName = oldName;
   }
@@ -32,7 +31,7 @@ class TeamConfiguration {
   }
 
   setAlias(alias) {
-    this.config = { ...this.config, alias: alias};
+    this.config = { ...this.config, alias: alias };
     return this;
   }
 
@@ -41,14 +40,13 @@ class TeamConfiguration {
   }
 
   setRealName(realName) {
-    this.config = { ...this.config, realName: realName};
+    this.config = { ...this.config, realName: realName };
     return this;
   }
 
   getAsObject() {
     return this.config;
   }
-
 }
 
 module.exports = TeamConfiguration;

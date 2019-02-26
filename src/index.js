@@ -2,12 +2,11 @@ const LogzStorageMySQL = require('./core/storage/logzio-storage');
 const LogzioBot = require('./logzio-bot');
 const DBUtils = require('./core/utils/basicUp');
 
-
 const dbConfig = {
   user: DBUtils.getRequiredValueFromEnv('MYSQL_USER'),
   password: DBUtils.getRequiredValueFromEnv('MYSQL_PASSWORD'),
   database: DBUtils.getRequiredValueFromEnv('MYSQL_DATABASE'),
-  host: DBUtils.getRequiredValueFromEnv('MYSQL_HOST'),
+  host: DBUtils.getRequiredValueFromEnv('MYSQL_HOST')
 };
 
 DBUtils.migrateDatabase(dbConfig).then(() => {
@@ -20,6 +19,6 @@ DBUtils.migrateDatabase(dbConfig).then(() => {
     DBUtils.getRequiredValueFromEnv('CLIENT_ID'),
     DBUtils.getRequiredValueFromEnv('CLIENT_SECRET'),
     DBUtils.getRequiredValueFromEnv('VERIFICATION_TOKEN'),
-    DBUtils.getRequiredValueFromEnv('PORT'),
+    DBUtils.getRequiredValueFromEnv('PORT')
   );
 });

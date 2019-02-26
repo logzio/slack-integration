@@ -8,30 +8,42 @@ const logger = LoggerFactory.getLogger(__filename);
 const commandRegex = /get kibana (objects|vis|visualizations?|dash|dashboards?|search|searches)/;
 const commandRegexWithAlias = /(.+) get kibana (objects|vis|visualizations?|dash|dashboards?|search|searches)/;
 class KibanaObjectsCommand extends Command {
-
   constructor(kibanaClient) {
     super();
     this.kibanaClient = kibanaClient;
   }
 
   configure(controller) {
-    controller.hears([commandRegexWithAlias], 'direct_message,direct_mention', (bot, message) => {
-      this.getKibanaObjects(message, bot, true);
-    })
-    controller.hears([commandRegex], 'direct_message,direct_mention', (bot, message) => {
-      this.getKibanaObjects(message, bot, false);
-    })
+    controller.hears(
+      [commandRegexWithAlias],
+      'direct_message,direct_mention',
+      (bot, message) => {
+        this.getKibanaObjects(message, bot, true);
+      }
+    );
+    controller.hears(
+      [commandRegex],
+      'direct_message,direct_mention',
+      (bot, message) => {
+        this.getKibanaObjects(message, bot, false);
+      }
+    );
   }
 
   getKibanaObjects(message, bot, withAlias) {
-    logger.info(`User ${message.user} from team ${message.team} requested kibana objects list`, getEventMetadata(message, 'get-kibana-objects'));
+    logger.info(
+      `User ${message.user} from team ${
+        message.team
+      } requested kibana objects list`,
+      getEventMetadata(message, 'get-kibana-objects')
+    );
 
     const matches = message.match;
     let alias, objectType;
-    if(withAlias){
+    if (withAlias) {
       alias = matches[1];
       objectType = matches[2].toLocaleLowerCase();
-    }else{
+    } else {
       objectType = matches[1].toLocaleLowerCase();
     }
 
@@ -53,7 +65,14 @@ class KibanaObjectsCommand extends Command {
         break;
     }
 
-    const promises = objectTypes.map(objectType => this.kibanaClient.listObjects(message.channel, message.team, objectType, alias));
+    const promises = objectTypes.map(objectType =>
+      this.kibanaClient.listObjects(
+        message.channel,
+        message.team,
+        objectType,
+        alias
+      )
+    );
     Promise.all(promises)
       .then(results => {
         const table = new Table();
@@ -66,20 +85,36 @@ class KibanaObjectsCommand extends Command {
           });
         });
 
-        bot.api.files.upload({
-          content: table.toString(),
-          channels: message.channel,
-          filename: `Kibana objects of the following types: ${objectTypes.join(', ')}`,
-          filetype: 'text'
-        }, err => {
-          if (err) {
-            logger.error('Failed to send kibana objects table', getEventMetadata(message, 'failed_to_send_kibana_objects_table'), err);
+        bot.api.files.upload(
+          {
+            content: table.toString(),
+            channels: message.channel,
+            filename: `Kibana objects of the following types: ${objectTypes.join(
+              ', '
+            )}`,
+            filetype: 'text'
+          },
+          err => {
+            if (err) {
+              logger.error(
+                'Failed to send kibana objects table',
+                getEventMetadata(
+                  message,
+                  'failed_to_send_kibana_objects_table'
+                ),
+                err
+              );
+            }
           }
-        });
+        );
       })
       .catch(err => {
         this.handleError(bot, message, err, err => {
-          logger.error('Failed to send kibana objects table', getEventMetadata(message, 'failed_to_get_kibana_objects'), err);
+          logger.error(
+            'Failed to send kibana objects table',
+            getEventMetadata(message, 'failed_to_get_kibana_objects'),
+            err
+          );
         });
       });
   }
@@ -93,7 +128,6 @@ class KibanaObjectsCommand extends Command {
       '*[&lt;alias&gt;] get kibana &lt;objects|dashboards|visualizations|searches&gt;* - List Kibana objects, dashboards, visualizations, or searches'
     ];
   }
-
 }
 
 module.exports = KibanaObjectsCommand;

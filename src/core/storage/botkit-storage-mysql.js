@@ -171,86 +171,70 @@ const mysql = require('mysql');
 const SQL = require('sql-template-strings');
 const util = require('util');
 
-module.exports = function (config) {
+module.exports = function(config) {
   if (!config || !config.host) {
     throw new Error('Need to provide MySQL connection information.');
   }
 
-  var get = function (tableName, translator) {
-    return function (id, callback) {
+  var get = function(tableName, translator) {
+    return function(id, callback) {
       var connection = mysql.createConnection(config);
       try {
         connection.connect();
-        connection.query(SQL`SELECT * from `.append(tableName).append(SQL` where id = ${id}`), function (err, rows) {
-          callback(err, translator(rows[0]));
-        });
+        connection.query(
+          SQL`SELECT * from `.append(tableName).append(SQL` where id = ${id}`),
+          function(err, rows) {
+            callback(err, translator(rows[0]));
+          }
+        );
       } finally {
         connection.end();
       }
     };
   };
 
-  var get_async = function (tableName, translator) {
-    return function (id) {
+  var get_async = function(tableName, translator) {
+    return function(id) {
       const connection = mysql.createConnection(config);
       let response;
       connection.connect();
       const queryPromise = util.promisify(connection.query).bind(connection);
-      return queryPromise(SQL`SELECT * from `.append(tableName).append(SQL` where id = ${id}`))
-        .then(ans => {
-          if (ans.length > 0) {
-            response = translator(ans[0]);
-          }
-          connection.end();
-          return Promise.resolve(response);
-        }).catch(err => {
-          connection.end();
-          console.log(err);
-        })
+      return queryPromise(
+        SQL`SELECT * from `.append(tableName).append(SQL` where id = ${id}`)
+      ).then(ans => {
+        if (ans.length > 0) {
+          response = translator(ans[0]);
+        }
+        connection.end();
+        return Promise.resolve(response);
+      });
     };
-  }
+  };
 
-  var delete_async = function (tableName, translator) {
-    return function (id) {
-      const connection = mysql.createConnection(config);
-      let response;
-      connection.connect();
-      const queryPromise = util.promisify(connection.query).bind(connection);
-      return queryPromise(SQL`DELETE from `.append(tableName).append(SQL` where id = ${id}`))
-        .then(ans => {
-          if (ans.length > 0) {
-            response = translator(ans[0]);
-          }
-          connection.end();
-          return Promise.resolve(response);
-        }).catch(err => {
-          connection.end();
-          console.log(err);
-        })
-    };
-  }
-
-
-
-
-
-  var saveUser = function (tableName) {
-    return function (data) {
+  var saveUser = function(tableName) {
+    return function(data) {
       var id = data.id;
       var access_token = data.access_token;
       var scopes = JSON.stringify(data.scopes);
       var team_id = data.team_id;
       var user = data.user;
 
-      return save_async(SQL`INSERT into `.append(tableName).append(SQL` (id, access_token, scopes, team_id, user)`)
-          .append(SQL`VALUES (${id}, ${access_token}, ${scopes}, ${team_id}, ${user})`)
-          .append(SQL`ON DUPLICATE KEY UPDATE id=${id}, access_token=${access_token}, scopes=${scopes}, team_id=${team_id}, user=${user}`)
-        );
+      return save_async(
+        SQL`INSERT into `
+          .append(tableName)
+          .append(SQL` (id, access_token, scopes, team_id, user)`)
+          .append(
+            SQL`VALUES (${id}, ${access_token}, ${scopes}, ${team_id}, ${user})`
+          )
+          .append(
+            SQL`ON DUPLICATE KEY UPDATE id=${id}, access_token=${access_token}, scopes=${scopes}, team_id=${team_id}, user=${user}`
+          )
+      );
     };
   };
 
-  var saveTeam = function (tableName) {
-    return function (data) {
+  var saveTeam = function(tableName) {
+    return function(data) {
       var id = data.id;
       var createdBy = data.createdBy;
       var name = data.name;
@@ -258,14 +242,22 @@ module.exports = function (config) {
       var token = data.token;
       var bot = JSON.stringify(data.bot);
 
-      return save_async(SQL`INSERT into `.append(tableName).append(SQL` (id, createdBy, name, url, token, bot)`)
-          .append(SQL`VALUES (${id}, ${createdBy}, ${name}, ${url}, ${token}, ${bot})`)
-          .append(SQL`ON DUPLICATE KEY UPDATE createdBy = ${createdBy}, name = ${name}, url = ${url}, token = ${token}, bot = ${bot}`));
+      return save_async(
+        SQL`INSERT into `
+          .append(tableName)
+          .append(SQL` (id, createdBy, name, url, token, bot)`)
+          .append(
+            SQL`VALUES (${id}, ${createdBy}, ${name}, ${url}, ${token}, ${bot})`
+          )
+          .append(
+            SQL`ON DUPLICATE KEY UPDATE createdBy = ${createdBy}, name = ${name}, url = ${url}, token = ${token}, bot = ${bot}`
+          )
+      );
     };
   };
 
-   var saveChannel =  function (tableName) {
-    return function (data) {
+  var saveChannel = function(tableName) {
+    return function(data) {
       var keys = Object.keys(data);
       var json = {};
       for (var i = 0; i < keys.length; i++) {
@@ -276,48 +268,42 @@ module.exports = function (config) {
       }
 
       var stringifiedJson = JSON.stringify(json);
-      return save_async(SQL`INSERT into `.append(tableName).append(SQL` (id, json)`)
-        .append(SQL`VALUES (${data.id}, ${stringifiedJson})`)
-        .append(SQL`ON DUPLICATE KEY UPDATE json=${stringifiedJson}`));
+      return save_async(
+        SQL`INSERT into `
+          .append(tableName)
+          .append(SQL` (id, json)`)
+          .append(SQL`VALUES (${data.id}, ${stringifiedJson})`)
+          .append(SQL`ON DUPLICATE KEY UPDATE json=${stringifiedJson}`)
+      );
     };
   };
 
-  var save = function (statement, callback) {
-    var connection = mysql.createConnection(config);
-    try {
-      connection.connect();
-      connection.query(statement, function (err) {
-        callback(err);
-      });
-    } finally {
-      connection.end();
-    }
-  };
-
-  var save_async =  async function (statement) {
+  var save_async = async function(statement) {
     var connection = mysql.createConnection(config);
     try {
       connection.connect();
       const queryPromise = util.promisify(connection.query).bind(connection);
       const ans = await queryPromise(statement);
-      return  ans;
-    } catch(err) {
+      return ans;
+    } catch (err) {
       throw Error(err);
     } finally {
       connection.end();
     }
   };
 
-
-  var all = function (tableName, translator) {
-    return function (callback) {
+  var all = function(tableName, translator) {
+    return function(callback) {
       var connection = mysql.createConnection(config);
       try {
         connection.connect();
-        connection.query(SQL`SELECT * from `.append(tableName), function (err, rows) {
+        connection.query(SQL`SELECT * from `.append(tableName), function(
+          err,
+          rows
+        ) {
           var translatedData = [];
           for (var i = 0; i < rows.length; i++) {
-            translatedData.push(translator(rows[i]))
+            translatedData.push(translator(rows[i]));
           }
           callback(err, translatedData);
         });
@@ -327,35 +313,30 @@ module.exports = function (config) {
     };
   };
 
-  var all_async = function (tableName,translator) {
-    return function (id) {
+  var all_async = function(tableName, translator) {
+    return function() {
       const connection = mysql.createConnection(config);
       connection.connect();
       const queryPromise = util.promisify(connection.query).bind(connection);
-      return queryPromise(SQL`SELECT * from `.append(tableName))
-        .then(ans => {
-          connection.end();
-          var translatedData = [];
-                 for (var i = 0; i < ans.length; i++) {
-                   translatedData.push(translator(ans[i]))
-                }
-
-          return Promise.resolve(translatedData);
-        }).catch(err => {
-          connection.end();
-          console.log(err);
-        })
+      return queryPromise(SQL`SELECT * from `.append(tableName)).then(ans => {
+        connection.end();
+        var translatedData = [];
+        for (var i = 0; i < ans.length; i++) {
+          translatedData.push(translator(ans[i]));
+        }
+        return Promise.resolve(translatedData);
+      });
     };
-  }
+  };
 
-  var dbToUserJson = function (userDataFromDB) {
+  var dbToUserJson = function(userDataFromDB) {
     if (userDataFromDB) {
       userDataFromDB.scopes = JSON.parse(userDataFromDB.scopes);
     }
     return userDataFromDB;
   };
 
-  var dbToTeamJson = function (teamDataFromDB) {
+  var dbToTeamJson = function(teamDataFromDB) {
     if (teamDataFromDB) {
       teamDataFromDB.bot = JSON.parse(teamDataFromDB.bot);
       teamDataFromDB.bot.name = teamDataFromDB.name;
@@ -363,9 +344,9 @@ module.exports = function (config) {
     return teamDataFromDB;
   };
 
-  var dbToChannelJson = function (input) {
-    if(input!==undefined){
-      var output = {id: input.id};
+  var dbToChannelJson = function(input) {
+    if (input !== undefined) {
+      var output = { id: input.id };
       var json = JSON.parse(input.json);
       var keys = Object.keys(json);
       for (var i = 0; i < keys.length; i++) {

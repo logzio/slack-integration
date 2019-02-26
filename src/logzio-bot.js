@@ -8,7 +8,6 @@ const HttpClient = require('./core/client/http-client');
 const KibanaClient = require('./kibana/kibana-client');
 const KibanaObjectsCommand = require('./kibana/kibana-objects-command');
 const LoggerFactory = require('./core/logging/logger-factory');
-const PromiseStorage = require('botkit-promise-storage');
 const SearchClient = require('./search/search-client');
 const SearchCommand = require('./search/search-command');
 const AddAccountCommand = require('./accounts/add/add-account-command');
@@ -48,7 +47,11 @@ function createBot(logzioBot, bot, config) {
       trackBot(logzioBot, bot);
 
       if (config.createdBy) {
-        logzioBot.setupDialogSender.sendSetupMessage(bot, config.createdBy, true)
+        logzioBot.setupDialogSender.sendSetupMessage(
+          bot,
+          config.createdBy,
+          true
+        );
       }
     });
   }
@@ -65,9 +68,9 @@ function connectToExistingTeams(logzioBot) {
     }
 
     // connect all teams with bots up to slack!
-    for (const team  in teams) {
+    for (const team in teams) {
       if (teams[team].bot) {
-        const bot = logzioBot.controller.spawn(teams[team]).startRTM((err) => {
+        const bot = logzioBot.controller.spawn(teams[team]).startRTM(err => {
           if (err) {
             logger.error('Error connecting bot to Slack:', err);
           } else {
@@ -77,7 +80,6 @@ function connectToExistingTeams(logzioBot) {
       }
     }
   });
-
 }
 
 function registerAndConfigureCommands(logzioBot) {
@@ -91,19 +93,38 @@ function registerAndConfigureCommands(logzioBot) {
   const httpClient = new HttpClient(teamConfigurationService, endpointResolver);
   const alertsClient = new AlertsClient(httpClient);
   const kibanaClient = new KibanaClient(httpClient);
-  const channelAccountHandler = new ChannelAccountHandler(teamConfigurationService);
-  const defaultHandler = new DefaultHandler(teamConfigurationService, httpClient);
-  const removeAccountHandler = new RemoveAccountHandler(teamConfigurationService, defaultHandler);
+  const channelAccountHandler = new ChannelAccountHandler(
+    teamConfigurationService
+  );
+  const defaultHandler = new DefaultHandler(
+    teamConfigurationService,
+    httpClient
+  );
+  const removeAccountHandler = new RemoveAccountHandler(
+    teamConfigurationService,
+    defaultHandler
+  );
 
-  logzioBot.setupDialogSender = new SetupDialogSender(teamConfigurationService, apiConfig);
+  logzioBot.setupDialogSender = new SetupDialogSender(
+    teamConfigurationService,
+    apiConfig
+  );
 
   CommandsRegistry.register(new GetTriggeredAlertsCommand(alertsClient));
   CommandsRegistry.register(new HelpCommand());
   CommandsRegistry.register(new KibanaObjectsCommand(kibanaClient));
   CommandsRegistry.register(new SearchCommand(new SearchClient(httpClient)));
-  CommandsRegistry.register(new AddAccountCommand(logzioBot.setupDialogSender,teamConfigurationService));
+  CommandsRegistry.register(
+    new AddAccountCommand(logzioBot.setupDialogSender, teamConfigurationService)
+  );
   CommandsRegistry.register(new ShowAlertCommand(alertsClient));
-  CommandsRegistry.register(new SnapshotCommand(externalDomain, kibanaClient, new SnapshotsClient(httpClient)));
+  CommandsRegistry.register(
+    new SnapshotCommand(
+      externalDomain,
+      kibanaClient,
+      new SnapshotsClient(httpClient)
+    )
+  );
   CommandsRegistry.register(new ClearActiveCommand(channelAccountHandler));
   CommandsRegistry.register(new SetActiveCommand(channelAccountHandler));
   CommandsRegistry.register(new ClearDefaultCommand(defaultHandler));
@@ -112,15 +133,20 @@ function registerAndConfigureCommands(logzioBot) {
   CommandsRegistry.register(new RemoveAccountCommand(removeAccountHandler));
   CommandsRegistry.register(new UnknownCommand());
 
-  CommandsRegistry.getCommands()
-    .forEach(command => command.configure(logzioBot.controller));
+  CommandsRegistry.getCommands().forEach(command =>
+    command.configure(logzioBot.controller)
+  );
 
-  const setupDialogHandler = new SetupDialogHandler(teamConfigurationService, httpClient, apiConfig, logzioBot.setupDialogSender);
+  const setupDialogHandler = new SetupDialogHandler(
+    teamConfigurationService,
+    httpClient,
+    apiConfig,
+    logzioBot.setupDialogSender
+  );
   setupDialogHandler.configure(logzioBot.controller);
 }
 
 class LogzioBot {
-
   constructor(apiConfig, externalDomain, storage) {
     this.bots = {};
     this.apiConfig = apiConfig;
@@ -133,15 +159,15 @@ class LogzioBot {
       logger: LoggerFactory.getLogger('botkit'),
       disable_startup_messages: true,
       require_delivery: true,
-      storage: this.storage,
+      storage: this.storage
     };
 
     this.controller = Botkit.slackbot(config).configureSlackApp({
       clientId: clientId,
       clientSecret: clientSecret,
       clientVerificationToken: clientVerificationToken,
-      scopes: ['bot'],
-     // retry: 10,
+      scopes: ['bot']
+      // retry: 10,
     });
 
     this.controller.setupWebserver(port, (err, webserver) => {
@@ -162,18 +188,23 @@ class LogzioBot {
     });
 
     this.controller.on('create_bot', (bot, config) =>
-      createBot(this, bot, config));
+      createBot(this, bot, config)
+    );
 
     this.controller.on('rtm_close', (bot, err) => {
       delete this.bots[bot.config.token];
-      logger.warn(`RTM connection for bot ${bot.config.token} closed - trying to reopen RTM connection`, err);
+      logger.warn(
+        `RTM connection for bot ${
+          bot.config.token
+        } closed - trying to reopen RTM connection`,
+        err
+      );
       createBot(this, bot, {});
     });
 
     registerAndConfigureCommands(this);
     connectToExistingTeams(this);
   }
-
 }
 
 process.on('uncaughtException', err => {
