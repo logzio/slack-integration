@@ -3,15 +3,6 @@ const LoggerFactory = require('../../core/logging/logger-factory');
 const logger = LoggerFactory.getLogger(__filename);
 const ApiExtract = require('../utils/apiExtract');
 
-const makeid = numberOfChars => {
-  let text = '';
-  const possible =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  for (let i = 0; i < numberOfChars; i++)
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  return text;
-};
-
 class TeamConfigurationService {
   constructor(storage) {
     this.teamStore = storage.teams;
@@ -248,31 +239,6 @@ class TeamConfigurationService {
     return this.storage.channels.get_async(channelId).then(channelSettings => {
       delete channelSettings['alias'];
       return this.storage.channels.save(channelSettings);
-    });
-  }
-
-  extractDefaultFromOldAccount(teamId, httpClient) {
-    let storage = this.storage;
-    let defaultForTeam = this.getDefault(teamId);
-    return storage.configuredAccounts.all(teamId).then(isAccountConfigured => {
-      isAccountConfigured.some(
-        account =>
-          account.getLogzioApiToken() === defaultForTeam.getLogzioApiToken() &&
-          account.getLogzioAccountRegion() ===
-            defaultForTeam.getLogzioAccountRegion()
-      );
-
-      if (defaultForTeam && !isAccountConfigured)
-        storage.configuredAccounts.save({
-          team_id: teamId,
-          alias: 'default-' + makeid(5),
-          apiToken: defaultForTeam.getLogzioApiToken(),
-          region: defaultForTeam.getLogzioAccountRegion(),
-          realName: httpClient.getRealName(
-            defaultForTeam.getLogzioApiToken(),
-            defaultForTeam.getLogzioAccountRegion()
-          )
-        });
     });
   }
 
