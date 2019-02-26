@@ -6,11 +6,11 @@ class ChannelAccountHandler {
   }
 
   setDefault(teamId, channelId, alias) {
-
-
-   return HttpClient.validateAlias(this.teamConfService,teamId,alias)
-     .then(()=> this.teamConfService.saveAccountForChannel(teamId, channelId, alias))
-     .then(() => true)
+    return HttpClient.validateAlias(this.teamConfService, teamId, alias)
+      .then(() =>
+        this.teamConfService.saveAccountForChannel(teamId, channelId, alias)
+      )
+      .then(() => true);
 
     // return  this.teamConfService.doesAliasExist(teamId, alias)
     //   .then(accountExist => {
@@ -24,14 +24,13 @@ class ChannelAccountHandler {
     // });
   }
 
-  clearDefault(teamId, channelId){
+  clearDefault(teamId, channelId) {
     return this.teamConfService.clearDefaultForChannel(teamId, channelId);
   }
 
-  isAccountUsedByChannel(teamId, channelId){
+  isAccountUsedByChannel(teamId, channelId) {
     return this.teamConfService.isAccountUsedByChannelId(teamId, channelId);
   }
-
 }
 
 module.exports = ChannelAccountHandler;

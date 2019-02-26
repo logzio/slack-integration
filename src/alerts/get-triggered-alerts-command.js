@@ -8,7 +8,7 @@ const logger = LoggerFactory.getLogger(__filename);
 const colors = {
   low: '#89C182',
   medium: '#FFA13D',
-  high: '#FF4756',
+  high: '#FF4756'
 };
 
 const commandWithAlias = /(.+) (get|list) triggered alerts/;
@@ -20,7 +20,7 @@ function createTriggeredAlertsMessage(events, total) {
     return {
       color: colors[severity.toLowerCase()],
       footer: moment.unix(eventDate).fromNow(),
-      title: name,
+      title: name
     };
   });
 
@@ -31,7 +31,6 @@ function createTriggeredAlertsMessage(events, total) {
 }
 
 class GetTriggeredAlertsCommand extends Command {
-
   constructor(alertsClient) {
     super();
     this.alertsClient = alertsClient;
@@ -40,26 +39,51 @@ class GetTriggeredAlertsCommand extends Command {
   configure(controller) {
     controller.hears([commandWithAlias], events, (bot, message) => {
       this.getTriggeredAlerts(null, bot, message, true);
-    })
+    });
     controller.hears([command], events, (bot, message) => {
-      this.getTriggeredAlerts(message.channel, bot, message ,null,false);
-    })
+      this.getTriggeredAlerts(message.channel, bot, message, null, false);
+    });
   }
 
-  getTriggeredAlerts(channel,bot, message ,withAlias) {
-    logger.info(`User ${message.user} from team ${message.team} requested triggered alerts list`, getEventMetadata(message, 'get-triggered-alerts'));
-        let alias;
-        const matches = message.match;
-        if(withAlias){
-          alias = matches[1];
-        }
-        this.alertsClient.getTriggeredAlerts(alias,channel,message.team, 5, ["HIGH", "MEDIUM", "LOW"], "DATE", "DESC")
-            .then(({results, total}) =>
-              bot.reply(message, createTriggeredAlertsMessage(results, total)))
+  getTriggeredAlerts(channel, bot, message, withAlias) {
+    logger.info(
+      `User ${message.user} from team ${
+        message.team
+      } requested triggered alerts list`,
+      getEventMetadata(message, 'get-triggered-alerts')
+    );
+    let alias;
+    const matches = message.match;
+    if (withAlias) {
+      alias = matches[1];
+    }
+    this.alertsClient
+      .getTriggeredAlerts(
+        alias,
+        channel,
+        message.team,
+        5,
+        ['HIGH', 'MEDIUM', 'LOW'],
+        'DATE',
+        'DESC'
+      )
+      .then(({ results, total }) =>
+        bot.reply(message, createTriggeredAlertsMessage(results, total))
+      )
       .catch(err => {
-        this.handleError(bot, message, err, err => {
-          logger.warn('Failed to get triggered events', err, getEventMetadata(message, 'failed-to-get-triggered-alerts'));
-        },true);
+        this.handleError(
+          bot,
+          message,
+          err,
+          err => {
+            logger.warn(
+              'Failed to get triggered events',
+              err,
+              getEventMetadata(message, 'failed-to-get-triggered-alerts')
+            );
+          },
+          true
+        );
       });
   }
 
@@ -68,11 +92,8 @@ class GetTriggeredAlertsCommand extends Command {
   }
 
   getUsage() {
-    return [
-      '*[&lt;alias&gt;] get triggered alerts* - List triggered alerts',
-    ];
+    return ['*[&lt;alias&gt;] get triggered alerts* - List triggered alerts'];
   }
-
 }
 
 module.exports = GetTriggeredAlertsCommand;

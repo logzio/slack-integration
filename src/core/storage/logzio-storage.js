@@ -3,18 +3,21 @@ const SQL = require('sql-template-strings');
 const BotkitStorageMySQL = require('../storage/botkit-storage-mysql');
 const util = require('util');
 
-
-module.exports = function (dbConfig) {
+module.exports = function(dbConfig) {
   const storage = new BotkitStorageMySQL(dbConfig);
 
-  var getConfiguredAccounts = function (tableName) {
-    return async function (id,alias) {
+  var getConfiguredAccounts = function(tableName) {
+    return async function(id, alias) {
       var connection = mysql.createConnection(dbConfig);
       try {
         connection.connect();
         const queryPromise = util.promisify(connection.query).bind(connection);
-        let rows = await queryPromise(SQL`SELECT * from `.append(tableName).append(SQL` where team_id = ${id} AND alias = ${alias}`));
-        if(rows.length>0){
+        let rows = await queryPromise(
+          SQL`SELECT * from `
+            .append(tableName)
+            .append(SQL` where team_id = ${id} AND alias = ${alias}`)
+        );
+        if (rows.length > 0) {
           return rows[0];
         }
       } finally {
@@ -23,34 +26,45 @@ module.exports = function (dbConfig) {
     };
   };
 
-  var saveConfiguredAccount = function (tableName) {
-    return async function (data) {
-            let team_id = data.team_id;
-            let alias = data.alias;
-            let apiToken = data.apiToken;
-            let region = data.region;
-            let realName = data.realName;
+  var saveConfiguredAccount = function(tableName) {
+    return async function(data) {
+      let team_id = data.team_id;
+      let alias = data.alias;
+      let apiToken = data.apiToken;
+      let region = data.region;
+      let realName = data.realName;
       var connection = mysql.createConnection(dbConfig);
       try {
         connection.connect();
         const queryPromise = util.promisify(connection.query).bind(connection);
-        return queryPromise(SQL`INSERT into `.append(tableName)
-          .append(SQL` (team_id, alias, apiToken, region, realName)`)
-          .append(SQL` VALUES (${team_id}, ${alias}, ${apiToken}, ${region}, ${realName})`)
-          .append(SQL` ON DUPLICATE KEY UPDATE alias = ${alias}, apiToken = ${apiToken}, region = ${region}, realName = ${realName}`));
+        return queryPromise(
+          SQL`INSERT into `
+            .append(tableName)
+            .append(SQL` (team_id, alias, apiToken, region, realName)`)
+            .append(
+              SQL` VALUES (${team_id}, ${alias}, ${apiToken}, ${region}, ${realName})`
+            )
+            .append(
+              SQL` ON DUPLICATE KEY UPDATE alias = ${alias}, apiToken = ${apiToken}, region = ${region}, realName = ${realName}`
+            )
+        );
       } finally {
         connection.end();
       }
     };
   };
 
-  var deleteConfiguredAccount = function (tableName) {
-    return async function (id, alias) {
+  var deleteConfiguredAccount = function(tableName) {
+    return async function(id, alias) {
       var connection = mysql.createConnection(dbConfig);
       try {
         connection.connect();
         const queryPromise = util.promisify(connection.query).bind(connection);
-        await queryPromise(SQL`DELETE from `.append(tableName).append(SQL` where team_id = ${id} AND alias=${alias}`));
+        await queryPromise(
+          SQL`DELETE from `
+            .append(tableName)
+            .append(SQL` where team_id = ${id} AND alias=${alias}`)
+        );
         return true;
       } finally {
         connection.end();
@@ -58,16 +72,20 @@ module.exports = function (dbConfig) {
     };
   };
 
-  var getAllConfiguredAccount = function (tableName) {
-    return async function (id) {
+  var getAllConfiguredAccount = function(tableName) {
+    return async function(id) {
       var connection = mysql.createConnection(dbConfig);
       try {
         connection.connect();
         const queryPromise = util.promisify(connection.query).bind(connection);
-        let rows = await queryPromise(SQL`SELECT * from `.append(tableName).append(SQL` where team_id = ${id}`));
+        let rows = await queryPromise(
+          SQL`SELECT * from `
+            .append(tableName)
+            .append(SQL` where team_id = ${id}`)
+        );
         var translatedData = [];
         for (var i = 0; i < rows.length; i++) {
-          translatedData.push(rows[i])
+          translatedData.push(rows[i]);
         }
         return translatedData;
       } finally {

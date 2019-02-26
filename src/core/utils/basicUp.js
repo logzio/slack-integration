@@ -1,10 +1,11 @@
 const DBMigrate = require('db-migrate');
 class BasicUp {
-
   static getRequiredValueFromEnv(variableName) {
     const value = process.env[variableName];
     if (!value) {
-      throw new Error(`Missing required environment variable '${variableName}'`);
+      throw new Error(
+        `Missing required environment variable '${variableName}'`
+      );
     }
     return value;
   }

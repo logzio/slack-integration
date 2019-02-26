@@ -1,5 +1,4 @@
 class EndpointResolver {
-
   constructor(config) {
     this.config = config;
   }
@@ -8,7 +7,7 @@ class EndpointResolver {
     const endpoint = this.getRegionEndpoint(region);
     const trimmedPath = path.replace(/^\/|\/$/g, '');
 
-    return `${endpoint}/${trimmedPath}`
+    return `${endpoint}/${trimmedPath}`;
   }
 
   getRegionEndpoint(region) {
@@ -19,7 +18,6 @@ class EndpointResolver {
 
     return regionConfig.endpoint;
   }
-
 }
 
 module.exports = EndpointResolver;
