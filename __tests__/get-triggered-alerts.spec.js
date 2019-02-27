@@ -136,6 +136,82 @@ describe('Mixed1', () => {
       });
   });
 
+
+  it('create two accounts with alias1-token1, alias2-token2. then get triggers. then create account with alias1 and token2. get triggers.', done => {
+    globalTestConfiguration.bot
+      .usersInput(
+        TestFunctions.createOneAccount(
+          userId,
+          teamId,
+          channelId,
+          'mixed-1-api-token',
+          'us-east-1',
+          alias1
+        )
+      )
+      .then(message =>
+        expect(message.text).toBe(
+          `Okay, you\'re ready to use ${alias1} in Slack!`
+        )
+      )
+      .then(() =>
+        globalTestConfiguration.bot.usersInput(
+          TestFunctions.createOneAccount(
+            userId,
+            teamId,
+            channelId,
+            'mixed-2-api-token',
+            'us-east-1',
+            alias2
+          )
+        )
+      )
+      .then(message =>
+        expect(message.text).toBe(
+          `Okay, you\'re ready to use ${alias2} in Slack!`
+        )
+      )
+      .then(() =>
+        globalTestConfiguration.bot.usersInput(
+          TestFunctions.aliaGetTriggers(userId, teamId, channelId, alias1)
+        )
+      )
+      .then(message => validateTriggersResult(message, pageSize, total))
+      .then(() =>
+        globalTestConfiguration.bot.usersInput(
+          TestFunctions.aliaGetTriggers(userId, teamId, channelId, alias2)
+        )
+      )
+      .then(message => validateTriggersResult(message, pageSize, total2))
+      .then(() =>
+        globalTestConfiguration.bot.usersInput(
+          TestFunctions.createOneAccount(
+            userId,
+            teamId,
+            channelId,
+            'mixed-2-api-token',
+            'us-east-1',
+            alias1
+          )
+        )
+      )
+      .then(message =>
+        expect(message.text).toBe(
+          `Okay, you\'re ready to use ${alias1} in Slack!`
+        )
+      )
+      .then(() =>
+        globalTestConfiguration.bot.usersInput(
+          TestFunctions.aliaGetTriggers(userId, teamId, channelId, alias1)
+        )
+      )
+      .then(message => validateTriggersResult(message, pageSize, total2))
+      .then(() => {
+        done();
+      });
+  });
+
+
   it('create account and then try to get triggers with wrong alias', done => {
     globalTestConfiguration.bot
       .usersInput(

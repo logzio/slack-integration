@@ -227,6 +227,33 @@ class TestFunctions {
     return request;
   }
 
+  static getFromKibana(userId, teamId, channelId, objectType) {
+    let request = [
+      {
+        user: userId,
+        channel: channelId,
+        messages: [
+          { team: teamId, text: `get kibana ${objectType}`, isAssertion: true }
+        ]
+      }
+    ];
+    return request;
+  }
+
+  static getFromKibanaWithAlias(userId, teamId, channelId, objectType, alias) {
+    let request = [
+      {
+        user: userId,
+        channel: channelId,
+        messages: [
+          { team: teamId, text: `${alias} get kibana ${objectType}`, isAssertion: true }
+        ]
+      }
+    ];
+    return request;
+  }
+
+
   static showAlertByName(userId, teamId, channelId, alertName) {
     let request = [
       {
@@ -374,6 +401,17 @@ class TestFunctions {
     expect(alertMessage.attachments[0].title).toBe(
       expectedResponse.body.results[0].name
     );
+  }
+
+  static validateKibanaResults(files, typeInput, dashboardsResponse) {
+   let type = [typeInput];
+    if(typeInput==='objects'){
+      type = ['dashboard', 'visualization', 'search'];
+    }
+    expect(files.filename).toBe(`Kibana objects of the following types: ${type.join(', ')}`)
+    for(let i = 0; i < dashboardsResponse.length ; i++){
+      expect(files.content.trim()).toContain(`${dashboardsResponse[i].body.hits[0]._source[type[i]].title}`.trim());
+    }
   }
 }
 

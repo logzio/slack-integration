@@ -12,7 +12,7 @@ LOCATE('\"',bot, LOCATE('\"',bot,LOCATE('apiToken',bot))+1) as p5,
 LOCATE('\"',bot, LOCATE('\"',bot, LOCATE('\"',bot,LOCATE('apiToken',bot))+1)+1) as p6,
 LOCATE('\"',bot, LOCATE('\"',bot,LOCATE('name',bot))+1) as p7,
 LOCATE('\"',bot, LOCATE('\"',bot, LOCATE('\"',bot,LOCATE('name',bot))+1)+1) as p8
-from botkit_team)
+from botkit_team where bot like '%apiToken%')
 as ms ) as ms
 ON DUPLICATE KEY UPDATE alias = ms.alias, apiToken = ms.apiToken, region = ms.region, realName = ms.realName`
 
