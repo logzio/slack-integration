@@ -32,6 +32,8 @@ const ShowAlertCommand = require('../../alerts/show-alert-command');
 const SearchClient = require('../../search/search-client');
 const SearchCommand = require('../../search/search-command');
 const ClearDefaultCommand = require('../../accounts/default/clear-default-command');
+const KibanaClient = require('../../kibana/kibana-client');
+const KibanaObjectsCommand = require('../../kibana/kibana-objects-command');
 
 class GlobalTestConfigurationSetup {
   constructor() {
@@ -118,9 +120,17 @@ class GlobalTestConfigurationSetup {
         const handler = jasmineSpyHandlers[i];
         this.handlers.push(handler.handlerName);
         this.httpSpy[handler.handlerName].and.callFake(req => {
-          return jasmineSpyHandlerReturnValues[handler.handlerName][
-            req.headers['x-api-token']
-          ];
+          if (req.originalUrl === '/v1/kibana/export') {
+            //console.log("\n\n\n\n\n\n\n---------:"+handler.handlerName +","+req.headers['x-api-token']+","+req.body.type);
+
+            return jasmineSpyHandlerReturnValues[handler.handlerName][
+              req.headers['x-api-token']
+            ][req.body.type];
+          } else {
+            return jasmineSpyHandlerReturnValues[handler.handlerName][
+              req.headers['x-api-token']
+            ];
+          }
         });
       }
     } else {
@@ -217,6 +227,10 @@ class GlobalTestConfigurationSetup {
 
       const clearWorkspaceCommand = new ClearDefaultCommand(defaultHandler);
       clearWorkspaceCommand.configure(this.controller);
+
+      const kibanaClient = new KibanaClient(this.httpClient);
+      const kibanaObjectsCommand = new KibanaObjectsCommand(kibanaClient);
+      kibanaObjectsCommand.configure(this.controller);
     } else if (commandType === CommandName.SNAPSHOT) {
       const snapshotsClient = this.createSnapshotClient();
       this.command = new SnapshotCommand(
@@ -403,12 +417,16 @@ class GlobalTestConfigurationSetup {
         app_token: `${appToken}`,
         name: `${name}`,
         configuration: {
-          accountRegion: `${region}`,
-          apiToken: `${apiToken}`
+          accountRegion: `${region}` //,
+          // apiToken: `${apiToken}`
         }
       },
       token: `${token}`
     };
+
+    if (apiToken) {
+      botTeam.bot.configuration.apiToken = apiToken;
+    }
 
     await this.storage.teams.save(botTeam);
   }

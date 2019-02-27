@@ -47,21 +47,25 @@ class KibanaObjectsCommand extends Command {
       objectType = matches[1].toLocaleLowerCase();
     }
 
+    let objectsToPrint = 'objects';
     let objectTypes = ['dashboard', 'visualization', 'search'];
     switch (objectType) {
       case 'vis':
       case 'visualization':
       case 'visualizations':
         objectTypes = ['visualization'];
+        objectsToPrint = 'visualizations';
         break;
       case 'dash':
       case 'dashboard':
       case 'dashboards':
         objectTypes = ['dashboard'];
+        objectsToPrint = 'dashboards';
         break;
       case 'search':
       case 'searches':
         objectTypes = ['search'];
+        objectsToPrint = 'searches';
         break;
     }
 
@@ -75,38 +79,44 @@ class KibanaObjectsCommand extends Command {
     );
     Promise.all(promises)
       .then(results => {
-        const table = new Table();
-
-        results.forEach(objects => {
-          objects.forEach(kibanaObject => {
-            table.cell('Object Type', kibanaObject['_type']);
-            table.cell('Object Name', kibanaObject['_source']['title']);
-            table.newRow();
+        if (!this.hasResults(results)) {
+          bot.reply(
+            message,
+            `There aren’t any ${objectsToPrint} in that account.`
+          );
+        } else {
+          const table = new Table();
+          results.forEach(objects => {
+            objects.forEach(kibanaObject => {
+              table.cell('Object Type', kibanaObject['_type']);
+              table.cell('Object Name', kibanaObject['_source']['title']);
+              table.newRow();
+            });
           });
-        });
 
-        bot.api.files.upload(
-          {
-            content: table.toString(),
-            channels: message.channel,
-            filename: `Kibana objects of the following types: ${objectTypes.join(
-              ', '
-            )}`,
-            filetype: 'text'
-          },
-          err => {
-            if (err) {
-              logger.error(
-                'Failed to send kibana objects table',
-                getEventMetadata(
-                  message,
-                  'failed_to_send_kibana_objects_table'
-                ),
-                err
-              );
+          bot.api.files.upload(
+            {
+              content: table.toString(),
+              channels: message.channel,
+              filename: `Kibana objects of the following types: ${objectTypes.join(
+                ', '
+              )}`,
+              filetype: 'text'
+            },
+            err => {
+              if (err) {
+                logger.error(
+                  'Failed to send kibana objects table',
+                  getEventMetadata(
+                    message,
+                    'failed_to_send_kibana_objects_table'
+                  ),
+                  err
+                );
+              }
             }
-          }
-        );
+          );
+        }
       })
       .catch(err => {
         this.handleError(bot, message, err, err => {
@@ -117,6 +127,19 @@ class KibanaObjectsCommand extends Command {
           );
         });
       });
+  }
+
+  hasResults(results) {
+    let hasResults = false;
+    const size = results.length;
+    let i = 0;
+    while (i < size && !hasResults) {
+      if (results[i].length > 0) {
+        hasResults = true;
+      }
+      i++;
+    }
+    return hasResults;
   }
 
   getCategory() {
