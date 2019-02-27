@@ -12,12 +12,12 @@ function createLogFunctionWithLoggerName(loggerName) {
     const args = [...arguments];
 
     let lastArg = args[args.length - 1];
-    if(typeof lastArg === 'object') {
+    if (typeof lastArg === 'object') {
       if (!('logger' in lastArg)) {
         lastArg['logger'] = loggerName;
       }
     } else {
-      args[args.length] = { logger : loggerName };
+      args[args.length] = { logger: loggerName };
     }
 
     winston.Logger.prototype.log.apply(this, args);
@@ -25,35 +25,34 @@ function createLogFunctionWithLoggerName(loggerName) {
 }
 
 function getTransporters() {
-  const transporters = [
-    new winston.transports.Console({ colorize: true })
-  ];
+  const transporters = [new winston.transports.Console({ colorize: true })];
 
   const logzioToken = process.env['LOGZIO_TOKEN'];
   if (logzioToken) {
     const options = {
       token: logzioToken,
-      type: process.env['LOGZIO_LOG_TYPE'] || 'logzio-bot',
+      type: process.env['LOGZIO_LOG_TYPE'] || 'logzio-bot'
     };
 
     const logzioHost = process.env['LOGZIO_HOST'];
     if (logzioHost) options['host'] = logzioHost;
 
-
     const logzioTransport = new LogzioWinstonTransport(options);
     process.on('uncaughtException', err => {
-      LoggerFactory.getLogger('root').error("UncaughtException processing: %s", err);
+      LoggerFactory.getLogger('root').error(
+        'UncaughtException processing: %s',
+        err
+      );
       logzioTransport.flush(() => process.exit(1));
     });
 
-    transporters.push(logzioTransport)
+    transporters.push(logzioTransport);
   }
 
   return transporters;
 }
 
 class LoggerFactory {
-
   static getLogger(loggerName) {
     if (loggerName.startsWith(rootPath)) {
       loggerName = path.relative(rootPath, loggerName);
@@ -68,7 +67,7 @@ class LoggerFactory {
       levels: winston.config.npm.levels,
       transports: transporters,
       exceptionHandlers: transporters,
-      exitOnError: true,
+      exitOnError: true
     });
 
     logger.log = createLogFunctionWithLoggerName(loggerName);
@@ -77,7 +76,6 @@ class LoggerFactory {
 
     return logger;
   }
-
 }
 
 module.exports = LoggerFactory;

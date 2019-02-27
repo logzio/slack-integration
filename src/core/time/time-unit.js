@@ -13,7 +13,6 @@ function parseTimeUnitString(timeUnitStr) {
 }
 
 class TimeUnitImpl {
-
   constructor(multiplierToMillis) {
     this.multiplierToMillis = multiplierToMillis;
   }
@@ -21,13 +20,12 @@ class TimeUnitImpl {
   toMillis(value) {
     return value * this.multiplierToMillis;
   }
-
 }
 
 const TimeUnit = {
   MINUTES: new TimeUnitImpl(60 * 1000),
-    HOURS: new TimeUnitImpl(60 * 60 * 1000),
-    parse: parseTimeUnitString,
+  HOURS: new TimeUnitImpl(60 * 60 * 1000),
+  parse: parseTimeUnitString
 };
 
 module.exports = TimeUnit;

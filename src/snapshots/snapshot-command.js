@@ -6,6 +6,8 @@ const TimeUnit = require('../core/time/time-unit');
 const { getEventMetadata } = require('../core/logging/logging-metadata');
 
 const logger = LoggerFactory.getLogger(__filename);
+const commandWithAlias = /(.+) snapshot (vis|visualization|dash|dashboard) (.*) last (\d+) ?(minutes?|mins?|m|hours?|h)( query (.+))?\s*$/;
+const command = /snapshot (vis|visualization|dash|dashboard) (.*) last (\d+) ?(minutes?|mins?|m|hours?|h)( query (.+))?\s*$/;
 
 function getKibanaObjectType(objectTypeStr) {
   switch (objectTypeStr) {
@@ -21,12 +23,19 @@ function getKibanaObjectType(objectTypeStr) {
 function filterObjectsByIdOrName(kibanaObjects, filter) {
   const lowerCaseFilter = filter.toLowerCase();
   return kibanaObjects.filter(kibanaObject => {
-    return kibanaObject['_id'].toLowerCase().includes(lowerCaseFilter)
-      || kibanaObject['_source']['title'].toLowerCase().includes(lowerCaseFilter);
-  })
+    return (
+      kibanaObject['_id'].toLowerCase().includes(lowerCaseFilter) ||
+      kibanaObject['_source']['title'].toLowerCase().includes(lowerCaseFilter)
+    );
+  });
 }
 
-function sendMatchedKibanaObjectsTable(bot, message, objectType, matchedKibanaObjects) {
+function sendMatchedKibanaObjectsTable(
+  bot,
+  message,
+  objectType,
+  matchedKibanaObjects
+) {
   const table = new Table();
   matchedKibanaObjects.forEach(kibanaObject => {
     table.cell('ID', kibanaObject['_id']);
@@ -34,30 +43,73 @@ function sendMatchedKibanaObjectsTable(bot, message, objectType, matchedKibanaOb
     table.newRow();
   });
 
-  bot.reply(message, `There are multiple ${objectType}s with the specified name or id, please refine you request.`);
-  bot.api.files.upload({
-    content: table.toString(),
-    channels: message.channel,
-    filename: `Kibana ${objectType}s matching your request`,
-    filetype: 'text'
-  }, err => {
-    if (err) {
-      logger.error('Failed to send kibana objects table', getEventMetadata(message, 'failed_to_send_kibana_objects'), err);
+  bot.reply(
+    message,
+    `There are multiple ${objectType}s with the specified name or id, please refine you request.`
+  );
+  bot.api.files.upload(
+    {
+      content: table.toString(),
+      channels: message.channel,
+      filename: `Kibana ${objectType}s matching your request`,
+      filetype: 'text'
+    },
+    err => {
+      if (err) {
+        logger.error(
+          'Failed to send kibana objects table',
+          getEventMetadata(message, 'failed_to_send_kibana_objects'),
+          err
+        );
+      }
     }
-  });
+  );
 }
 
-function sendSnapshotRequest(snapshotsClient, externalDomain, bot, message, objectType, objectId, fromTS, toTS, query) {
-  const webhookUrl = `${externalDomain}/webhook/${message.team}/${message.channel}`;
+function sendSnapshotRequest(
+  snapshotsClient,
+  externalDomain,
+  bot,
+  message,
+  objectType,
+  objectId,
+  fromTS,
+  toTS,
+  query,
+  alias
+) {
+  const webhookUrl = `${externalDomain}/webhook/${message.team}/${
+    message.channel
+  }`;
   const queryWithFixedQuotes = query.replace('”', '"').replace('“', '"');
-  return snapshotsClient.createSnapshot(message.team, message.user, objectType, objectId, fromTS, toTS, queryWithFixedQuotes, webhookUrl)
-    .then(() => {
-      bot.reply(message, 'Snapshot request has been sent.')
+  logger.info(
+    `sendSnapshotRequest: ${message.channel},${
+      message.user
+    },${queryWithFixedQuotes},${webhookUrl}`
+  );
+  return snapshotsClient
+    .createSnapshot(
+      message.channel,
+      message.team,
+      message.user,
+      objectType,
+      objectId,
+      fromTS,
+      toTS,
+      queryWithFixedQuotes,
+      webhookUrl,
+      alias
+    )
+    .then(data => {
+      if (data.errorCode === undefined) {
+        bot.reply(message, 'Snapshot request has been sent.');
+      } else {
+        throw Error();
+      }
     });
 }
 
 class SnapshotCommand extends Command {
-
   constructor(externalDomain, kibanaClient, snapshotsClient) {
     super();
     this.externalDomain = externalDomain;
@@ -66,44 +118,91 @@ class SnapshotCommand extends Command {
   }
 
   configure(controller) {
-    controller.hears([/snapshot (vis|visualization|dash|dashboard) (.*) last (\d+) ?(minutes?|mins?|m|hours?|h)( query (.+))?\s*$/], 'direct_message,direct_mention', (bot, message) => {
-      logger.info(`User ${message.user} from team ${message.team} requested a snapshot`, getEventMetadata(message, 'create-snapshot'));
-      const matches = message.match;
-      const objectType = getKibanaObjectType(matches[1]);
-      const objectName = matches[2];
+    controller.hears(
+      [commandWithAlias],
+      'direct_message,direct_mention',
+      (bot, message) => {
+        this.createSnapshot(null, message, bot, true);
+      }
+    );
 
-      const timeFrame = matches[3];
-      const timeUnit = TimeUnit.parse(matches[4]);
+    controller.hears(
+      [command],
+      'direct_message,direct_mention',
+      (bot, message) => {
+        this.createSnapshot(message.channel, message, bot, false);
+      }
+    );
+  }
 
-      const nowUtc = moment().utc();
-      const toTS = nowUtc.format();
-      const fromTS = nowUtc.subtract(timeUnit.toMillis(timeFrame), 'ms').format();
+  createSnapshot(channel, message, bot, withAlias) {
+    logger.info(
+      `User ${message.user} from team ${message.team} requested a snapshot`,
+      getEventMetadata(message, 'create-snapshot')
+    );
+    const matches = message.match;
+    let alias, objectType, objectName, timeFrame, timeUnit;
+    let index = 1;
+    if (withAlias) {
+      alias = matches[index++];
+    }
+    objectType = getKibanaObjectType(matches[index++]);
+    objectName = matches[index++];
+    timeFrame = matches[index++];
+    timeUnit = TimeUnit.parse(matches[index]);
 
-      const query = matches[6] || '*';
+    const nowUtc = moment().utc();
+    const toTS = nowUtc.format();
+    const fromTS = nowUtc.subtract(timeUnit.toMillis(timeFrame), 'ms').format();
+    const query = matches[6] || '*';
 
-      this.kibanaClient.listObjects(message.team, objectType)
-        .then(kibanaObjects => filterObjectsByIdOrName(kibanaObjects, objectName))
-        .then(matchedKibanaObjects => {
-          if (matchedKibanaObjects.length === 0) {
-            bot.reply(message, `Unable to find ${objectType} with the specified name`);
-            return;
-          }
+    this.kibanaClient
+      .listObjects(channel, message.team, objectType, alias)
+      .then(kibanaObjects => filterObjectsByIdOrName(kibanaObjects, objectName))
+      .then(matchedKibanaObjects => {
+        if (matchedKibanaObjects.length === 0) {
+          bot.reply(
+            message,
+            `Unable to find ${objectType} with the specified name`
+          );
+          return;
+        }
 
-          if (matchedKibanaObjects.length > 1) {
-            sendMatchedKibanaObjectsTable(bot, message, objectType, matchedKibanaObjects);
-            return;
-          }
+        if (matchedKibanaObjects.length > 1) {
+          sendMatchedKibanaObjectsTable(
+            bot,
+            message,
+            objectType,
+            matchedKibanaObjects
+          );
+          return;
+        }
 
-          const objectId = matchedKibanaObjects[0]['_id'];
-          return sendSnapshotRequest(this.snapshotsClient, this.externalDomain, bot, message, objectType, objectId, fromTS, toTS, query);
-        })
-        .catch(err => {
-          this.handleError(bot, message, err, err => {
-            logger.warn('Failed to send snapshot request', err, getEventMetadata(message, 'failed-to-send-snapshot-request'));
-            bot.reply(message, 'Failed to send snapshot request');
-          });
+        const objectId = matchedKibanaObjects[0]['_id'];
+        return sendSnapshotRequest(
+          this.snapshotsClient,
+          this.externalDomain,
+          bot,
+          message,
+          objectType,
+          objectId,
+          fromTS,
+          toTS,
+          query,
+          alias
+        );
+      })
+
+      .catch(err => {
+        this.handleError(bot, message, err, err => {
+          logger.warn(
+            'Failed to send snapshot request',
+            err,
+            getEventMetadata(message, 'failed-to-send-snapshot-request')
+          );
+          bot.reply(message, 'Failed to send snapshot request');
         });
-    });
+      });
   }
 
   getCategory() {
@@ -112,11 +211,10 @@ class SnapshotCommand extends Command {
 
   getUsage() {
     return [
-      '*snapshot &lt;dashboard|visualization&gt; &lt;object-name&gt; last &lt;time-value&gt; &lt;time-unit&gt;* - Create a snapshot of the requested object',
-      '*snapshot &lt;dashboard|visualization&gt; &lt;object-name&gt; last &lt;time-value&gt; &lt;time-unit&gt; query &lt;query-string&gt;* - Create a snapshot of the requested object'
+      '*[&lt;alias&gt;] snapshot &lt;dashboard|visualization&gt; &lt;object-name&gt; last &lt;time-value&gt; &lt;time-unit&gt;* - Create a snapshot of a dashboard or visualization\n\tExample: _snapshot dashboard ELB logs last 1 h query ͏`*͏`_',
+      '*[&lt;alias&gt;] snapshot &lt;dashboard|visualization&gt; &lt;object-name&gt; last &lt;time-value&gt; &lt;time-unit&gt; query &lt;query-string&gt;* - Create a snapshot of a dashboard or visualization\n\tExample: _snapshot dashboard ELB logs last 15 m_'
     ];
   }
-
 }
 
 module.exports = SnapshotCommand;

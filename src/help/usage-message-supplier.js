@@ -8,7 +8,9 @@ function createListOfCategoryAndUsagePairs(command) {
   if (typeof commandUsage === 'string') {
     pairs.push({ category, usage: commandUsage });
   } else {
-    commandUsage.forEach(usageLine => pairs.push({ category, usage: usageLine }));
+    commandUsage.forEach(usageLine =>
+      pairs.push({ category, usage: usageLine })
+    );
   }
 
   return pairs;
@@ -19,7 +21,10 @@ function isCategoryOrUsageMatchQuery(categoryUsagePair, query) {
   const normalizedUsage = categoryUsagePair.usage.toLocaleLowerCase();
   const normalizedQuery = query.toLowerCase();
 
-  return normalizedCategory.includes(normalizedQuery) || normalizedUsage.includes(normalizedQuery);
+  return (
+    normalizedCategory.includes(normalizedQuery) ||
+    normalizedUsage.includes(normalizedQuery)
+  );
 }
 
 function sendUsage(bot, message, query) {
@@ -29,7 +34,10 @@ function sendUsage(bot, message, query) {
     .map(createListOfCategoryAndUsagePairs)
     .forEach(pairs => allCommandsPairs.push(...pairs));
 
-  allCommandsPairs.filter(categoryUsagePair => isCategoryOrUsageMatchQuery(categoryUsagePair, query))
+  allCommandsPairs
+    .filter(categoryUsagePair =>
+      isCategoryOrUsageMatchQuery(categoryUsagePair, query)
+    )
     .map(categoryUsagePair => categoryUsagePair.usage)
     .forEach(usageLine => usageLines.push(usageLine));
 
