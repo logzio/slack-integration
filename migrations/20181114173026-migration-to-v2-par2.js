@@ -1,5 +1,5 @@
 const sql= `insert into configured_accounts(team_id,alias,apiToken,region,realName)
-select id,alias,region,apiToken,realName from
+select id,alias,apiToken,region,realName from
 (select id, alias ,
 SUBSTRING(bot,p3+1,p4-p3-1) as region,
 SUBSTRING(bot,p5+1,p6-p5-1)  as apiToken,
