@@ -56,7 +56,8 @@ class removeAccountHandler {
     let alias = userAlias;
     return this.teamConfigService
       .getDefault(teamId)
-      .then(configuration => HttpClient.validateConfiguration(configuration))
+      .then(configuration =>
+        !userAlias?HttpClient.validateConfiguration(configuration):configuration)
       .then(validTeamConfiguration => {
         teamConfiguration = validTeamConfiguration;
         if (!alias) {
