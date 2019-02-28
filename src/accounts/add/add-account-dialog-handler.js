@@ -151,7 +151,7 @@ class AddAccountDialogHandler {
             this.teamConfigService
               .getDefault(team.id)
               .then(config => {
-                let hasNoDefault = config.getRealName() === undefined;
+                let hasNoDefault = config.getRealName() === undefined || (config.config.alias === alias && config.config.apiToken !== apiToken);
                 config = new TeamConfiguration()
                   .setLogzioAccountRegion(accountRegion)
                   .setLogzioApiToken(apiToken)
