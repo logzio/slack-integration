@@ -3,13 +3,14 @@ const commandRegexWithAlias = /set channel account (.*)/;
 const commandRegex = /set channel account/;
 const LoggerFactory = require('../../core/logging/logger-factory');
 const logger = LoggerFactory.getLogger(__filename);
-const { getEventMetadata } = require('../../core/logging/logging-metadata');
+const {getEventMetadata} = require('../../core/logging/logging-metadata');
 
 class SetChannelAccountCommand extends Command {
   constructor(channelHandler) {
     super();
     this.channelHandler = channelHandler;
   }
+
   configure(controller) {
     controller.hears(
       [commandRegexWithAlias],
@@ -20,16 +21,10 @@ class SetChannelAccountCommand extends Command {
       }
     );
 
-    controller.hears(
-      [commandRegex],
-      'direct_message,direct_mention',
-      (bot, message) => {
-        this.ask(bot, message.user, message.team, message);
-      }
-    );
+    controller.hears([commandRegex], 'direct_message,direct_mention', this.ask);
   }
 
-  ask(bot, user, teamId, message) {
+  ask(bot, message) {
     const command = this;
     bot.startConversation(message, (err, convo) => {
       convo.addQuestion(
@@ -37,7 +32,7 @@ class SetChannelAccountCommand extends Command {
         [
           {
             default: true,
-            callback: function(response, convo) {
+            callback: function (response, convo) {
               command.setChannel(message, bot, response.text);
               convo.stop();
             }

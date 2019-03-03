@@ -122,7 +122,7 @@ class AddAccountDialogHandler {
         return;
 
       const submission = message['submission'];
-      const {alias, apiToken, accountRegion } = submission;
+      const {alias, apiToken, accountRegion} = submission;
 
       const configErrors = validateConfigurationAndGetErrorsIfInvalid(
         this.configuredRegions,
