@@ -6,10 +6,11 @@ const ApiExtract = require('../utils/apiExtract');
 class TeamConfigurationService {
   constructor(storage) {
     this.teamStore = storage.teams;
-    this.storage = storage;
+    this.channelStore = storage.channels;
+    this.accountsStore = storage.configuredAccounts;
   }
   getDefault(teamId) {
-    return this.storage.teams.get_async(teamId).then(teamDate => {
+    return this.teamStore.get_async(teamId).then(teamDate => {
       if (!teamDate || !teamDate.bot.configuration) {
         return new TeamConfiguration();
       } else {
@@ -47,7 +48,7 @@ class TeamConfigurationService {
   }
 
   saveDefaultAlias(teamId, alias) {
-    return this.storage.teams
+    return this.teamStore
       .get_async(teamId)
       .then(teamDate => {
         teamDate.bot.configuration.alias = alias;
@@ -69,8 +70,7 @@ class TeamConfigurationService {
   }
 
   saveAccountForChannel(teamId, channelId, alias) {
-    const storage = this.storage;
-    return storage.channels.save({
+    return this.channelStore.save({
       id: channelId,
       alias: alias,
       team: teamId
@@ -78,11 +78,11 @@ class TeamConfigurationService {
   }
 
   getAccountForChannel(teamId, channelId) {
-    return this.storage.channels
+    return this.channelStore
       .get_async(channelId)
       .then(channelConfiguredAccountAlias => {
         if (channelConfiguredAccountAlias)
-          return this.storage.configuredAccounts
+          return this.accountsStore
             .get(teamId, channelConfiguredAccountAlias.alias)
             .then(configuredAccount => {
               if (!configuredAccount) {
@@ -99,12 +99,11 @@ class TeamConfigurationService {
   }
 
   getAccountForAlias(alias, teamId) {
-    return this.storage.configuredAccounts.get(teamId, alias);
+    return this.accountsStore.get(teamId, alias);
   }
 
   addAccount(teamId, teamConfiguration) {
-    const storage = this.storage.configuredAccounts;
-    return storage
+    return this.accountsStore
       .save({
         team_id: teamId,
         alias: teamConfiguration.getAlias(),
@@ -121,7 +120,7 @@ class TeamConfigurationService {
   }
 
   removeChannel(teamId, alias) {
-    return this.storage.channels
+    return this.channelStore
       .all_async()
       .then(channels => {
         const filterdChannels = channels
@@ -132,7 +131,7 @@ class TeamConfigurationService {
           });
 
         const PromiseList = filterdChannels.map(channel =>
-          this.storage.channels.save(channel)
+          this.channelStore.save(channel)
         );
         return Promise.all(PromiseList);
       })
@@ -141,10 +140,10 @@ class TeamConfigurationService {
       });
   }
   removeConfiguredAccount(teamId, alias) {
-    return this.storage.configuredAccounts
+    return this.accountsStore
       .delete(teamId, alias)
       .then(() => {
-        return this.storage.configuredAccounts.get(teamId, alias);
+        return this.accountsStore.get(teamId, alias);
       })
       .then(configuredAccount =>
         configuredAccount === undefined ? true : false
@@ -164,7 +163,7 @@ class TeamConfigurationService {
   }
 
   isAccountUsedByChannel(teamId, alias) {
-    return this.storage.channels.all_async().then(channels => {
+    return this.channelStore.all_async().then(channels => {
       return (
         channels.length > 0 &&
         channels.some(
@@ -175,7 +174,7 @@ class TeamConfigurationService {
   }
 
   isAccountUsedByChannelId(teamId, channelId) {
-    return this.storage.channels.all_async().then(channels => {
+    return this.channelStore.all_async().then(channels => {
       return (
         channels.length > 0 &&
         channels.some(
@@ -189,7 +188,7 @@ class TeamConfigurationService {
   }
 
   getAliasAccountsUsedByChannel(teamId, alias) {
-    return this.storage.channels.all_async().then(channels => {
+    return this.channelStore.all_async().then(channels => {
       return channels.filter(
         channel => channel.team === teamId && channel.alias === alias
       );
@@ -197,7 +196,7 @@ class TeamConfigurationService {
   }
 
   doesAliasExist(teamId, alias) {
-    return this.storage.configuredAccounts.all(teamId).then(accounts => {
+    return this.accountsStore.all(teamId).then(accounts => {
       return (
         accounts.length > 0 &&
         accounts.some(
@@ -236,14 +235,14 @@ class TeamConfigurationService {
   }
 
   clearDefaultForChannel(teamId, channelId) {
-    return this.storage.channels.get_async(channelId).then(channelSettings => {
+    return this.channelStore.get_async(channelId).then(channelSettings => {
       delete channelSettings['alias'];
-      return this.storage.channels.save(channelSettings);
+      return this.channelStore.save(channelSettings);
     });
   }
 
   setDefault(teamId, alias) {
-    return this.storage.configuredAccounts
+    return this.accountsStore
       .get(teamId, alias)
       .then(accountToConfigure => {
         if (!accountToConfigure) return false;
@@ -273,7 +272,7 @@ class TeamConfigurationService {
 
   async getAllAccountsSafeView(teamId, bot) {
     const defaultAccount = await this.getDefault(teamId);
-    return this.storage.configuredAccounts
+    return this.accountsStore
       .all(teamId)
       .then(accounts => {
         let map;
