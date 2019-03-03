@@ -15,12 +15,13 @@ class ClearChannelAccountCommand extends Command {
       [commandRegex],
       'direct_message,direct_mention',
       (bot, message) => {
+        const {team = null, channel = null} = message;
         this.defaultHandler
-          .isAccountUsedByChannel(message.team, message.channel)
+          .isAccountUsedByChannel(team, channel)
           .then(res => {
             if (res) {
               this.defaultHandler
-                .clearDefault(message.team, message.channel)
+                .clearDefault(team, channel)
                 .then(() => {
                   bot.reply(message, `Okay, I cleared the channel account.`);
                 })
