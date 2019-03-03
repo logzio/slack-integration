@@ -1,6 +1,6 @@
 const Command = require('../../core/commands/command');
 const LoggerFactory = require('../../core/logging/logger-factory');
-const { getEventMetadata } = require('../../core/logging/logging-metadata');
+const {getEventMetadata} = require('../../core/logging/logging-metadata');
 
 const logger = LoggerFactory.getLogger(__filename);
 
@@ -15,38 +15,7 @@ class AddAccountCommand extends Command {
     controller.hears(
       ['add account'],
       'direct_message,direct_mention',
-      (bot, message) => {
-        logger.info(
-          `User ${message.user} from team ${
-            message.team
-          } triggered setup command`,
-          getEventMetadata(message, 'setup')
-        );
-        this.teamConfigService.getDefault(message.team.id).then(config => {
-          this.teamConfigService
-            .doesAliasExist(message.team.id, config.getAlias())
-            .then(exist => {
-              if (config.getLogzioApiToken() && !exist) {
-                this.setupDialogSender.sendSetupAliasMessage(
-                  bot,
-                  message.user,
-                  config,
-                  message
-                );
-              } else {
-                if (message.type !== 'direct_message') {
-                  bot.reply(
-                    message,
-                    `Sending you the configuration options privately <@${
-                      message.user
-                    }>`
-                  );
-                }
-                this.setupDialogSender.sendSetupMessage(bot, message.user);
-              }
-            });
-        });
-      }
+      (bot, message) => this.handleAddAccountRequest(bot, message)
     );
   }
 
@@ -57,6 +26,43 @@ class AddAccountCommand extends Command {
   getUsage() {
     return ['*add account* - Add a new Logz.io account to Slack'];
   }
+
+  handleAddAccountRequest(bot, message) {
+    logger.info(
+      `User ${message.user} from team ${
+        message.team
+        } triggered setup command`,
+      getEventMetadata(message, 'setup')
+    );
+    this.teamConfigService.getDefault(message.team.id)
+      .then(config => {
+        this.teamConfigService
+          .doesAliasExist(message.team.id, config.getAlias())
+          .then(exist => {
+            if (config.getLogzioApiToken() && !exist) {
+              this.setupDialogSender.sendSetupAliasMessage(
+                bot,
+                message.user,
+                config,
+                message
+              );
+            } else {
+              if (message.type !== 'direct_message') {
+                bot.reply(
+                  message,
+                  `Sending you the configuration options privately <@${
+                    message.user
+                    }>`
+                );
+              }
+              this.setupDialogSender.sendSetupMessage(bot, message.user);
+            }
+          });
+      });
+
+  }
+
 }
+
 
 module.exports = AddAccountCommand;

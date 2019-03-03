@@ -1,6 +1,6 @@
 const LoggerFactory = require('../../core/logging/logger-factory');
 const TeamConfiguration = require('../../core/configuration/team-configuration');
-const { getEventMetadata } = require('../../core/logging/logging-metadata');
+const {getEventMetadata} = require('../../core/logging/logging-metadata');
 const Messages = require('../../core/messages/messages');
 
 const logger = LoggerFactory.getLogger(__filename);
@@ -13,7 +13,7 @@ function validateConfigurationAndGetErrorsIfInvalid(
 ) {
   let errors = [];
 
-  if (!configuredRegions.hasOwnProperty(accountRegion)) {
+  if (!configuredRegions[accountRegion]) {
     errors.push({
       name: 'accountRegion',
       error: 'Account region must be US or EU.'
@@ -27,7 +27,7 @@ function validateConfigurationAndGetErrorsIfInvalid(
     });
   }
 
-  let aliasErrors = validateAlias(alias);
+  const aliasErrors = validateAlias(alias);
   errors.push(...aliasErrors);
   return errors.length > 0 ? errors : null;
 }
@@ -50,10 +50,7 @@ function validateAlias(alias) {
       name: 'alias',
       error: "Alias can't be blank"
     });
-  } else if (
-    alias.indexOf(' ') >= 0 ||
-    alias.match(/[!$%^&*()+|~=`{}[\]:/;<>?,.@#]/)
-  ) {
+  } else if (alias.match(/[!$%^&*()+|~=`{}[\]:/;<>?,.@# ]/)) {
     errors.push({
       name: 'alias',
       error:
@@ -91,7 +88,7 @@ class AddAccountDialogHandler {
         logger.error(
           `Failed to save configuration for team ${message.teamId} (${
             message.domain
-          })`,
+            })`,
           err,
           getEventMetadata(message.raw_message, 'configuration_change_failed')
         );
@@ -125,10 +122,7 @@ class AddAccountDialogHandler {
         return;
 
       const submission = message['submission'];
-
-      const accountRegion = submission['accountRegion'];
-      const apiToken = submission['apiToken'];
-      const alias = submission['alias'];
+      const {alias, apiToken, accountRegion } = submission;
 
       const configErrors = validateConfigurationAndGetErrorsIfInvalid(
         this.configuredRegions,
