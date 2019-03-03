@@ -51,15 +51,9 @@ class SetChannelAccountCommand extends Command {
   }
 
   setChannel(message, bot, alias) {
-    // if (message.type === 'direct_message') {
-    //   bot.reply(message, "I can't do that in a direct message. Please send me a message from a Slack channel.");
-    // } else {
     this.channelHandler
       .setDefault(message.team, message.channel, alias)
       .then(() => {
-        // if (!channelDefaultHandler)
-        //   bot.reply(message, `alias ${alias} does not exist`);
-        // else
         bot.reply(message, `Okay, '${alias}' is the channel account now.`);
       })
       .catch(err => {
@@ -77,7 +71,6 @@ class SetChannelAccountCommand extends Command {
           true
         );
       });
-    // }
   }
 
   getCategory() {
