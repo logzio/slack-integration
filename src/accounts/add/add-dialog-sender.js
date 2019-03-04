@@ -89,14 +89,13 @@ function createSelectableRegionList(apiConfig) {
   const configuredRegions = apiConfig['regions'];
   const selectableRegionList = [];
   for (const region in configuredRegions) {
-    if (!configuredRegions.hasOwnProperty(region)) continue;
-
-    selectableRegionList.push({
-      label: configuredRegions[region]['name'],
-      value: region
-    });
+    if (configuredRegions[region]) {
+      selectableRegionList.push({
+        label: configuredRegions[region]['name'],
+        value: region
+      });
+    }
   }
-
   return selectableRegionList;
 }
 
@@ -107,7 +106,7 @@ function buildAndSendConfigurationDialog(
   config,
   callback_id
 ) {
-  const accountRegion = config.getLogzioAccountRegion() || 'us-east-1';
+  const accountRegion = config.getLogzioAccountRegion();
   const apiToken = maskApiToken(config.getLogzioApiToken());
 
   const dialog = bot

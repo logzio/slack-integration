@@ -12,19 +12,9 @@ class AddAccountCommand extends Command {
   }
 
   configure(controller) {
-    controller.hears(
-      ['add account'],
-      'direct_message,direct_mention',
+    controller.hears(['add account'], 'direct_message,direct_mention',
       (bot, message) => this.handleAddAccountRequest(bot, message)
     );
-  }
-
-  getCategory() {
-    return 'configure';
-  }
-
-  getUsage() {
-    return ['*add account* - Add a new Logz.io account to Slack'];
   }
 
   handleAddAccountRequest(bot, message) {
@@ -60,6 +50,14 @@ class AddAccountCommand extends Command {
           });
       });
 
+  }
+
+  getCategory() {
+    return 'configure';
+  }
+
+  getUsage() {
+    return ['*add account* - Add a new Logz.io account to Slack'];
   }
 
 }
