@@ -31,37 +31,6 @@ const messageWithButtons = {
   ]
 };
 
-const shouldConfigureAliasForCurrentAccount =
-  ' is your default workspace. We need to configure your alias.';
-
-function getMessageWithButtonsForAliasConfiguration(prefix, question, suffix) {
-  return {
-    attachments: [
-      {
-        title: 'Alias Configuration',
-        text: prefix + question + suffix,
-        callback_id: 'add-alias-to-default',
-        attachment_type: 'default',
-        delete_original: true,
-        actions: [
-          {
-            text: 'Add alias',
-            value: 'yes',
-            type: 'button',
-            name: 'yes'
-          },
-          {
-            text: 'Not now',
-            value: 'no',
-            type: 'button',
-            name: 'no'
-          }
-        ]
-      }
-    ]
-  };
-}
-
 const messageWithoutButtons = {
   response_type: 'ephemeral',
   attachments: [
@@ -172,35 +141,19 @@ class AddAccountDialogSender {
           {
             pattern: 'yes',
             callback: (reply, convo) => {
-              this.teamConfigurationService
-                .getDefault(reply.team.id)
-                .then(config => {
-                  convo.stop();
-                  bot.replyInteractive(reply, messageWithoutButtons);
-                  buildAndSendConfigurationDialog(
-                    bot,
-                    this.selectableRegionList,
-                    reply,
-                    config,
-                    isInitializationPhase
-                      ? 'initialization_setup_dialog'
-                      : 'setup_dialog'
-                  );
-                });
+              this.replayWithDialogSetup(reply, convo, bot, isInitializationPhase);
             }
           },
           {
             pattern: 'no',
             callback: (reply, convo) => {
               convo.gotoThread('canceled');
-              // convo.stop();
             }
           },
           {
             default: true,
             callback: (reply, convo) => {
               convo.gotoThread('canceled');
-              //  convo.stop();
             }
           }
         ],
@@ -211,60 +164,22 @@ class AddAccountDialogSender {
     });
   }
 
-  sendSetupAliasMessage(bot, user, config, message) {
-    bot.startConversation(message, (err, convo) => {
-      convo.addMessage(
-        {
-          text: `Okay, I won't add an alias now. When you're ready, just type @Alice add account.`
-        },
-        'canceled'
-      );
-
-      const messageWithButtons2 = getMessageWithButtonsForAliasConfiguration(
-        config.getOldName(),
-        shouldConfigureAliasForCurrentAccount,
-        ''
-      );
-      convo.addQuestion(
-        messageWithButtons2,
-        [
-          {
-            pattern: 'yes',
-            callback: (reply, convo) => {
-              this.teamConfigurationService
-                .getDefault(reply.team.id)
-                .then(config => {
-                  convo.stop();
-                  bot.replyInteractive(reply, messageWithButtons2);
-                  buildAndSendAliasConfigurationDialog(
-                    bot,
-                    reply,
-                    config,
-                    'setup_alias_for_current_dialog'
-                  );
-                });
-            }
-          },
-          {
-            pattern: 'no',
-            callback: (reply, convo) => {
-              convo.gotoThread('canceled');
-              // convo.stop();
-            }
-          },
-          {
-            default: true,
-            callback: (reply, convo) => {
-              convo.gotoThread('canceled');
-              //  convo.stop();
-            }
-          }
-        ],
-        {},
-        'default'
-      );
-      convo.activate();
-    });
+  replayWithDialogSetup(reply, convo, bot, isInitializationPhase) {
+    this.teamConfigurationService
+      .getDefault(reply.team.id)
+      .then(config => {
+        convo.stop();
+        bot.replyInteractive(reply, messageWithoutButtons);
+        buildAndSendConfigurationDialog(
+          bot,
+          this.selectableRegionList,
+          reply,
+          config,
+          isInitializationPhase
+            ? 'initialization_setup_dialog'
+            : 'setup_dialog'
+        );
+      });
   }
 }
 
