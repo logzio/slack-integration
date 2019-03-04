@@ -114,9 +114,7 @@ function registerAndConfigureCommands(logzioBot) {
   CommandsRegistry.register(new HelpCommand());
   CommandsRegistry.register(new KibanaObjectsCommand(kibanaClient));
   CommandsRegistry.register(new SearchCommand(new SearchClient(httpClient)));
-  CommandsRegistry.register(
-    new AddAccountCommand(logzioBot.setupDialogSender, teamConfigurationService)
-  );
+  CommandsRegistry.register(new AddAccountCommand(logzioBot.setupDialogSender));
   CommandsRegistry.register(new ShowAlertCommand(alertsClient));
   CommandsRegistry.register(
     new SnapshotCommand(
