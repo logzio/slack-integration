@@ -83,10 +83,8 @@ class AddAccountDialogHandler {
       if (message.callback_id !== 'setup_dialog' && message.callback_id !== 'initialization_setup_dialog') {
         return;
       }
-
       const submission = message['submission'];
       const {alias, apiToken, accountRegion} = submission;
-
       const configErrors = validateConfigurationAndGetErrorsIfInvalid(
         this.configuredRegions,
         accountRegion,
@@ -98,23 +96,22 @@ class AddAccountDialogHandler {
         bot.dialogOk();
         return;
       }
-
-      this.httpClient.getRealName(apiToken, accountRegion)
+      return this.httpClient.getRealName(apiToken, accountRegion)
         .then(realName => {
           const configErrors = validateRealNameAndGetErrorsIfInvalid(realName);
           if (configErrors) {
             bot.dialogError(configErrors);
-          } else {
-            realName = realName.accountName;
-            const {team = null, user = null} = message.raw_message;
-            this.teamConfigService
-              .getDefault(team.id)
-              .then(defaultConfig => this.addAccount(accountRegion, apiToken, alias, realName, team, bot, message, user, defaultConfig))
-              .catch(err => {
-                logger.error(err);
-                return sendInvalidConfigurationError(bot);
-              });
+            return;
           }
+          realName = realName.accountName;
+          const {team = null, user = null} = message.raw_message;
+          this.teamConfigService
+            .getDefault(team.id)
+            .then(defaultConfig => this.addAccount(accountRegion, apiToken, alias, realName, team, bot, message, user, defaultConfig))
+            .catch(err => {
+              logger.error(err);
+              return sendInvalidConfigurationError(bot);
+            });
         });
     });
   }
