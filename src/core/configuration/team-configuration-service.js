@@ -47,28 +47,6 @@ class TeamConfigurationService {
       });
   }
 
-  saveDefaultAlias(teamId, alias) {
-    return this.teamStore
-      .get_async(teamId)
-      .then(teamDate => {
-        teamDate.bot.configuration.alias = alias;
-        teamDate.bot.configuration.realName = teamDate.name;
-        return this.teamStore.save(teamDate);
-      })
-      .then(() => {
-        return this.getDefault(teamId);
-      })
-      .then(defaultTeam => {
-        if (defaultTeam.config.alias !== alias) {
-          throw Error();
-        }
-        return defaultTeam;
-      })
-      .then(defaultTeam => {
-        return this.addAccount(teamId, defaultTeam);
-      });
-  }
-
   saveAccountForChannel(teamId, channelId, alias) {
     return this.channelStore.save({
       id: channelId,
