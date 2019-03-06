@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node .",
-    "test": "node jasmine.js",
+    "test:local": "node jasmine.js",
+    "test": "docker-compose up db logzbot-test",
     "lint": "eslint \"src/**/*.js\" --quiet",
     "format": "prettier --write \"src/**/*.js\""
   },
