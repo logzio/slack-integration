@@ -27,6 +27,7 @@ services:
       - ./:/usr/src/app/
       - /usr/src/app/src/node_modules
     environment:
+      MYSQL_PORT: 3306
       MYSQL_USER: root
       MYSQL_PASSWORD: p@ssw0rd
       MYSQL_DATABASE: logzbot_test
@@ -44,10 +45,10 @@ services:
     volumes:
       - ./docker/mysql/healthcheck:/usr/local/bin/healthcheck
     environment:
-      MYSQL_DATABASE: logzbot
+      MYSQL_DATABASE: logzbot_test
       MYSQL_ROOT_PASSWORD: p@ssw0rd
     ports:
-      - '3306:3306'
+      - '3307:3306'
     networks:
       - logzbot
     healthcheck:
