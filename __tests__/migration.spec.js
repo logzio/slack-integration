@@ -435,9 +435,9 @@ describe('Migration', () => {
 
   beforeEach(async () => {
     await globalTestConfiguration.createTestStorage({
-      user: 'root',
-      password: 'test',
-      host: 'localhost'
+      user: DBUtils.getRequiredValueFromEnv("MYSQL_USER"),
+      password: DBUtils.getRequiredValueFromEnv("MYSQL_PASSWORD"),
+      host: DBUtils.getRequiredValueFromEnv("MYSQL_HOST"),
     });
     await globalTestConfiguration.mockFirstInstallForMigration(
       teamId,
