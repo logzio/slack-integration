@@ -1,6 +1,7 @@
 const HttpClient = require('../../core/client/http-client');
 const ApiExtract = require('../../core/utils/apiExtract');
-const shouldDeleteDefaultAccountQuestion = ' is your workspace account. Are you sure you want to remove it from Slack?';
+const shouldDeleteDefaultAccountQuestion =
+  ' is your workspace account. Are you sure you want to remove it from Slack?';
 const shouldDeleteAccountWithCurrentChannels = ' is used in these channels:';
 const areYouSure = ' Are you sure you want to remove it from Slack?';
 const shouldDeleteAccount = 'Are you sure you want to remove ';
@@ -76,7 +77,12 @@ class removeAccountHandler {
   }
 
   ConfirmRemove(teamConfiguration, alias, bot, user, teamId) {
-    if (teamConfiguration.config.alias === alias) {
+    let noAlias = alias === undefined;
+    if (noAlias || teamConfiguration.config.alias === alias) {
+      if (noAlias) {
+        alias = 'This';
+      }
+
       const messageWithButtons = getMessageWithButtons(`${alias}${shouldDeleteDefaultAccountQuestion}`);
       this.askForApproval(alias, bot, user, teamId, messageWithButtons, true);
     } else {
