@@ -21,7 +21,7 @@ class SetChannelAccountCommand extends Command {
       }
     );
 
-    controller.hears([commandRegex], 'direct_message,direct_mention', this.ask);
+    controller.hears([commandRegex], 'direct_message,direct_mention', (bot, message) => this.ask(bot,message));
   }
 
   ask(bot, message) {
