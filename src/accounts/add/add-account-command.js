@@ -20,7 +20,7 @@ class AddAccountCommand extends Command {
     logger.info(
       `User ${message.user} from team ${
         message.team
-        } triggered setup command`,
+        } triggered add account command`,
       getEventMetadata(message, 'setup')
     );
     if (message.type !== 'direct_message') {
