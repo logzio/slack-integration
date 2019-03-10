@@ -219,7 +219,7 @@ class SearchCommand extends Command {
   getUsage() {
     return [
       '*[&lt;alias&gt;] search \u034f`&lt;query-string&gt;`* - Get the query results for the last 15 minutes\n\tExample: _search ͏`*͏`_',
-      '*[&lt;alias&gt;] search \u034f`&lt;query-string&gt;` last &lt;time-value&gt; &lt;time-unit&gt;* - Get the query results for the last _x_ minutes or hours\n\tExample: _search ͏`*͏` last_',
+      '*[&lt;alias&gt;] search \u034f`&lt;query-string&gt;` last &lt;time-value&gt; &lt;time-unit&gt;* - Get the query results for the last _x_ minutes or hours\n\tExample: _search ͏`*͏` last 20 m_',
       '*[&lt;alias&gt;] search \u034f`&lt;query-string&gt;` from &lt;from-timestamp&gt; to &lt;to-timestamp&gt;* - Get the query results between the start and end times\n\tExample: _search ͏`*͏` from 2019-02-17T13:01:46.000Z to 2019-02-17T13:01:06.057+0000_'
     ];
   }

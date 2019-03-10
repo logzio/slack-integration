@@ -44,7 +44,7 @@ class ClearChannelAccountCommand extends Command {
                   );
                 });
             } else {
-              bot.reply(message, `There is no channel account configured.`);
+              bot.reply(message, `There's no channel account set, so you're good. 😎`);
             }
           });
       }
