@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node .",
     "test:local": "node jasmine.js",
-    "test": "docker-compose up --exit-code-from logzbot-test db logzbot-test",
+    "test": "docker-compose down;docker-compose up --exit-code-from logzbot-test db logzbot-test",
     "lint": "eslint \"src/**/*.js\" --quiet",
     "format": "prettier --write \"src/**/*.js\""
   },
