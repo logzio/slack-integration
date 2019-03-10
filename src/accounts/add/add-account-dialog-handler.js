@@ -9,7 +9,8 @@ function validateConfigurationAndGetErrorsIfInvalid(
   configuredRegions,
   accountRegion,
   apiToken,
-  alias
+  alias,
+  aliasExists
 ) {
   let errors = [];
 
@@ -27,7 +28,7 @@ function validateConfigurationAndGetErrorsIfInvalid(
     });
   }
 
-  const aliasErrors = validateAlias(alias);
+  const aliasErrors = validateAlias(alias,aliasExists);
   errors.push(...aliasErrors);
   return errors.length > 0 ? errors : null;
 }
@@ -43,7 +44,7 @@ function validateRealNameAndGetErrorsIfInvalid(realName) {
   return errors.length > 0 ? errors : null;
 }
 
-function validateAlias(alias) {
+function validateAlias(alias,aliasExists) {
   const errors = [];
   if (!alias || alias.trim() === '') {
     errors.push({
@@ -55,6 +56,11 @@ function validateAlias(alias) {
       name: 'alias',
       error:
         'This field can contain only letters, numbers, hyphens, and underscores.'
+    });
+  } else if(aliasExists){
+    errors.push({
+      name: 'alias',
+      error: "An account is already using this alias. Try again with a different alias."
     });
   }
   return errors;
@@ -85,33 +91,37 @@ class AddAccountDialogHandler {
       }
       const submission = message['submission'];
       const {alias, apiToken, accountRegion} = submission;
-      const configErrors = validateConfigurationAndGetErrorsIfInvalid(
-        this.configuredRegions,
-        accountRegion,
-        apiToken,
-        alias
-      );
-      if (configErrors) {
-        bot.dialogError(configErrors);
-        bot.dialogOk();
-        return;
-      }
-      return this.httpClient.getRealName(apiToken, accountRegion)
-        .then(realName => {
-          const configErrors = validateRealNameAndGetErrorsIfInvalid(realName);
-          if (configErrors) {
-            bot.dialogError(configErrors);
-            return;
-          }
-          realName = realName.accountName;
-          const {team = null, user = null} = message.raw_message;
-          this.teamConfigService
-            .getDefault(team.id)
-            .then(defaultConfig => this.addAccount(accountRegion, apiToken, alias, realName, team, bot, message, user, defaultConfig))
-            .catch(err => {
-              logger.error(err);
-              return sendInvalidConfigurationError(bot);
-            });
+      this.teamConfigService.getAccountForAlias(alias,message.raw_message.team.id)
+        .then(aliasExists => {
+            const configErrors = validateConfigurationAndGetErrorsIfInvalid(
+              this.configuredRegions,
+              accountRegion,
+              apiToken,
+              alias,
+              aliasExists
+            );
+            if (configErrors) {
+              bot.dialogError(configErrors);
+              bot.dialogOk();
+              return;
+            }
+            return this.httpClient.getRealName(apiToken, accountRegion)
+              .then(realName => {
+                const configErrors = validateRealNameAndGetErrorsIfInvalid(realName);
+                if (configErrors) {
+                  bot.dialogError(configErrors);
+                  return;
+                }
+                realName = realName.accountName;
+                const {team = null, user = null} = message.raw_message;
+                this.teamConfigService
+                  .getDefault(team.id)
+                  .then(defaultConfig => this.addAccount(accountRegion, apiToken, alias, realName, team, bot, message, user, defaultConfig))
+                  .catch(err => {
+                    logger.error(err);
+                    return sendInvalidConfigurationError(bot);
+                  });
+              });
         });
     });
   }
