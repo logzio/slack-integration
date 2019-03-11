@@ -4,6 +4,7 @@ const commandRegex = /set channel account/;
 const LoggerFactory = require('../../core/logging/logger-factory');
 const logger = LoggerFactory.getLogger(__filename);
 const {getEventMetadata} = require('../../core/logging/logging-metadata');
+const Messages = require('../../core/messages/messages');
 
 class SetChannelAccountCommand extends Command {
   constructor(channelHandler) {
@@ -62,8 +63,8 @@ class SetChannelAccountCommand extends Command {
               err,
               getEventMetadata(message, 'failed-to-set-channel-account')
             );
-          },
-          true
+            bot.reply(message, Messages.DEFAULT_ERROR_MESSAGE);
+          }
         );
       });
   }
