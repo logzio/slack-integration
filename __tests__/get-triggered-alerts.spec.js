@@ -3,8 +3,11 @@ const CommandName = require('./commandName');
 const TestFunctions = require('./testFunctions');
 const userId = 'u_mixed1';
 const teamId = 't_mixed1';
-const alias1 = 'mixed1';
-const alias2 = 'mixed2';
+const alias1 = 'mixed111';
+const alias2 = 'mixed222';
+
+const alias3 = 'mixed1111';
+const alias4 = 'mixed2222';
 
 describe('Mixed1', () => {
   const globalTestConfiguration = new GlobalConfiguration();
@@ -191,18 +194,18 @@ describe('Mixed1', () => {
             channelId,
             'mixed-2-api-token',
             'us-east-1',
-            alias1
+            alias3
           )
         )
       )
       .then(message =>
         expect(message.text).toBe(
-          `Okay, you\'re ready to use ${alias1} in Slack!`
+          `Okay, you\'re ready to use ${alias3} in Slack!`
         )
       )
       .then(() =>
         globalTestConfiguration.bot.usersInput(
-          TestFunctions.aliaGetTriggers(userId, teamId, channelId, alias1)
+          TestFunctions.aliaGetTriggers(userId, teamId, channelId, alias3)
         )
       )
       .then(message => validateTriggersResult(message, pageSize, total2))
