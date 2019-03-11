@@ -9,8 +9,7 @@ class ChannelAccountHandler {
     return HttpClient.validateAlias(this.teamConfService, teamId, alias)
       .then(() =>
         this.teamConfService.saveAccountForChannel(teamId, channelId, alias)
-      )
-      .then(() => true);
+      );
   }
 
   clearDefault(teamId, channelId) {

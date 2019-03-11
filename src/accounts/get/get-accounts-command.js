@@ -38,29 +38,31 @@ class GetAccountsCommand extends Command {
   }
 }
 
+function createChannelNames(item) {
+  return item.channels.length > 0
+    ? ` This is the channel account for ` +
+    item.channels
+      .map(
+        channel =>
+          `<#${channel.channelId}|${channel.channelName}>`
+      )
+      .join(', ') +
+    '.'
+    : '';
+}
+
+function createAccountDescription(item) {
+  return `• \`${item.accountAlias}\`: Slack alias for ${item.accountName}.${defaultSuffixIfDefault(item.isDefault)}${createChannelNames(item)}\n`;
+}
+
+function defaultSuffixIfDefault(isDefault) {
+  return isDefault ? ' *This is the default workspace account.*' : '';
+}
+
 function createAccountsViewReply(allAccountsSafeView) {
+
   return 'These are the accounts in this workspace:\n' +
-    allAccountsSafeView
-      .map(item => {
-        let channelNames =
-          item.channels.length > 0
-            ? ` This is the channel account for ` +
-            item.channels
-              .map(
-                channel =>
-                  `<#${channel.channelId}|${channel.channelName}>`
-              )
-              .join(', ') +
-            '.'
-            : '';
-        let isDefaultAccount = item.isDefault
-          ? ' *This is the default workspace account.*'
-          : '';
-        return `• \`${item.accountAlias}\`: Slack alias for ${
-          item.accountName
-          }.${isDefaultAccount}${channelNames}\n`;
-      })
-      .join('');
+    allAccountsSafeView.map(item => createAccountDescription(item)).join('');
 }
 
 module.exports = GetAccountsCommand;

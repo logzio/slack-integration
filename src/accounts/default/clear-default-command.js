@@ -2,13 +2,15 @@ const Command = require('../../core/commands/command');
 const commandRegex = /clear workspace account/;
 const LoggerFactory = require('../../core/logging/logger-factory');
 const logger = LoggerFactory.getLogger(__filename);
-const { getEventMetadata } = require('../../core/logging/logging-metadata');
+const {getEventMetadata} = require('../../core/logging/logging-metadata');
+const Messages = require('../../core/messages/messages');
 
 class ClearWorkspaceAccountCommand extends Command {
   constructor(defaultHandler) {
     super();
     this.defaultHandler = defaultHandler;
   }
+
   configure(controller) {
     controller.hears(
       [commandRegex],
@@ -30,8 +32,8 @@ class ClearWorkspaceAccountCommand extends Command {
                   err,
                   getEventMetadata(message, 'failed-to-clear-workspace-account')
                 );
-              },
-              true
+                bot.reply(message, Messages.DEFAULT_ERROR_MESSAGE);
+              }
             );
           });
       }

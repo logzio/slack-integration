@@ -1,7 +1,6 @@
 const Command = require('../../core/commands/command');
 const LoggerFactory = require('../../core/logging/logger-factory');
 const { getEventMetadata } = require('../../core/logging/logging-metadata');
-
 const logger = LoggerFactory.getLogger(__filename);
 const commandRegexWithAlias = /remove account (.+)/;
 

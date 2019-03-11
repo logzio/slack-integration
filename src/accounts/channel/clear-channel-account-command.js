@@ -3,6 +3,7 @@ const commandRegex = /clear channel account/;
 const LoggerFactory = require('../../core/logging/logger-factory');
 const logger = LoggerFactory.getLogger(__filename);
 const { getEventMetadata } = require('../../core/logging/logging-metadata');
+const Messages = require('../../core/messages/messages');
 
 class ClearChannelAccountCommand extends Command {
   constructor(defaultHandler) {
@@ -39,8 +40,8 @@ class ClearChannelAccountCommand extends Command {
                           'failed-to-clear-channel-account'
                         )
                       );
-                    },
-                    true
+                      bot.reply(message, Messages.DEFAULT_ERROR_MESSAGE);
+                    }
                   );
                 });
             } else {

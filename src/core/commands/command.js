@@ -16,17 +16,11 @@ class Command {
     throw new Error('Method `getUsage` must be overridden!');
   }
 
-  handleError(bot, userMessage, err, unknownErrorHandler, defaultError) {
+  handleError(bot, userMessage, err, unknownErrorHandler) {
     if (err instanceof TeamNotConfiguredError) {
       bot.reply(userMessage, Messages.LOFZ_IO_IS_NOT_CONFIGURED);
-    } else if (
-      err instanceof RateLimitExceededError ||
-      err instanceof AliasNotExistError
-    ) {
+    } else if (err instanceof RateLimitExceededError || err instanceof AliasNotExistError) {
       bot.reply(userMessage, err.message);
-    } else if (defaultError) {
-      bot.reply(userMessage, Messages.DEFAULT_ERROR_MESSAGE);
-      unknownErrorHandler(err);
     } else {
       unknownErrorHandler(err);
     }
