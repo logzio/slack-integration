@@ -10,6 +10,8 @@ With Alice, you can:
 
 Chat with Alice in a group message (where you'll need to tag `@Alice`) or in a private message.
 
+Read more about Alice in the [Logz.io Docs](https://docs.logz.io/user-guide/integrations/alice-slack-chatbot.html).
+
 ## Install Alice
 
 Alice works with the Logz.io API, so you'll need an Enterprise or Pro plan.
