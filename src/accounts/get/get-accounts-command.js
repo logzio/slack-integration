@@ -39,16 +39,24 @@ class GetAccountsCommand extends Command {
 }
 
 function createChannelNames(item) {
-  return item.channels.length > 0
-    ? ` This is the channel account for ` +
-    item.channels
-      .map(
-        channel =>
-          `<#${channel.channelId}|${channel.channelName}>`
-      )
-      .join(', ') +
-    '.'
-    : '';
+
+  if (item.channels.length === 0) {
+    return '';
+  }
+  const hasPrivateChannel = item.channels.some(channel => channel.isPrivate);
+  const channelMap = item.channels.map(
+    channel => {
+      if (!channel.isPrivate) {
+        return `<#${channel.channelId}|${channel.channelName}>`
+      }
+    }
+  ).filter(x => typeof x === 'string' && x.length > 0);
+  const channelMapPrefix = ` This is the channel account for ` + channelMap.join(',');
+  if (hasPrivateChannel) {
+    return channelMapPrefix + (channelMap.length > 0 ? ', ' : '') + 'one or more private channels' + '.';
+  } else {
+    return channelMapPrefix + '.';
+  }
 }
 
 function createAccountDescription(item) {
