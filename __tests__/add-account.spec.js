@@ -251,11 +251,11 @@ describe('Add account command', () => {
           )
         )
       )
-      .then(message =>
-        expect(message.text).toBe(
-          `Okay, you\'re ready to use ${alias1} in Slack!`
-        )
-      )
+      .then(() => {
+        expect(globalTestConfigurationSetup.bot.dialogErrors[0].error).toBe(
+          `An account is already using this alias. Try again with a different alias.`
+        );
+      })
       .then(() =>
         globalTestConfigurationSetup.bot.usersInput(
           TestFunctions.getAccounts(userId, teamId, channelId)
@@ -272,7 +272,6 @@ describe('Add account command', () => {
   });
 
   it('add two accounts with same alias and different tokens', done => {
-    //TODO:  ARIE
     globalTestConfigurationSetup.bot
       .usersInput(
         TestFunctions.createOneAccount(
@@ -301,11 +300,11 @@ describe('Add account command', () => {
           )
         )
       )
-      .then(message =>
-        expect(message.text).toBe(
-          `Okay, you\'re ready to use ${alias1} in Slack!`
-        )
-      )
+      .then(() => {
+        expect(globalTestConfigurationSetup.bot.dialogErrors[0].error).toBe(
+          `An account is already using this alias. Try again with a different alias.`
+        );
+      })
       .then(() =>
         globalTestConfigurationSetup.bot.usersInput(
           TestFunctions.getAccounts(userId, teamId, channelId)
@@ -314,7 +313,7 @@ describe('Add account command', () => {
       .then(message => {
         expect(message.channel).toBe(channelId);
         expect(message.text).toBe(
-          `These are the accounts in this workspace:\n• \`${alias1}\`: Slack alias for Logzio App Test 2 Prod. *This is the default workspace account.*\n`
+          `These are the accounts in this workspace:\n• \`${alias1}\`: Slack alias for Logzio App Test 1 Prod. *This is the default workspace account.*\n`
         );
         done();
       });

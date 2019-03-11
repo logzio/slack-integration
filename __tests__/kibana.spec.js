@@ -4,8 +4,8 @@ const TestFunctions = require('./testFunctions');
 const Messages = require('../src/core/messages/messages');
 const userId = 'u_mixed1';
 const teamId = 't_mixed1';
-const alias1 = 'mixed1';
-const alias2 = 'mixed2';
+const alias1 = 'mixed11';
+const alias2 = 'mixed22';
 
 
 const dashbordsResponse1 = {
@@ -355,6 +355,15 @@ describe('get from kibana', () => {
         )
       )
       .then(() => TestFunctions.validateKibanaResults(globalTestConfiguration.bot.api.files.files,'dashboard', [dashbordsResponse2]))
+      .then(() =>  globalTestConfiguration.bot.usersInput(
+       TestFunctions.removeAccount(userId, teamId, alias1, channelId)
+      ))
+      .then(() => {
+        globalTestConfiguration.bot
+          .usersInput(
+            TestFunctions.confirm(userId, teamId, alias1, channelId, 'yes')
+          )
+      })
       .then(() =>
         globalTestConfiguration.bot.usersInput(
           TestFunctions.createOneAccount(
