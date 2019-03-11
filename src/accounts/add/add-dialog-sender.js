@@ -130,7 +130,7 @@ class AddAccountDialogSender {
     bot.startPrivateConversation({ user }, (err, convo) => {
       convo.addMessage(
         {
-          text: `Okay, I won't add an account now. When you're ready, just type @Alice add account.`
+          text: `Okay, I won't add an account now. When you're ready, just type ${bot.identity.name} add account.`
         },
         'canceled'
       );

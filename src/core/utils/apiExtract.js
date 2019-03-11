@@ -29,12 +29,14 @@ class ApiExtract {
         if (response.ok) {
           resolve({
             channelName: response.channel.name.toString(),
-            channelId: channelId
+            channelId: channelId,
+            isPrivate : false
           });
         } else {
           resolve({
-            channelName: 'no-channel',
-            channelId: channelId
+            channelName: 'private',
+            channelId: channelId,
+            isPrivate : true
           });
         }
       });

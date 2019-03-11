@@ -274,7 +274,7 @@ class TeamConfigurationService {
                 accountAlias: configuredAccount.alias,
                 isDefault:
                   defaultAccount.config.alias === configuredAccount.alias,
-                channels: channels
+                channels: channels,
               }))
           );
         }
