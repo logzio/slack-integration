@@ -74,7 +74,7 @@ describe('Add account command', () => {
 
     globalTestConfigurationSetup.bot.usersInput(sequence).then(message => {
       expect(message.text).toBe(
-        `Okay, I won't add an account now. When you're ready, just type @Alice add account.`
+        `Okay, I won't add an account now. When you're ready, just type  add account.`
       );
       done();
     });
