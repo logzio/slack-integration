@@ -1,4 +1,5 @@
 const Command = require('../../core/commands/command');
+const ApiExtract = require('../../core/utils/apiExtract');
 const LoggerFactory = require('../../core/logging/logger-factory');
 const logger = LoggerFactory.getLogger(__filename);
 class GetAccountsCommand extends Command {
@@ -38,39 +39,13 @@ class GetAccountsCommand extends Command {
   }
 }
 
-function createChannelNames(item) {
 
-  if (item.channels.length === 0) {
-    return '';
-  }
-  const hasPrivateChannel = item.channels.some(channel => channel.isPrivate);
-  const channelMap = item.channels.map(
-    channel => {
-      if (!channel.isPrivate) {
-        return `<#${channel.channelId}|${channel.channelName}>`
-      }
-    }
-  ).filter(x => typeof x === 'string' && x.length > 0);
-  const channelMapPrefix = ` This is the channel account for ` + channelMap.join(',');
-  if (hasPrivateChannel) {
-    return channelMapPrefix + (channelMap.length > 0 ? ', ' : '') + 'one or more private channels' + '.';
-  } else {
-    return channelMapPrefix + '.';
-  }
-}
 
-function createAccountDescription(item) {
-  return `• \`${item.accountAlias}\`: Slack alias for ${item.accountName}.${defaultSuffixIfDefault(item.isDefault)}${createChannelNames(item)}\n`;
-}
-
-function defaultSuffixIfDefault(isDefault) {
-  return isDefault ? ' *This is the default workspace account.*' : '';
-}
 
 function createAccountsViewReply(allAccountsSafeView) {
 
   return 'These are the accounts in this workspace:\n' +
-    allAccountsSafeView.map(item => createAccountDescription(item)).join('');
+    allAccountsSafeView.map(item => ApiExtract.createAccountDescription(item)).join('');
 }
 
 module.exports = GetAccountsCommand;
