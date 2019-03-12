@@ -16,13 +16,13 @@ const messageWithButtons = {
       actions: [
         {
           text: 'Add the account',
-          value: 'yes',
+          value: 'add-yes',
           type: 'button',
           name: 'answer'
         },
         {
           text: 'Never mind',
-          value: 'no',
+          value: 'add-no',
           type: 'button',
           name: 'answer'
         }
@@ -139,13 +139,13 @@ class AddAccountDialogSender {
         messageWithButtons,
         [
           {
-            pattern: 'yes',
+            pattern: 'add-yes',
             callback: (reply, convo) => {
               this.replayWithDialogSetup(reply, convo, bot, isInitializationPhase);
             }
           },
           {
-            pattern: 'no',
+            pattern: 'add-no',
             callback: (reply, convo) => {
               convo.gotoThread('canceled');
             }

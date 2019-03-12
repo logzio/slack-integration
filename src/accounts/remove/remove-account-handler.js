@@ -18,13 +18,13 @@ function getMessageWithButtons(text) {
         actions: [
           {
             text: 'Remove',
-            value: 'yes',
+            value: 'remove-yes',
             type: 'button',
             name: 'yes'
           },
           {
             text: 'Cancel',
-            value: 'no',
+            value: 'remove-no',
             type: 'button',
             name: 'no'
           }
@@ -153,7 +153,7 @@ class removeAccountHandler {
         messageWithButtons,
         [
           {
-            pattern: 'yes',
+            pattern: 'remove-yes',
             callback: function(response, convo) {
               const remove = shouldDeleteDefault
                 ? teamConfigService.removeDefaultAccount(teamId, alias)
@@ -168,7 +168,7 @@ class removeAccountHandler {
             }
           },
           {
-            pattern: 'no',
+            pattern: 'remove-no',
             callback: function(response, convo) {
               convo.gotoThread('canceled');
             }
