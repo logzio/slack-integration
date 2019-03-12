@@ -27,7 +27,7 @@ class ApiExtract {
           ).filter(x => typeof x === 'string' && x.length > 0);
           const channelMapPrefix = channelMap.join(',');
           if (hasPrivateChannel) {
-            return channelMapPrefix + (channelMap.length > 0 ? ', ' : '') + 'one or more private channels';
+            return channelMapPrefix + (channelMap.length > 0 ? ', ' : ' ') + 'one or more private channels';
           } else {
             return channelMapPrefix;
           }
