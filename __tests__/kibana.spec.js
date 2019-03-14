@@ -361,7 +361,7 @@ describe('get from kibana', () => {
       .then(() => {
         globalTestConfiguration.bot
           .usersInput(
-            TestFunctions.confirm(userId, teamId, alias1, channelId, 'yes')
+            TestFunctions.confirm(userId, teamId, alias1, channelId, 'remove-yes')
           )
       })
       .then(() =>

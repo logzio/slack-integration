@@ -6,6 +6,7 @@ const userId = 'r_user';
 const teamId = 'rm_t';
 const alias1 = 'alias_remove1';
 const alias2 = 'alias_remove2';
+const someChannelId = 'someChannelId';
 
 describe('Remove account command', () => {
   const globalTestConfigurationSetup = new GlobalTestConfigurationSetup();
@@ -72,7 +73,7 @@ describe('Remove account command', () => {
       .then(() => {
         globalTestConfigurationSetup.bot
           .usersInput(
-            TestFunctions.confirm(userId, teamId, alias2, channelId, 'yes')
+            TestFunctions.confirm(userId, teamId, alias2, channelId, 'remove-yes')
           )
           .then(message => {
             expect(message.text).toBe(`Okay, I removed ${alias2} from Slack.`);
@@ -120,7 +121,7 @@ describe('Remove account command', () => {
       .then(() => {
         globalTestConfigurationSetup.bot
           .usersInput(
-            TestFunctions.confirm(userId, teamId, alias2, channelId, 'no')
+            TestFunctions.confirm(userId, teamId, alias2, channelId, 'remove-no')
           )
           .then(message => {
             expect(message.text).toBe(`Okay, ${alias1} is still active.`);
@@ -252,13 +253,13 @@ describe('Remove account command', () => {
       )
       .then(message => {
         expect(message.attachments[0].text).toBe(
-          `${alias2} is used in these channels:someChannelId_name. Are you sure you want to remove it from Slack?`
+          `${alias2} is used in these channels: <#${channelId}|${someChannelId}_name>. Are you sure you want to remove it from Slack?`
         );
       })
       .then(() => {
         globalTestConfigurationSetup.bot
           .usersInput(
-            TestFunctions.confirm(userId, teamId, alias2, channelId, 'yes')
+            TestFunctions.confirm(userId, teamId, alias2, channelId, 'remove-yes')
           )
           .then(message => {
             expect(message.text).toBe(`Okay, I removed ${alias2} from Slack.`);
@@ -334,7 +335,7 @@ describe('Remove account command', () => {
       )
       .then(() =>
         globalTestConfigurationSetup.bot.usersInput(
-          TestFunctions.confirm(userId, teamId, alias1, channelId, 'yes')
+          TestFunctions.confirm(userId, teamId, alias1, channelId, 'remove-yes')
         )
       )
       .then(message =>
@@ -411,12 +412,12 @@ describe('Remove account command', () => {
       )
       .then(message =>
         expect(message.attachments[0].text).toBe(
-          `${alias2} is used in these channels:someChannelId_name. Are you sure you want to remove it from Slack?`
+          `${alias2} is used in these channels: <#${channelId}|${someChannelId}_name>. Are you sure you want to remove it from Slack?`
         )
       )
       .then(() =>
         globalTestConfigurationSetup.bot.usersInput(
-          TestFunctions.confirm(userId, teamId, alias1, channelId, 'yes')
+          TestFunctions.confirm(userId, teamId, alias1, channelId, 'remove-yes')
         )
       )
       .then(() => done());
