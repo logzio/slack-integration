@@ -1,6 +1,6 @@
 function getEventMetadata(message, eventName) {
   const metadata = {
-    eventName,
+    eventName
   };
 
   if (typeof message.team === 'string') {
@@ -24,7 +24,7 @@ function getEventMetadata(message, eventName) {
     metadata['channelName'] = message.channel.name;
   }
 
-  return metadata
+  return metadata;
 }
 
 module.exports = {

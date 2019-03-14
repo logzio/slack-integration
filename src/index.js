@@ -1,48 +1,24 @@
-const BotkitStorageMySQL = require('./core/storage/botkit-storage-mysql');
-const DBMigrate = require('db-migrate');
+const LogzStorageMySQL = require('./core/storage/logzio-storage');
 const LogzioBot = require('./logzio-bot');
-
-function getRequiredValueFromEnv(variableName) {
-  const value = process.env[variableName];
-  if (!value) {
-    throw new Error(`Missing required environment variable '${variableName}'`);
-  }
-
-  return value;
-}
-
-function migrateDatabase(dbConfig) {
-  const options = {
-    throwUncatched: true,
-    env: 'prod',
-    config: {
-      prod: {
-        ...dbConfig,
-        driver: 'mysql'
-      }
-    }
-  };
-
-  return DBMigrate.getInstance(true, options).up();
-}
+const BasicUp = require('./core/utils/basicUp');
 
 const dbConfig = {
-  user: getRequiredValueFromEnv('MYSQL_USER'),
-  password: getRequiredValueFromEnv('MYSQL_PASSWORD'),
-  database: getRequiredValueFromEnv('MYSQL_DATABASE'),
-  host: getRequiredValueFromEnv('MYSQL_HOST'),
+  user: BasicUp.getRequiredValueFromEnv('MYSQL_USER'),
+  password: BasicUp.getRequiredValueFromEnv('MYSQL_PASSWORD'),
+  database: BasicUp.getRequiredValueFromEnv('MYSQL_DATABASE'),
+  host: BasicUp.getRequiredValueFromEnv('MYSQL_HOST')
 };
 
-migrateDatabase(dbConfig).then(() => {
+BasicUp.migrateDatabase(dbConfig).then(() => {
   const apiConfig = require('../conf/api');
-  const externalDomain = getRequiredValueFromEnv('EXTERNAL_DOMAIN');
-  const storage = new BotkitStorageMySQL(dbConfig);
+  const externalDomain = BasicUp.getRequiredValueFromEnv('EXTERNAL_DOMAIN');
+  const storage = new LogzStorageMySQL(dbConfig);
 
   const logzioBot = new LogzioBot(apiConfig, externalDomain, storage);
   logzioBot.bootstrap(
-    getRequiredValueFromEnv('CLIENT_ID'),
-    getRequiredValueFromEnv('CLIENT_SECRET'),
-    getRequiredValueFromEnv('VERIFICATION_TOKEN'),
-    getRequiredValueFromEnv('PORT'),
+    BasicUp.getRequiredValueFromEnv('CLIENT_ID'),
+    BasicUp.getRequiredValueFromEnv('CLIENT_SECRET'),
+    BasicUp.getRequiredValueFromEnv('VERIFICATION_TOKEN'),
+    BasicUp.getRequiredValueFromEnv('PORT')
   );
 });

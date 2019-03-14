@@ -1,5 +1,3 @@
-class TeamNotConfiguredError extends Error {
-
-}
+class TeamNotConfiguredError extends Error {}
 
 module.exports = TeamNotConfiguredError;

@@ -5,7 +5,10 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node .",
-    "test": "node jasmine.js"
+    "test:local": "node jasmine.js",
+    "test": "docker-compose down;docker-compose up --exit-code-from logzbot-test db logzbot-test",
+    "lint": "eslint \"src/**/*.js\" --quiet",
+    "format": "prettier --write \"src/**/*.js\""
   },
   "repository": {
     "type": "git",
@@ -27,7 +30,7 @@
   "homepage": "https://github.com/logzio/slack-integration#readme",
   "dependencies": {
     "axios": "^0.18.0",
-    "botkit": "^0.6.16",
+    "botkit": "^0.7.0",
     "botkit-promise-storage": "^1.1.0",
     "db-migrate": "^0.11.3",
     "db-migrate-mysql": "^1.1.10",
@@ -41,9 +44,13 @@
   },
   "devDependencies": {
     "botkit-mock": "^0.1.11",
+    "eslint": "^5.14.1",
+    "eslint-config-prettier": "^4.0.0",
+    "eslint-plugin-prettier": "^3.0.1",
     "find-free-port": "^1.2.0",
     "jasmine": "^3.2.0",
     "jasmine-http-server-spy": "^0.4.1",
-    "jasmine-spec-reporter": "^4.2.1"
+    "jasmine-spec-reporter": "^4.2.1",
+    "prettier": "^1.16.4"
   }
 }

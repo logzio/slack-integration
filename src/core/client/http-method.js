@@ -1,6 +1,6 @@
 const HttpMethod = {
   GET: 'GET',
-  POST: 'POST',
+  POST: 'POST'
 };
 
 module.exports = HttpMethod;

@@ -1,10 +1,20 @@
 class SnapshotsClient {
-
   constructor(httpClient) {
     this.httpClient = httpClient;
   }
 
-  createSnapshot(teamId, slackUsername, objectType, objectId, fromTS, toTS, query, webhookUrl) {
+  createSnapshot(
+    channelId,
+    teamId,
+    slackUsername,
+    objectType,
+    objectId,
+    fromTS,
+    toTS,
+    query,
+    webhookUrl,
+    alias
+  ) {
     const request = {
       snapshotType: objectType.toUpperCase(),
       snapshotSavedObjectId: objectId,
@@ -17,9 +27,14 @@ class SnapshotsClient {
       slackWebhookUrls: [webhookUrl]
     };
 
-    return this.httpClient.post(teamId, '/v1/snapshotter', request);
+    return this.httpClient.post(
+      channelId,
+      teamId,
+      '/v1/snapshotter',
+      request,
+      alias
+    );
   }
-
 }
 
 module.exports = SnapshotsClient;
