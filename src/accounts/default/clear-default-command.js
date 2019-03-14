@@ -46,7 +46,7 @@ class ClearWorkspaceAccountCommand extends Command {
 
   getUsage() {
     return [
-      '*clear workspace account* - Clear the default account for this workspace'
+     // '*clear workspace account* - Clear the default account for this workspace'
     ];
   }
 }

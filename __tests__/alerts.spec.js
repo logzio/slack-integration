@@ -4,8 +4,8 @@ const TestFunctions = require('./testFunctions');
 const AlertsCommand = require('../src/alerts/show-alert-command');
 const userId = 'u_mixed1';
 const teamId = 't_mixed1';
-const alias1 = 'mixed1';
-const alias2 = 'mixed2';
+const alias1 = 'mixed156';
+const alias2 = 'mixed256';
 
 const responseByName = {
   statusCode: 200,
