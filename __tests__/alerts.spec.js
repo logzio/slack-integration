@@ -4,8 +4,8 @@ const TestFunctions = require('./testFunctions');
 const AlertsCommand = require('../src/alerts/show-alert-command');
 const userId = 'u_mixed1';
 const teamId = 't_mixed';
-const alias1 = 'mixed178';
-const alias2 = 'mixed278';
+const alias1 = 'md178';
+const alias2 = 'md278';
 
 const responseByName = {
   statusCode: 200,
@@ -109,7 +109,59 @@ describe('get alerts', () => {
   const globalTestConfiguration = new GlobalConfiguration();
   const channelId = globalTestConfiguration.openChannelId;
 
-
+  it('create account and then try to get alert with wrong alias', done => {
+    globalTestConfiguration.bot
+      .usersInput(
+        TestFunctions.createOneAccount(
+          userId,
+          teamId,
+          channelId,
+          'mixed-1-api-token',
+          'us-east-1',
+          alias1
+        )
+      )
+      .then(message =>
+        expect(message.text).toBe(
+          `Okay, you\'re ready to use ${alias1} in Slack!`
+        )
+      )
+      .then(() =>
+        globalTestConfiguration.bot.usersInput(
+          TestFunctions.getAliasAlertByName(
+            userId,
+            teamId,
+            channelId,
+            'Change in user plan',
+            alias2
+          )
+        )
+      )
+      .then(message =>
+        expect(message.text).toBe(
+          "Sorry, there isn't an account with that alias. If you want to see your accounts, type `@Alice accounts`."
+        )
+      )
+      .then(() =>
+        globalTestConfiguration.bot.usersInput(
+          TestFunctions.showAliasAlertByName(
+            userId,
+            teamId,
+            channelId,
+            'Change in user plan',
+            alias2
+          )
+        )
+      )
+      .then(message =>
+        expect(message.text).toBe(
+          "Sorry, there isn't an account with that alias. If you want to see your accounts, type `@Alice accounts`."
+        )
+      )
+      .then(() => {
+        done();
+      });
+  });
 
   it('create two accounts and get alert by name with alias', done => {
     globalTestConfiguration.bot
@@ -266,60 +318,6 @@ describe('get alerts', () => {
       )
       .then(alertMessage =>
         TestFunctions.validateAlertResults(alertMessage, responseByName)
-      )
-      .then(() => {
-        done();
-      });
-  });
-
-  it('create account and then try to get alert with wrong alias', done => {
-    globalTestConfiguration.bot
-      .usersInput(
-        TestFunctions.createOneAccount(
-          userId,
-          teamId,
-          channelId,
-          'mixed-1-api-token',
-          'us-east-1',
-          alias1
-        )
-      )
-      .then(message =>
-        expect(message.text).toBe(
-          `Okay, you\'re ready to use ${alias1} in Slack!`
-        )
-      )
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
-          TestFunctions.getAliasAlertByName(
-            userId,
-            teamId,
-            channelId,
-            'Change in user plan',
-            alias2
-          )
-        )
-      )
-      .then(message =>
-        expect(message.text).toBe(
-          "Sorry, there isn't an account with that alias. If you want to see your accounts, type `@Alice accounts`."
-        )
-      )
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
-          TestFunctions.showAliasAlertByName(
-            userId,
-            teamId,
-            channelId,
-            'Change in user plan',
-            alias2
-          )
-        )
-      )
-      .then(message =>
-        expect(message.text).toBe(
-          "Sorry, there isn't an account with that alias. If you want to see your accounts, type `@Alice accounts`."
-        )
       )
       .then(() => {
         done();
