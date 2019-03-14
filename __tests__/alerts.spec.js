@@ -2,8 +2,8 @@ const GlobalConfiguration = require('../src/core/utils/globalTestConfigurationSe
 const CommandName = require('./commandName');
 const TestFunctions = require('./testFunctions');
 const AlertsCommand = require('../src/alerts/show-alert-command');
-const userId = 'u_mixed1s';
-const teamId = 't_mixed3';
+const userId = 'u_mixed1';
+const teamId = 't_mixed1';
 const alias1 = 'mixed156';
 const alias2 = 'mixed256';
 
