@@ -2,13 +2,13 @@ const GlobalTestConfigurationSetup = require('../src/core/utils/globalTestConfig
 const TestFunctions = require('./testFunctions');
 const CommandName = require('./commandName');
 const Messages = require('../src/core/messages/messages');
-const userId = 'u_mixed1';
+const userId = 'u_mixed1'
 const teamId = 't_mixed1';
 
 const alias1 = 'mixed1';
 const alias2 = 'mixed2';
 
-describe('Add account command', () => { 
+describe('Add account command', () => {
   const globalTestConfigurationSetup = new GlobalTestConfigurationSetup();
   const channelId = globalTestConfigurationSetup.openChannelId;
   it("Notify user on slack's security when asking to create account", done => {
