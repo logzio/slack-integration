@@ -41,12 +41,15 @@ class ApiExtract {
         if (response.ok) {
           resolve({
             channelName: response.channel.name.toString(),
-            isPrivate : false});
+            isPrivate : false,
+            channelId : channelId
+          });
 
         } else {
           resolve({
             channelName: 'private channel',
-            isPrivate : true
+            isPrivate : true,
+            channelId : channelId
           });
         }
       });

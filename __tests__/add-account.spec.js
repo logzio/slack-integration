@@ -44,7 +44,7 @@ describe('Add account command', () => {
         channel: channelId,
         messages: [
           { team: { id: teamId }, text: 'add account' },
-          { team: { id: teamId }, text: 'Yes', isAssertion: true }
+          { team: { id: teamId }, text: 'add-yes', isAssertion: true }
         ]
       }
     ];
@@ -67,7 +67,7 @@ describe('Add account command', () => {
         channel: channelId,
         messages: [
           { team: { id: teamId }, text: 'add account' },
-          { team: { id: teamId }, text: 'No', isAssertion: true }
+          { team: { id: teamId }, text: 'add-no', isAssertion: true }
         ]
       }
     ];

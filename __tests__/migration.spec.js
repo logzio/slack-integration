@@ -306,13 +306,13 @@ describe('Migration', () => {
       )
       .then(message => {
         expect(message.attachments[0].text).toBe(
-          `${alias2} is used in these channels:chan2_name. Are you sure you want to remove it from Slack?`
+          `${alias2} is used in these channels: <#${channelId2}|chan2_name>. Are you sure you want to remove it from Slack?`
         );
       })
       .then(() => {
         globalTestConfiguration.bot
           .usersInput(
-            TestFunctions.confirm(userId, teamId, alias2, channelId, 'yes')
+            TestFunctions.confirm(userId, teamId, alias2, channelId, 'remove-yes')
           )
           .then(message => {
             expect(message.text).toBe(`Okay, I removed ${alias2} from Slack.`);
