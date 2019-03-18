@@ -249,7 +249,7 @@ class TeamConfigurationService {
     });
   }
 
-   extractRealName(account) {
+  extractRealName(account) {
     return new Promise(resolve => {
       if (account.alias === 'my-account') {
         this.httpClient.getRealName(account.apiToken,account.region)
