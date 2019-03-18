@@ -7,6 +7,7 @@ const teamId = 't_mixed3';
 const userId2 = 'u_mixed4';
 const teamId2 = 't_mixed5';
 
+const someChannelId = 'someChannelId';
 const channelId2 = 'chan2';
 const alias1 = 'mixed3';
 const alias2 = 'mixed4';
@@ -310,13 +311,13 @@ describe('Mixed1', () => {
       )
       .then(message => {
         expect(message.attachments[0].text).toBe(
-          `${alias2} is used in these channels:${channelId2}_name. Are you sure you want to remove it from Slack?`
+          `${alias2} is used in these channels: <#${channelId2}|${channelId2}_name>. Are you sure you want to remove it from Slack?`
         );
       })
       .then(() => {
         globalTestConfiguration.bot
           .usersInput(
-            TestFunctions.confirm(userId, teamId, alias2, channelId, 'yes')
+            TestFunctions.confirm(userId, teamId, alias2, channelId, 'remove-yes')
           )
           .then(message => {
             expect(message.text).toBe(`Okay, I removed ${alias2} from Slack.`);

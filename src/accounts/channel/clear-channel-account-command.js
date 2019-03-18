@@ -3,6 +3,7 @@ const commandRegex = /clear channel account/;
 const LoggerFactory = require('../../core/logging/logger-factory');
 const logger = LoggerFactory.getLogger(__filename);
 const { getEventMetadata } = require('../../core/logging/logging-metadata');
+const Messages = require('../../core/messages/messages');
 
 class ClearChannelAccountCommand extends Command {
   constructor(defaultHandler) {
@@ -15,12 +16,13 @@ class ClearChannelAccountCommand extends Command {
       [commandRegex],
       'direct_message,direct_mention',
       (bot, message) => {
+        const {team = null, channel = null} = message;
         this.defaultHandler
-          .isAccountUsedByChannel(message.team, message.channel)
+          .isAccountUsedByChannel(team, channel)
           .then(res => {
             if (res) {
               this.defaultHandler
-                .clearDefault(message.team, message.channel)
+                .clearDefault(team, channel)
                 .then(() => {
                   bot.reply(message, `Okay, I cleared the channel account.`);
                 })
@@ -38,12 +40,12 @@ class ClearChannelAccountCommand extends Command {
                           'failed-to-clear-channel-account'
                         )
                       );
-                    },
-                    true
+                      bot.reply(message, Messages.DEFAULT_ERROR_MESSAGE);
+                    }
                   );
                 });
             } else {
-              bot.reply(message, `There is no channel account configured.`);
+              bot.reply(message, `There's no channel account set, so you're good. 😎`);
             }
           });
       }

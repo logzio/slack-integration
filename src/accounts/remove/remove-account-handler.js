@@ -6,25 +6,25 @@ const shouldDeleteAccountWithCurrentChannels = ' is used in these channels:';
 const areYouSure = ' Are you sure you want to remove it from Slack?';
 const shouldDeleteAccount = 'Are you sure you want to remove ';
 
-function getMessageWithButtons(prefix, question, suffix) {
+function getMessageWithButtons(text) {
   return {
     attachments: [
       {
         title: '',
-        text: prefix + question + suffix,
+        text: text,
         callback_id: 'remove-account',
         attachment_type: 'default',
         delete_original: true,
         actions: [
           {
             text: 'Remove',
-            value: 'yes',
+            value: 'remove-yes',
             type: 'button',
             name: 'yes'
           },
           {
             text: 'Cancel',
-            value: 'no',
+            value: 'remove-no',
             type: 'button',
             name: 'no'
           }
@@ -56,7 +56,8 @@ class removeAccountHandler {
     let alias = userAlias;
     return this.teamConfigService
       .getDefault(teamId)
-      .then(configuration => HttpClient.validateConfiguration(configuration))
+      .then(configuration =>
+        !userAlias?HttpClient.validateConfiguration(configuration):configuration)
       .then(validTeamConfiguration => {
         teamConfiguration = validTeamConfiguration;
         if (!alias) {
@@ -82,11 +83,7 @@ class removeAccountHandler {
         alias = 'This';
       }
 
-      const messageWithButtons = getMessageWithButtons(
-        alias,
-        shouldDeleteDefaultAccountQuestion,
-        ''
-      );
+      const messageWithButtons = getMessageWithButtons(`${alias}${shouldDeleteDefaultAccountQuestion}`);
       this.askForApproval(alias, bot, user, teamId, messageWithButtons, true);
     } else {
       this.teamConfigService
@@ -95,11 +92,7 @@ class removeAccountHandler {
           if (accounts.length > 0) {
             ApiExtract.extractAccountsChannels(bot, accounts).then(
               channelNames => {
-                const messageWithButtons = getMessageWithButtons(
-                  alias,
-                  shouldDeleteAccountWithCurrentChannels,
-                  channelNames + '.' + areYouSure
-                );
+                const messageWithButtons = getMessageWithButtons(`${alias}${shouldDeleteAccountWithCurrentChannels}${channelNames}.${areYouSure}`);
                 this.askForApproval(
                   alias,
                   bot,
@@ -111,11 +104,7 @@ class removeAccountHandler {
               }
             );
           } else {
-            const messageWithButtons = getMessageWithButtons(
-              '',
-              shouldDeleteAccount,
-              alias
-            );
+            const messageWithButtons = getMessageWithButtons(`${shouldDeleteAccount}${alias}`);
             this.askForApproval(
               alias,
               bot,
@@ -164,7 +153,7 @@ class removeAccountHandler {
         messageWithButtons,
         [
           {
-            pattern: 'yes',
+            pattern: 'remove-yes',
             callback: function(response, convo) {
               const remove = shouldDeleteDefault
                 ? teamConfigService.removeDefaultAccount(teamId, alias)
@@ -179,7 +168,7 @@ class removeAccountHandler {
             }
           },
           {
-            pattern: 'no',
+            pattern: 'remove-no',
             callback: function(response, convo) {
               convo.gotoThread('canceled');
             }

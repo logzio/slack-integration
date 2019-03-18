@@ -9,19 +9,7 @@ class ChannelAccountHandler {
     return HttpClient.validateAlias(this.teamConfService, teamId, alias)
       .then(() =>
         this.teamConfService.saveAccountForChannel(teamId, channelId, alias)
-      )
-      .then(() => true);
-
-    // return  this.teamConfService.doesAliasExist(teamId, alias)
-    //   .then(accountExist => {
-    //   if (accountExist) {
-    //
-    //
-    //     return this.teamConfService.saveAccountForChannel(teamId, channelId, alias).then(() => true);
-    //   } else {
-    //     return false;
-    //   }
-    // });
+      );
   }
 
   clearDefault(teamId, channelId) {

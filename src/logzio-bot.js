@@ -30,6 +30,7 @@ const SetDefaultCommand = require('./accounts/default/set-default-command');
 const GetAccountsCommand = require('./accounts/get/get-accounts-command');
 const RemoveAccountCommand = require('./accounts/remove/remove-command');
 const RemoveAccountHandler = require('./accounts/remove/remove-account-handler');
+const SetupCommand = require('./accounts/add/setup-command');
 
 const { createWebhookProxyEndpoint } = require('./core/webhook/webhook-proxy');
 
@@ -91,6 +92,7 @@ function registerAndConfigureCommands(logzioBot) {
   const endpointResolver = new EndpointResolver(apiConfig);
 
   const httpClient = new HttpClient(teamConfigurationService, endpointResolver);
+  teamConfigurationService.httpClient = httpClient;
   const alertsClient = new AlertsClient(httpClient);
   const kibanaClient = new KibanaClient(httpClient);
   const channelAccountHandler = new ChannelAccountHandler(
@@ -114,9 +116,7 @@ function registerAndConfigureCommands(logzioBot) {
   CommandsRegistry.register(new HelpCommand());
   CommandsRegistry.register(new KibanaObjectsCommand(kibanaClient));
   CommandsRegistry.register(new SearchCommand(new SearchClient(httpClient)));
-  CommandsRegistry.register(
-    new AddAccountCommand(logzioBot.setupDialogSender, teamConfigurationService)
-  );
+  CommandsRegistry.register(new AddAccountCommand(logzioBot.setupDialogSender));
   CommandsRegistry.register(new ShowAlertCommand(alertsClient));
   CommandsRegistry.register(
     new SnapshotCommand(
@@ -131,6 +131,7 @@ function registerAndConfigureCommands(logzioBot) {
   CommandsRegistry.register(new SetDefaultCommand(defaultHandler));
   CommandsRegistry.register(new GetAccountsCommand(teamConfigurationService));
   CommandsRegistry.register(new RemoveAccountCommand(removeAccountHandler));
+  CommandsRegistry.register(new SetupCommand);
   CommandsRegistry.register(new UnknownCommand());
 
   CommandsRegistry.getCommands().forEach(command =>

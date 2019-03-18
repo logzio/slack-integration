@@ -2,7 +2,7 @@ const GlobalTestConfigurationSetup = require('../src/core/utils/globalTestConfig
 const TestFunctions = require('./testFunctions');
 const CommandName = require('./commandName');
 const Messages = require('../src/core/messages/messages');
-const userId = 'u_mixed1';
+const userId = 'u_mixed1'
 const teamId = 't_mixed1';
 
 const alias1 = 'mixed1';
@@ -44,7 +44,7 @@ describe('Add account command', () => {
         channel: channelId,
         messages: [
           { team: { id: teamId }, text: 'add account' },
-          { team: { id: teamId }, text: 'Yes', isAssertion: true }
+          { team: { id: teamId }, text: 'add-yes', isAssertion: true }
         ]
       }
     ];
@@ -67,14 +67,14 @@ describe('Add account command', () => {
         channel: channelId,
         messages: [
           { team: { id: teamId }, text: 'add account' },
-          { team: { id: teamId }, text: 'No', isAssertion: true }
+          { team: { id: teamId }, text: 'add-no', isAssertion: true }
         ]
       }
     ];
 
     globalTestConfigurationSetup.bot.usersInput(sequence).then(message => {
       expect(message.text).toBe(
-        `Okay, I won't add an account now. When you're ready, just type @Alice add account.`
+        `Okay, I won't add an account now. When you're ready, just type  add account.`
       );
       done();
     });
@@ -251,11 +251,11 @@ describe('Add account command', () => {
           )
         )
       )
-      .then(message =>
-        expect(message.text).toBe(
-          `Okay, you\'re ready to use ${alias1} in Slack!`
-        )
-      )
+      .then(() => {
+        expect(globalTestConfigurationSetup.bot.dialogErrors[0].error).toBe(
+          `An account is already using this alias. Try again with a different alias.`
+        );
+      })
       .then(() =>
         globalTestConfigurationSetup.bot.usersInput(
           TestFunctions.getAccounts(userId, teamId, channelId)
@@ -272,7 +272,6 @@ describe('Add account command', () => {
   });
 
   it('add two accounts with same alias and different tokens', done => {
-    //TODO:  ARIE
     globalTestConfigurationSetup.bot
       .usersInput(
         TestFunctions.createOneAccount(
@@ -301,11 +300,11 @@ describe('Add account command', () => {
           )
         )
       )
-      .then(message =>
-        expect(message.text).toBe(
-          `Okay, you\'re ready to use ${alias1} in Slack!`
-        )
-      )
+      .then(() => {
+        expect(globalTestConfigurationSetup.bot.dialogErrors[0].error).toBe(
+          `An account is already using this alias. Try again with a different alias.`
+        );
+      })
       .then(() =>
         globalTestConfigurationSetup.bot.usersInput(
           TestFunctions.getAccounts(userId, teamId, channelId)
@@ -314,7 +313,7 @@ describe('Add account command', () => {
       .then(message => {
         expect(message.channel).toBe(channelId);
         expect(message.text).toBe(
-          `These are the accounts in this workspace:\n• \`${alias1}\`: Slack alias for Logzio App Test 2 Prod. *This is the default workspace account.*\n`
+          `These are the accounts in this workspace:\n• \`${alias1}\`: Slack alias for Logzio App Test 1 Prod. *This is the default workspace account.*\n`
         );
         done();
       });

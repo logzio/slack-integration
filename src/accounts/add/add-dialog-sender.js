@@ -16,13 +16,13 @@ const messageWithButtons = {
       actions: [
         {
           text: 'Add the account',
-          value: 'yes',
+          value: 'add-yes',
           type: 'button',
           name: 'answer'
         },
         {
           text: 'Never mind',
-          value: 'no',
+          value: 'add-no',
           type: 'button',
           name: 'answer'
         }
@@ -30,37 +30,6 @@ const messageWithButtons = {
     }
   ]
 };
-
-const shouldConfigureAliasForCurrentAccount =
-  ' is your default workspace. We need to configure your alias.';
-
-function getMessageWithButtonsForAliasConfiguration(prefix, question, suffix) {
-  return {
-    attachments: [
-      {
-        title: 'Alias Configuration',
-        text: prefix + question + suffix,
-        callback_id: 'add-alias-to-default',
-        attachment_type: 'default',
-        delete_original: true,
-        actions: [
-          {
-            text: 'Add alias',
-            value: 'yes',
-            type: 'button',
-            name: 'yes'
-          },
-          {
-            text: 'Not now',
-            value: 'no',
-            type: 'button',
-            name: 'no'
-          }
-        ]
-      }
-    ]
-  };
-}
 
 const messageWithoutButtons = {
   response_type: 'ephemeral',
@@ -89,14 +58,13 @@ function createSelectableRegionList(apiConfig) {
   const configuredRegions = apiConfig['regions'];
   const selectableRegionList = [];
   for (const region in configuredRegions) {
-    if (!configuredRegions.hasOwnProperty(region)) continue;
-
-    selectableRegionList.push({
-      label: configuredRegions[region]['name'],
-      value: region
-    });
+    if (configuredRegions[region]) {
+      selectableRegionList.push({
+        label: configuredRegions[region]['name'],
+        value: region
+      });
+    }
   }
-
   return selectableRegionList;
 }
 
@@ -107,7 +75,7 @@ function buildAndSendConfigurationDialog(
   config,
   callback_id
 ) {
-  const accountRegion = config.getLogzioAccountRegion() || 'us-east-1';
+  const accountRegion = config.getLogzioAccountRegion();
   const apiToken = maskApiToken(config.getLogzioApiToken());
 
   const dialog = bot
@@ -162,7 +130,7 @@ class AddAccountDialogSender {
     bot.startPrivateConversation({ user }, (err, convo) => {
       convo.addMessage(
         {
-          text: `Okay, I won't add an account now. When you're ready, just type @Alice add account.`
+          text: `Okay, I won't add an account now. When you're ready, just type ${bot.identity.name} add account.`
         },
         'canceled'
       );
@@ -171,37 +139,21 @@ class AddAccountDialogSender {
         messageWithButtons,
         [
           {
-            pattern: 'yes',
+            pattern: 'add-yes',
             callback: (reply, convo) => {
-              this.teamConfigurationService
-                .getDefault(reply.team.id)
-                .then(config => {
-                  convo.stop();
-                  bot.replyInteractive(reply, messageWithoutButtons);
-                  buildAndSendConfigurationDialog(
-                    bot,
-                    this.selectableRegionList,
-                    reply,
-                    config,
-                    isInitializationPhase
-                      ? 'initialization_setup_dialog'
-                      : 'setup_dialog'
-                  );
-                });
+              this.replayWithDialogSetup(reply, convo, bot, isInitializationPhase);
             }
           },
           {
-            pattern: 'no',
+            pattern: 'add-no',
             callback: (reply, convo) => {
               convo.gotoThread('canceled');
-              // convo.stop();
             }
           },
           {
             default: true,
             callback: (reply, convo) => {
               convo.gotoThread('canceled');
-              //  convo.stop();
             }
           }
         ],
@@ -212,60 +164,22 @@ class AddAccountDialogSender {
     });
   }
 
-  sendSetupAliasMessage(bot, user, config, message) {
-    bot.startConversation(message, (err, convo) => {
-      convo.addMessage(
-        {
-          text: `Okay, I won't add an alias now. When you're ready, just type @Alice add account.`
-        },
-        'canceled'
-      );
-
-      const messageWithButtons2 = getMessageWithButtonsForAliasConfiguration(
-        config.getOldName(),
-        shouldConfigureAliasForCurrentAccount,
-        ''
-      );
-      convo.addQuestion(
-        messageWithButtons2,
-        [
-          {
-            pattern: 'yes',
-            callback: (reply, convo) => {
-              this.teamConfigurationService
-                .getDefault(reply.team.id)
-                .then(config => {
-                  convo.stop();
-                  bot.replyInteractive(reply, messageWithButtons2);
-                  buildAndSendAliasConfigurationDialog(
-                    bot,
-                    reply,
-                    config,
-                    'setup_alias_for_current_dialog'
-                  );
-                });
-            }
-          },
-          {
-            pattern: 'no',
-            callback: (reply, convo) => {
-              convo.gotoThread('canceled');
-              // convo.stop();
-            }
-          },
-          {
-            default: true,
-            callback: (reply, convo) => {
-              convo.gotoThread('canceled');
-              //  convo.stop();
-            }
-          }
-        ],
-        {},
-        'default'
-      );
-      convo.activate();
-    });
+  replayWithDialogSetup(reply, convo, bot, isInitializationPhase) {
+    this.teamConfigurationService
+      .getDefault(reply.team.id)
+      .then(config => {
+        convo.stop();
+        bot.replyInteractive(reply, messageWithoutButtons);
+        buildAndSendConfigurationDialog(
+          bot,
+          this.selectableRegionList,
+          reply,
+          config,
+          isInitializationPhase
+            ? 'initialization_setup_dialog'
+            : 'setup_dialog'
+        );
+      });
   }
 }
 

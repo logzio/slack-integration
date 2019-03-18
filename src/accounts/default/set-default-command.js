@@ -4,6 +4,7 @@ const commandRegexWithAlias = /set workspace account (.*)/;
 const commandRegex = /set workspace account/;
 const logger = LoggerFactory.getLogger(__filename);
 const { getEventMetadata } = require('../../core/logging/logging-metadata');
+const Messages = require('../../core/messages/messages');
 
 class SetWorkspaceAccountCommand extends Command {
   constructor(defaultHandler) {
@@ -46,8 +47,8 @@ class SetWorkspaceAccountCommand extends Command {
               err,
               getEventMetadata(message, 'failed-to-set-workspace-account')
             );
-          },
-          true
+            bot.reply(message, Messages.DEFAULT_ERROR_MESSAGE);
+          }
         );
       });
   }

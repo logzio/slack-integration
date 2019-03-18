@@ -147,7 +147,7 @@ describe('Migration', () => {
       .then(message => {
         expect(message.channel).toBe(channelId);
         expect(message.text).toBe(
-          `These are the accounts in this workspace:\n• \`my-account\`: Slack alias for Logz.io Mixed1. *This is the default workspace account.*\n`
+          `These are the accounts in this workspace:\n• \`my-account\`: Slack alias for Migration App Test Prod. *This is the default workspace account.*\n`
         );
         done();
       });
@@ -196,7 +196,7 @@ describe('Migration', () => {
       .then(message => {
         expect(message.channel).toBe(channelId);
         expect(message.text).toBe(
-          `These are the accounts in this workspace:\n• \`${alias1}\`: Slack alias for Logzio App Test 1 Prod.\n• \`${alias2}\`: Slack alias for Logzio App Test 2 Prod.\n• \`${aliasFromMigration}\`: Slack alias for Logz.io Mixed1. *This is the default workspace account.*\n`
+          `These are the accounts in this workspace:\n• \`${alias1}\`: Slack alias for Logzio App Test 1 Prod.\n• \`${alias2}\`: Slack alias for Logzio App Test 2 Prod.\n• \`${aliasFromMigration}\`: Slack alias for Migration App Test Prod. *This is the default workspace account.*\n`
         );
       })
       .then(() =>
@@ -296,7 +296,7 @@ describe('Migration', () => {
       .then(message => {
         expect(message.channel).toBe(channelId);
         expect(message.text).toBe(
-          `These are the accounts in this workspace:\n• \`${alias1}\`: Slack alias for Logzio App Test 1 Prod.\n• \`${alias2}\`: Slack alias for Logzio App Test 2 Prod. This is the channel account for <#${channelId2}|${channelId2}_name>.\n• \`${aliasFromMigration}\`: Slack alias for Logz.io Mixed1. *This is the default workspace account.*\n`
+          `These are the accounts in this workspace:\n• \`${alias1}\`: Slack alias for Logzio App Test 1 Prod.\n• \`${alias2}\`: Slack alias for Logzio App Test 2 Prod. This is the channel account for <#${channelId2}|${channelId2}_name>.\n• \`${aliasFromMigration}\`: Slack alias for Migration App Test Prod. *This is the default workspace account.*\n`
         );
       })
       .then(() =>
@@ -306,13 +306,13 @@ describe('Migration', () => {
       )
       .then(message => {
         expect(message.attachments[0].text).toBe(
-          `${alias2} is used in these channels:chan2_name. Are you sure you want to remove it from Slack?`
+          `${alias2} is used in these channels: <#${channelId2}|chan2_name>. Are you sure you want to remove it from Slack?`
         );
       })
       .then(() => {
         globalTestConfiguration.bot
           .usersInput(
-            TestFunctions.confirm(userId, teamId, alias2, channelId, 'yes')
+            TestFunctions.confirm(userId, teamId, alias2, channelId, 'remove-yes')
           )
           .then(message => {
             expect(message.text).toBe(`Okay, I removed ${alias2} from Slack.`);
@@ -435,9 +435,9 @@ describe('Migration', () => {
 
   beforeEach(async () => {
     await globalTestConfiguration.createTestStorage({
-      user: 'root',
-      password: 'test',
-      host: 'localhost'
+      user: DBUtils.getRequiredValueFromEnv("MYSQL_USER"),
+      password: DBUtils.getRequiredValueFromEnv("MYSQL_PASSWORD"),
+      host: DBUtils.getRequiredValueFromEnv("MYSQL_HOST"),
     });
     await globalTestConfiguration.mockFirstInstallForMigration(
       teamId,
