@@ -250,19 +250,17 @@ class TeamConfigurationService {
   }
 
    extractRealName(account) {
-    return new Promise(resolve => {
       if (account.alias === 'my-account') {
         this.httpClient.getRealName(account.apiToken,account.region)
           .then(realName => {
             account.realName = realName.accountName;
-            resolve(account);
+            return account;
           })
       } else {
-        resolve(account);
+        return account;
       }
-    });
-  }
-
+    }
+    
   async getAllAccountsSafeView(teamId, bot) {
     const defaultAccount = await this.getDefault(teamId);
     return this.accountsStore
