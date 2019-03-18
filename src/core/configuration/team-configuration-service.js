@@ -4,7 +4,7 @@ const logger = LoggerFactory.getLogger(__filename);
 const ApiExtract = require('../utils/apiExtract');
 
 class TeamConfigurationService {
-  constructor(storage ,httpClient) {
+  constructor(storage) {
     this.teamStore = storage.teams;
     this.channelStore = storage.channels;
     this.accountsStore = storage.configuredAccounts;
@@ -260,7 +260,7 @@ class TeamConfigurationService {
         return account;
       }
     }
-    
+
   async getAllAccountsSafeView(teamId, bot) {
     const defaultAccount = await this.getDefault(teamId);
     return this.accountsStore
