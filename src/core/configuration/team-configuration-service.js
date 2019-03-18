@@ -4,7 +4,7 @@ const logger = LoggerFactory.getLogger(__filename);
 const ApiExtract = require('../utils/apiExtract');
 
 class TeamConfigurationService {
-  constructor(storage,httpClient) {
+  constructor(storage ,httpClient) {
     this.teamStore = storage.teams;
     this.channelStore = storage.channels;
     this.accountsStore = storage.configuredAccounts;
@@ -249,17 +249,19 @@ class TeamConfigurationService {
     });
   }
 
-   extractRealName(account) {
+  extractRealName(account) {
+    return new Promise(resolve => {
       if (account.alias === 'my-account') {
         this.httpClient.getRealName(account.apiToken,account.region)
           .then(realName => {
             account.realName = realName.accountName;
-            return account;
+            resolve(account);
           })
       } else {
-        return account;
+        resolve(account);
       }
-    }
+    });
+  }
 
   async getAllAccountsSafeView(teamId, bot) {
     const defaultAccount = await this.getDefault(teamId);
