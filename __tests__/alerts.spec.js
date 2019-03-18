@@ -109,6 +109,58 @@ describe('get alerts', () => {
   const globalTestConfiguration = new GlobalConfiguration();
   const channelId = globalTestConfiguration.openChannelId;
 
+  const alertId = 400;
+  it('get alert by id', done => {
+    globalTestConfiguration.bot
+      .usersInput(
+        TestFunctions.createOneAccount(
+          userId,
+          teamId,
+          channelId,
+          'mixed-1-api-token',
+          'us-east-1',
+          alias1
+        )
+      )
+      .then(message =>
+        expect(message.text).toBe(
+          `Okay, you\'re ready to use ${alias1} in Slack!`
+        )
+      )
+      .then(() =>
+        globalTestConfiguration.bot.usersInput(
+          TestFunctions.getAlertById(userId, teamId, channelId, alertId)
+        )
+      )
+      .then(alertMessage => {
+        expect(alertMessage.attachments[0].title).toBe(
+          `${responseById.body.title}`
+        );
+        expect(alertMessage.attachments[0].text).toBe(
+          `${responseById.body.description}`
+        );
+        expect(alertMessage.attachments[0].fields[0].value).toBe(
+          AlertsCommand.ucFirst(responseById.body.severity)
+        );
+        expect(alertMessage.attachments[0].fields[1].value).toBe(
+          AlertsCommand.ucFirst(responseById.body.isEnabled.toString())
+        );
+      })
+      .then(() =>
+        globalTestConfiguration.bot.usersInput(
+          TestFunctions.getAlertById(userId, teamId, channelId, alertId + 1)
+        )
+      )
+      .then(message =>
+        expect(message.text).toBe(
+          'Failed to get details for alert with id: 401'
+        )
+      )
+      .then(() => {
+        done();
+      });
+  });
+
   it('create account and then try to get alert with wrong alias', done => {
     globalTestConfiguration.bot
       .usersInput(
@@ -474,57 +526,6 @@ describe('get alerts', () => {
       });
   });
 
-  const alertId = 400;
-  it('get alert by id', done => {
-    globalTestConfiguration.bot
-      .usersInput(
-        TestFunctions.createOneAccount(
-          userId,
-          teamId,
-          channelId,
-          'mixed-1-api-token',
-          'us-east-1',
-          alias1
-        )
-      )
-      .then(message =>
-        expect(message.text).toBe(
-          `Okay, you\'re ready to use ${alias1} in Slack!`
-        )
-      )
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
-          TestFunctions.getAlertById(userId, teamId, channelId, alertId)
-        )
-      )
-      .then(alertMessage => {
-        expect(alertMessage.attachments[0].title).toBe(
-          `${responseById.body.title}`
-        );
-        expect(alertMessage.attachments[0].text).toBe(
-          `${responseById.body.description}`
-        );
-        expect(alertMessage.attachments[0].fields[0].value).toBe(
-          AlertsCommand.ucFirst(responseById.body.severity)
-        );
-        expect(alertMessage.attachments[0].fields[1].value).toBe(
-          AlertsCommand.ucFirst(responseById.body.isEnabled.toString())
-        );
-      })
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
-          TestFunctions.getAlertById(userId, teamId, channelId, alertId + 1)
-        )
-      )
-      .then(message =>
-        expect(message.text).toBe(
-          'Failed to get details for alert with id: 401'
-        )
-      )
-      .then(() => {
-        done();
-      });
-  });
 
   beforeAll(async done => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000000;

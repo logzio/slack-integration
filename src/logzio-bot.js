@@ -92,6 +92,7 @@ function registerAndConfigureCommands(logzioBot) {
   const endpointResolver = new EndpointResolver(apiConfig);
 
   const httpClient = new HttpClient(teamConfigurationService, endpointResolver);
+  teamConfigurationService.httpClient = httpClient;
   const alertsClient = new AlertsClient(httpClient);
   const kibanaClient = new KibanaClient(httpClient);
   const channelAccountHandler = new ChannelAccountHandler(

@@ -147,7 +147,7 @@ describe('Migration', () => {
       .then(message => {
         expect(message.channel).toBe(channelId);
         expect(message.text).toBe(
-          `These are the accounts in this workspace:\n• \`my-account\`: Slack alias for Logz.io Mixed1. *This is the default workspace account.*\n`
+          `These are the accounts in this workspace:\n• \`my-account\`: Slack alias for Migration App Test Prod. *This is the default workspace account.*\n`
         );
         done();
       });
@@ -196,7 +196,7 @@ describe('Migration', () => {
       .then(message => {
         expect(message.channel).toBe(channelId);
         expect(message.text).toBe(
-          `These are the accounts in this workspace:\n• \`${alias1}\`: Slack alias for Logzio App Test 1 Prod.\n• \`${alias2}\`: Slack alias for Logzio App Test 2 Prod.\n• \`${aliasFromMigration}\`: Slack alias for Logz.io Mixed1. *This is the default workspace account.*\n`
+          `These are the accounts in this workspace:\n• \`${alias1}\`: Slack alias for Logzio App Test 1 Prod.\n• \`${alias2}\`: Slack alias for Logzio App Test 2 Prod.\n• \`${aliasFromMigration}\`: Slack alias for Migration App Test Prod. *This is the default workspace account.*\n`
         );
       })
       .then(() =>
@@ -296,7 +296,7 @@ describe('Migration', () => {
       .then(message => {
         expect(message.channel).toBe(channelId);
         expect(message.text).toBe(
-          `These are the accounts in this workspace:\n• \`${alias1}\`: Slack alias for Logzio App Test 1 Prod.\n• \`${alias2}\`: Slack alias for Logzio App Test 2 Prod. This is the channel account for <#${channelId2}|${channelId2}_name>.\n• \`${aliasFromMigration}\`: Slack alias for Logz.io Mixed1. *This is the default workspace account.*\n`
+          `These are the accounts in this workspace:\n• \`${alias1}\`: Slack alias for Logzio App Test 1 Prod.\n• \`${alias2}\`: Slack alias for Logzio App Test 2 Prod. This is the channel account for <#${channelId2}|${channelId2}_name>.\n• \`${aliasFromMigration}\`: Slack alias for Migration App Test Prod. *This is the default workspace account.*\n`
         );
       })
       .then(() =>

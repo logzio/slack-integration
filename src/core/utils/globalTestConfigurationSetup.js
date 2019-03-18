@@ -115,6 +115,14 @@ class GlobalTestConfigurationSetup {
       }
     };
 
+    jasmineSpyHandlerReturnValues['whoami']['api-token'] = {
+      statusCode: 200,
+      body: {
+        accountName: 'Migration App Test Prod'
+      }
+    };
+
+
     if (fn) {
       for (let [i] in jasmineSpyHandlers) {
         const handler = jasmineSpyHandlers[i];
@@ -174,6 +182,7 @@ class GlobalTestConfigurationSetup {
         this.teamConfigurationService,
         this.endpointResolver
       );
+      this.teamConfigurationService.httpClient = this.httpClient;
       const setupDialogHandler = new SetupDialogHander(
         this.teamConfigurationService,
         this.httpClient,
