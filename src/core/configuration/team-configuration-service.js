@@ -4,7 +4,7 @@ const logger = LoggerFactory.getLogger(__filename);
 const ApiExtract = require('../utils/apiExtract');
 
 class TeamConfigurationService {
-  constructor(storage) {
+  constructor(storage,httpClient) {
     this.teamStore = storage.teams;
     this.channelStore = storage.channels;
     this.accountsStore = storage.configuredAccounts;
