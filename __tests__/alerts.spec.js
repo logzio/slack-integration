@@ -323,7 +323,7 @@ describe('get alerts', () => {
       });
   });
 
-  it('create account and then try to get alert with wrong alias', done => {
+  it('create account and then try to get alert with wrong alias', done => { 
     globalTestConfiguration.bot
       .usersInput(
         TestFunctions.createOneAccount(
