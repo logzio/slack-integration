@@ -451,8 +451,6 @@ describe('Remove account command', () => {
       kibanaClient,
       CommandName.SETUP
     );
-
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000000;
   });
 
   afterAll(done => {

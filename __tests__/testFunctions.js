@@ -136,23 +136,6 @@ class TestFunctions {
     ];
   }
 
-  static clearWorkspaceAccount(userId, teamId, channelId) {
-    return [
-      {
-        user: userId,
-        channel: channelId,
-        team: teamId,
-        messages: [
-          {
-            text: 'clear workspace account',
-            isAssertion: true,
-            team: teamId
-          }
-        ]
-      }
-    ];
-  }
-
   static setWorkspaceAccount(userId, teamId, channelId, alias) {
     return [
       {
@@ -261,23 +244,6 @@ class TestFunctions {
         channel: channelId,
         messages: [
           { team: teamId, text: `show alert ${alertName}`, isAssertion: true }
-        ]
-      }
-    ];
-    return request;
-  }
-
-  static showAliasAlertByName(userId, teamId, channelId, alertName, alias) {
-    let request = [
-      {
-        user: userId,
-        channel: channelId,
-        messages: [
-          {
-            team: teamId,
-            text: `${alias} show alert ${alertName}`,
-            isAssertion: true
-          }
         ]
       }
     ];
@@ -395,6 +361,15 @@ class TestFunctions {
     expect(alertMessage.attachments[0].fields[1].value).toBe(
       AlertsCommand.ucFirst(expectedResponse.body[0].isEnabled.toString())
     );
+  }
+
+  static validateAlertResultsByName(alertMessage, expectedResponse, globalTestConfiguration, alias) {
+    expect(alertMessage.text).toBe(`Getting results from \`${alias}\`\n`);
+    const content = globalTestConfiguration.bot.api.files.files.content.trim();
+    expect(content).toContain(`${expectedResponse.body[0].alertId}`.trim());
+    expect(content).toContain(`${expectedResponse.body[0].title}`.trim());
+    expect(content).toContain(`${AlertsCommand.ucFirst(expectedResponse.body[0].severity)}`.trim());
+    expect(content).toContain(`${AlertsCommand.ucFirst(expectedResponse.body[0].isEnabled.toString())}`.trim());
   }
 
   static validateTriggeredResults(alertMessage, expectedResponse) {

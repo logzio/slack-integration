@@ -16,6 +16,7 @@ const searchWithTimeToSearchEscape = /search \u034f`(.+)` last (\d+) ?(minutes?|
 const searchWithTimeToSearchWithAliasEscape = /(.+) search \u034f`(.+)` last (\d+) ?(minutes?|mins?|m|hours?|h)\s*$/;
 const searchWithSpecificTimeWindowEscape = /search \u034f`(.+)` from (.+) to (.+)\s*$/;
 const searchWithSpecificTimeWindowWithAliasEscape = /(.+) search \u034f`(.+)` from (.+) to (.+)\s*$/;
+const Messages = require('../core/messages/messages');
 
 const logger = LoggerFactory.getLogger(__filename);
 
@@ -27,22 +28,26 @@ function runSearchAndSendResults(
   attachmentTitle,
   alias
 ) {
+  function uploadSearchResults(searchResult) {
+    bot.api.files.upload(
+      {
+        content: JSON.stringify(searchResult, null, 2),
+        channels: message.channel,
+        filename: attachmentTitle,
+        filetype: 'javascript'
+      },
+      err => {
+        if (err) {
+          logger.error('Failed to send query results', err);
+        }
+      }
+    );
+  }
+
   command.searchClient
     .search(message.channel, message.team, query, alias)
     .then(searchResult => {
-      bot.api.files.upload(
-        {
-          content: JSON.stringify(searchResult, null, 2),
-          channels: message.channel,
-          filename: attachmentTitle,
-          filetype: 'javascript'
-        },
-        err => {
-          if (err) {
-            logger.error('Failed to send query results', err);
-          }
-        }
-      );
+      bot.reply(message, Messages.getResults(searchResult.alias),()=> uploadSearchResults(searchResult));
     })
     .catch(err => {
       command.handleError(bot, message, err, err => {

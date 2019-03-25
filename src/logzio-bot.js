@@ -24,7 +24,6 @@ const ClearActiveCommand = require('./accounts/channel/clear-channel-account-com
 const SetActiveCommand = require('./accounts/channel/set-channel-account-command');
 
 const DefaultHandler = require('./accounts/default/default-handler');
-const ClearDefaultCommand = require('./accounts/default/clear-default-command');
 const SetDefaultCommand = require('./accounts/default/set-default-command');
 
 const GetAccountsCommand = require('./accounts/get/get-accounts-command');
@@ -127,7 +126,6 @@ function registerAndConfigureCommands(logzioBot) {
   );
   CommandsRegistry.register(new ClearActiveCommand(channelAccountHandler));
   CommandsRegistry.register(new SetActiveCommand(channelAccountHandler));
-  CommandsRegistry.register(new ClearDefaultCommand(defaultHandler));
   CommandsRegistry.register(new SetDefaultCommand(defaultHandler));
   CommandsRegistry.register(new GetAccountsCommand(teamConfigurationService));
   CommandsRegistry.register(new RemoveAccountCommand(removeAccountHandler));

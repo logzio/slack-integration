@@ -1,6 +1,7 @@
 const GlobalConfiguration = require('../src/core/utils/globalTestConfigurationSetup');
 const CommandName = require('./commandName');
 const TestFunctions = require('./testFunctions');
+const Messages = require('../src/core/messages/messages');
 const userId = 'u_mixed2';
 const teamId = 't_mixed3';
 const channelId2 = 'chan2';
@@ -97,7 +98,7 @@ describe('Mixed1', () => {
       )
       .then(message => {
         expect(message.text).toBe(
-          `Displaying ${pageSize} out of ${total} events`
+          Messages.getResults(alias1)+`Displaying ${pageSize} out of ${total} events`
         );
         expect(globalTestConfiguration.httpSpy.alerts).toHaveBeenCalledWith(
           jasmine.objectContaining({
@@ -118,7 +119,7 @@ describe('Mixed1', () => {
       )
       .then(message => {
         expect(message.text).toBe(
-          `Displaying ${pageSize} out of ${total2} events`
+          Messages.getResults(alias2)+`Displaying ${pageSize} out of ${total2} events`
         );
         expect(globalTestConfiguration.httpSpy.alerts).toHaveBeenCalledWith(
           jasmine.objectContaining({
@@ -148,7 +149,7 @@ describe('Mixed1', () => {
       )
       .then(message => {
         expect(message.text).toBe(
-          `Displaying ${pageSize} out of ${total} events`
+          Messages.getResults(alias1)+`Displaying ${pageSize} out of ${total} events`
         );
         expect(globalTestConfiguration.httpSpy.alerts).toHaveBeenCalledWith(
           jasmine.objectContaining({
@@ -167,7 +168,7 @@ describe('Mixed1', () => {
       )
       .then(message => {
         expect(message.text).toBe(
-          `Displaying ${pageSize} out of ${total2} events`
+          Messages.getResults(alias2)+`Displaying ${pageSize} out of ${total2} events`
         );
         expect(globalTestConfiguration.httpSpy.alerts).toHaveBeenCalledWith(
           jasmine.objectContaining({

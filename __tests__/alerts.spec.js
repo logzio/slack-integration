@@ -7,48 +7,6 @@ const teamId = 't_mixed';
 const alias1 = 'md178';
 const alias2 = 'md278';
 
-const responseByName = {
-  statusCode: 200,
-  body: [
-    {
-      alertId: 400,
-      severity: 'MEDIUM',
-      title: 'Change in user plan',
-      isEnabled: false
-    },
-    {
-      alertId: 401,
-      severity: 'HIGH',
-      title: 'Services rejected queries',
-      isEnabled: true
-    },
-    {
-      alertId: 403,
-      severity: 'HIGH',
-      title: 'multiple alerts example',
-      isEnabled: true
-    },
-    {
-      alertId: 402,
-      severity: 'HIGH',
-      title: 'multiple alerts example',
-      isEnabled: true
-    },
-    {
-      alertId: 403,
-      severity: 'HIGH',
-      title: 'one title with many results',
-      isEnabled: true
-    },
-    {
-      alertId: 404,
-      severity: 'HIGH',
-      title: 'one title with many results 2',
-      isEnabled: true
-    }
-  ]
-};
-
 const responseByName2 = {
   statusCode: 200,
   body: [
@@ -108,6 +66,47 @@ const responseById = {
 describe('get alerts', () => {
   const globalTestConfiguration = new GlobalConfiguration();
   const channelId = globalTestConfiguration.openChannelId;
+  const responseByName = {
+    statusCode: 200,
+    body: [
+      {
+        alertId: 400,
+        severity: 'MEDIUM',
+        title: 'Change in user plan',
+        isEnabled: false
+      },
+      {
+        alertId: 401,
+        severity: 'HIGH',
+        title: 'Services rejected queries',
+        isEnabled: true
+      },
+      {
+        alertId: 403,
+        severity: 'HIGH',
+        title: 'multiple alerts example',
+        isEnabled: true
+      },
+      {
+        alertId: 402,
+        severity: 'HIGH',
+        title: 'multiple alerts example',
+        isEnabled: true
+      },
+      {
+        alertId: 403,
+        severity: 'HIGH',
+        title: 'one title with many results',
+        isEnabled: true
+      },
+      {
+        alertId: 404,
+        severity: 'HIGH',
+        title: 'one title with many results 2',
+        isEnabled: true
+      }
+    ]
+  };
 
   const alertId = 400;
   it('get alert by id', done => {
@@ -194,22 +193,6 @@ describe('get alerts', () => {
           "Sorry, there isn't an account with that alias. If you want to see your accounts, type `@Alice accounts`."
         )
       )
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
-          TestFunctions.showAliasAlertByName(
-            userId,
-            teamId,
-            channelId,
-            'Change in user plan',
-            alias2
-          )
-        )
-      )
-      .then(message =>
-        expect(message.text).toBe(
-          "Sorry, there isn't an account with that alias. If you want to see your accounts, type `@Alice accounts`."
-        )
-      )
       .then(() => {
         done();
       });
@@ -260,9 +243,7 @@ describe('get alerts', () => {
           )
         )
       )
-      .then(alertMessage =>
-        TestFunctions.validateAlertResults(alertMessage, responseByName)
-      )
+      .then(alertMessage => TestFunctions.validateAlertResultsByName(alertMessage, responseByName,globalTestConfiguration,alias1))
       .then(() =>
         globalTestConfiguration.bot.usersInput(
           TestFunctions.getAliasAlertByName(
@@ -274,37 +255,7 @@ describe('get alerts', () => {
           )
         )
       )
-      .then(alertMessage =>
-        TestFunctions.validateAlertResults(alertMessage, responseByName2)
-      )
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
-          TestFunctions.showAliasAlertByName(
-            userId,
-            teamId,
-            channelId,
-            'Change in user plan',
-            alias1
-          )
-        )
-      )
-      .then(alertMessage =>
-        TestFunctions.validateAlertResults(alertMessage, responseByName)
-      )
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
-          TestFunctions.showAliasAlertByName(
-            userId,
-            teamId,
-            channelId,
-            'Change in user plan2',
-            alias2
-          )
-        )
-      )
-      .then(alertMessage =>
-        TestFunctions.validateAlertResults(alertMessage, responseByName2)
-      )
+      .then(alertMessage => TestFunctions.validateAlertResultsByName(alertMessage, responseByName2,globalTestConfiguration,alias2))
       .then(() => {
         done();
       });
@@ -355,9 +306,7 @@ describe('get alerts', () => {
           )
         )
       )
-      .then(alertMessage =>
-        TestFunctions.validateAlertResults(alertMessage, responseByName)
-      )
+      .then(alertMessage => TestFunctions.validateAlertResultsByName(alertMessage, responseByName,globalTestConfiguration,alias1))
       .then(() =>
         globalTestConfiguration.bot.usersInput(
           TestFunctions.showAlertByName(
@@ -368,9 +317,7 @@ describe('get alerts', () => {
           )
         )
       )
-      .then(alertMessage =>
-        TestFunctions.validateAlertResults(alertMessage, responseByName)
-      )
+      .then(alertMessage => TestFunctions.validateAlertResultsByName(alertMessage, responseByName,globalTestConfiguration,alias1))
       .then(() => {
         done();
       });
@@ -380,151 +327,128 @@ describe('get alerts', () => {
     globalTestConfiguration.bot
       .usersInput(
         TestFunctions.createOneAccount(
-          userId,
-          teamId,
-          channelId,
-          'mixed-1-api-token',
-          'us-east-1',
-          alias1
-        )
-      )
-      .then(message =>
-        expect(message.text).toBe(
-          `Okay, you\'re ready to use ${alias1} in Slack!`
-        )
-      )
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
-          TestFunctions.getAliasAlertByName(userId, teamId, channelId, alias2)
-        )
-      )
-      .then(message =>
-        expect(message.text).toBe(
-          "Sorry, there isn't an account with that alias. If you want to see your accounts, type `@Alice accounts`."
-        )
-      )
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
-          TestFunctions.showAliasAlertByName(userId, teamId, channelId, alias2)
-        )
-      )
-      .then(message =>
-        expect(message.text).toBe(
-          "Sorry, there isn't an account with that alias. If you want to see your accounts, type `@Alice accounts`."
-        )
-      )
-      .then(() => {
-        done();
-      });
+    userId,
+      teamId,
+      channelId,
+      'mixed-1-api-token',
+      'us-east-1',
+      alias1
+  )
+)
+  .then(message =>
+    expect(message.text).toBe(
+      `Okay, you\'re ready to use ${alias1} in Slack!`
+    )
+  )
+  .then(() =>
+    globalTestConfiguration.bot.usersInput(
+      TestFunctions.getAliasAlertByName(userId, teamId, channelId, alias2)
+    )
+  )
+  .then(message =>
+    expect(message.text).toBe(
+      "Sorry, there isn't an account with that alias. If you want to see your accounts, type `@Alice accounts`."
+    )
+  )
+  .then(() => {
+    done();
   });
+});
 
-  it('create account and then try to get alert with wrong alert name', done => {
-    globalTestConfiguration.bot
-      .usersInput(
-        TestFunctions.createOneAccount(
+it('create account and then try to get alert with wrong alert name', done => {
+  globalTestConfiguration.bot
+    .usersInput(
+      TestFunctions.createOneAccount(
+        userId,
+        teamId,
+        channelId,
+        'mixed-1-api-token',
+        'us-east-1',
+        alias1
+      )
+    )
+    .then(message =>
+      expect(message.text).toBe(
+        `Okay, you\'re ready to use ${alias1} in Slack!`
+      )
+    )
+    .then(() =>
+      globalTestConfiguration.bot.usersInput(
+        TestFunctions.getAliasAlertByName(
           userId,
           teamId,
           channelId,
-          'mixed-1-api-token',
-          'us-east-1',
+          "Can't find this?",
           alias1
         )
       )
-      .then(message =>
-        expect(message.text).toBe(
-          `Okay, you\'re ready to use ${alias1} in Slack!`
-        )
+    )
+    .then(message =>
+      expect(message.text).toBe(
+        "Failed to get details for alert with title: Can't find this?"
       )
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
-          TestFunctions.getAliasAlertByName(
-            userId,
-            teamId,
-            channelId,
-            "Can't find this?",
-            alias1
-          )
-        )
-      )
-      .then(message =>
-        expect(message.text).toBe(
-          "Failed to get details for alert with title: Can't find this?"
-        )
-      )
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
-          TestFunctions.showAliasAlertByName(
-            userId,
-            teamId,
-            channelId,
-            "Can't find this?",
-            alias1
-          )
-        )
-      )
-      .then(message =>
-        expect(message.text).toBe(
-          "Failed to get details for alert with title: Can't find this?"
-        )
-      )
-      .then(() => {
-        done();
-      });
-  });
+    )
+    .then(() => {
+      done();
+    });
+});
 
-  it('Failed on multiple alerts found', done => {
-    globalTestConfiguration.bot
-      .usersInput(
-        TestFunctions.createOneAccount(
-          userId,
-          teamId,
-          channelId,
-          'mixed-1-api-token',
-          'us-east-1',
-          alias1
-        )
-      )
-      .then(message =>
-        expect(message.text).toBe(
-          `Okay, you\'re ready to use ${alias1} in Slack!`
-        )
-      )
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
-          TestFunctions.getAliasAlertByName(
-            userId,
-            teamId,
-            channelId,
-            'multiple alerts example',
-            alias1
-          )
-        )
-      )
-      .then(message =>
-        expect(message.text).toBe(
-          'Failed to get details for alert with title: multiple alerts example'
-        )
-      )
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
-          TestFunctions.showAliasAlertByName(
-            userId,
-            teamId,
-            channelId,
-            'multiple alerts example',
-            alias1
-          )
-        )
-      )
-      .then(message =>
-        expect(message.text).toBe(
-          'Failed to get details for alert with title: multiple alerts example'
-        )
-      )
-      .then(() => {
-        done();
-      });
-  });
+
+
+
+  // it('Failed on multiple alerts found', done => {
+  //   globalTestConfiguration.bot
+  //     .usersInput(
+  //       TestFunctions.createOneAccount(
+  //         userId,
+  //         teamId,
+  //         channelId,
+  //         'mixed-1-api-token',
+  //         'us-east-1',
+  //         alias1
+  //       )
+  //     )
+  //     .then(message =>
+  //       expect(message.text).toBe(
+  //         `Okay, you\'re ready to use ${alias1} in Slack!`
+  //       )
+  //     )
+  //     .then(() =>
+  //       globalTestConfiguration.bot.usersInput(
+  //         TestFunctions.getAliasAlertByName(
+  //           userId,
+  //           teamId,
+  //           channelId,
+  //           'multiple alerts example',
+  //           alias1
+  //         )
+  //       )
+  //     )
+  //     .then(message =>
+  //       expect(message.text).toBe(
+  //         'Failed to get details for alert with title: multiple alerts example'
+  //       )
+  //     )
+  //     .then(() =>
+  //       globalTestConfiguration.bot.usersInput(
+  //         TestFunctions.showAliasAlertByName(
+  //           userId,
+  //           teamId,
+  //           channelId,
+  //           'multiple alerts example',
+  //           alias1
+  //         )
+  //       )
+  //     )
+  //     .then(message =>
+  //       expect(message.text).toBe(
+  //         'Failed to get details for alert with title: multiple alerts example'
+  //       )
+  //     )
+  //     .then(() => {
+  //       done();
+  //     });
+  // });
 
 
   beforeAll(async done => {

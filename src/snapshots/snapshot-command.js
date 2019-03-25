@@ -4,7 +4,7 @@ const moment = require('moment');
 const Table = require('easy-table');
 const TimeUnit = require('../core/time/time-unit');
 const { getEventMetadata } = require('../core/logging/logging-metadata');
-
+const Messages = require('../core/messages/messages');
 const logger = LoggerFactory.getLogger(__filename);
 const commandWithAlias = /(.+) snapshot (vis|visualization|dash|dashboard) (.*) last (\d+) ?(minutes?|mins?|m|hours?|h)( query (.+))?\s*$/;
 const command = /snapshot (vis|visualization|dash|dashboard) (.*) last (\d+) ?(minutes?|mins?|m|hours?|h)( query (.+))?\s*$/;
@@ -22,12 +22,14 @@ function getKibanaObjectType(objectTypeStr) {
 
 function filterObjectsByIdOrName(kibanaObjects, filter) {
   const lowerCaseFilter = filter.toLowerCase();
-  return kibanaObjects.filter(kibanaObject => {
+  let filteredKibanaObjects = kibanaObjects.filter(kibanaObject => {
     return (
       kibanaObject['_id'].toLowerCase().includes(lowerCaseFilter) ||
       kibanaObject['_source']['title'].toLowerCase().includes(lowerCaseFilter)
     );
   });
+  filteredKibanaObjects.alias = kibanaObjects.alias;
+  return filteredKibanaObjects;
 }
 
 function sendMatchedKibanaObjectsTable(
@@ -44,7 +46,7 @@ function sendMatchedKibanaObjectsTable(
   });
 
   bot.reply(
-    message,
+    message, Messages.getResults(matchedKibanaObjects[0].alias)+
     `There are multiple ${objectType}s with the specified name or id, please refine you request.`
   );
   bot.api.files.upload(
@@ -102,7 +104,7 @@ function sendSnapshotRequest(
     )
     .then(data => {
       if (data.errorCode === undefined) {
-        bot.reply(message, 'Snapshot request has been sent.');
+        bot.reply(message, Messages.getResults(data.alias)+ 'Snapshot request has been sent.');
       } else {
         throw Error();
       }
@@ -158,7 +160,8 @@ class SnapshotCommand extends Command {
 
     this.kibanaClient
       .listObjects(channel, message.team, objectType, alias)
-      .then(kibanaObjects => filterObjectsByIdOrName(kibanaObjects, objectName))
+      .then(kibanaObjects =>
+        filterObjectsByIdOrName(kibanaObjects, objectName))
       .then(matchedKibanaObjects => {
         if (matchedKibanaObjects.length === 0) {
           bot.reply(

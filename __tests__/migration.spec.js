@@ -2,6 +2,7 @@ const GlobalConfiguration = require('../src/core/utils/globalTestConfigurationSe
 const CommandName = require('./commandName');
 const DBUtils = require('../src/core/utils/basicUp');
 const TestFunctions = require('./testFunctions');
+const Messages = require('../src/core/messages/messages');
 const userId = 'u_mixed1';
 const teamId = 't_mixed1';
 const channelId2 = 'chan2';
@@ -124,7 +125,7 @@ describe('Migration', () => {
       .usersInput(getTriggers(channelId))
       .then(message => {
         expect(message.text).toBe(
-          `Displaying ${pageSize} out of ${total} events`
+          Messages.getResults(aliasFromMigration) + `Displaying ${pageSize} out of ${total} events`
         );
         expect(globalTestConfiguration.httpSpy.alerts).toHaveBeenCalledWith(
           jasmine.objectContaining({
@@ -204,7 +205,7 @@ describe('Migration', () => {
       )
       .then(message => {
         expect(message.text).toBe(
-          `Displaying ${pageSize} out of ${total} events`
+          Messages.getResults(aliasFromMigration) +`Displaying ${pageSize} out of ${total} events`
         );
         expect(globalTestConfiguration.httpSpy.alerts).toHaveBeenCalledWith(
           jasmine.objectContaining({
@@ -225,7 +226,7 @@ describe('Migration', () => {
       )
       .then(message => {
         expect(message.text).toBe(
-          `Displaying ${pageSize} out of ${total2} events`
+          Messages.getResults(alias2) +`Displaying ${pageSize} out of ${total2} events`
         );
         expect(globalTestConfiguration.httpSpy.alerts).toHaveBeenCalledWith(
           jasmine.objectContaining({
@@ -255,7 +256,7 @@ describe('Migration', () => {
       )
       .then(message => {
         expect(message.text).toBe(
-          `Displaying ${pageSize} out of ${total} events`
+          Messages.getResults(aliasFromMigration) + `Displaying ${pageSize} out of ${total} events`
         );
         expect(globalTestConfiguration.httpSpy.alerts).toHaveBeenCalledWith(
           jasmine.objectContaining({
@@ -274,7 +275,7 @@ describe('Migration', () => {
       )
       .then(message => {
         expect(message.text).toBe(
-          `Displaying ${pageSize} out of ${total2} events`
+          Messages.getResults(alias2) +`Displaying ${pageSize} out of ${total2} events`
         );
         expect(globalTestConfiguration.httpSpy.alerts).toHaveBeenCalledWith(
           jasmine.objectContaining({

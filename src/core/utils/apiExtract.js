@@ -1,3 +1,4 @@
+const _ = require('lodash');
 class ApiExtract {
   static extractAccountsChannelsWithId(bot, accounts) {
     let promiseList = accounts.map(account =>
@@ -18,6 +19,12 @@ class ApiExtract {
             return '';
           }
           const hasPrivateChannel = accounts.some(channel => channel.isPrivate);
+          const numPrivateChannels = _.sumBy(accounts,
+            function (channel) {
+              return channel.isPrivate?1:0;
+            }
+          );
+
           const channelMap = accounts.map(
             channel => {
               if (!channel.isPrivate) {
@@ -27,7 +34,12 @@ class ApiExtract {
           ).filter(x => typeof x === 'string' && x.length > 0);
           const channelMapPrefix = channelMap.join(',');
           if (hasPrivateChannel) {
-            return channelMapPrefix + (channelMap.length > 0 ? ', ' : ' ') + 'one or more private channels';
+
+            if(numPrivateChannels===1){
+              return channelMapPrefix + (channelMap.length > 0 ? ', ' : ' ') + `one private channel`;
+            }else{
+              return channelMapPrefix + (channelMap.length > 0 ? ', ' : ' ') + `${numPrivateChannels} private channels`;
+            }
           } else {
             return channelMapPrefix;
           }
@@ -90,6 +102,11 @@ class ApiExtract {
       return '';
     }
     const hasPrivateChannel = item.channels.some(channel => channel.isPrivate);
+    const numPrivateChannels = _.sumBy(item.channels,
+      function (channel) {
+        return channel.isPrivate?1:0;
+      }
+    );
     const channelMap = item.channels.map(
       channel => {
         if (!channel.isPrivate) {
@@ -97,9 +114,14 @@ class ApiExtract {
         }
       }
     ).filter(x => typeof x === 'string' && x.length > 0);
-    const channelMapPrefix = ` This is the channel account for ` + channelMap.join(',');
+
+    const channelMapPrefix = ` This is the channel account for`+(hasPrivateChannel?'':' ') + channelMap.join(',');
     if (hasPrivateChannel) {
-      return channelMapPrefix + (channelMap.length > 0 ? ', ' : '') + 'one or more private channels' + '.';
+      if(numPrivateChannels===1){
+        return channelMapPrefix + (channelMap.length > 0 ? ', ' : ' ') + `a private channel.`;
+      }else{
+        return channelMapPrefix + (channelMap.length > 0 ? ', ' : ' ') + `${numPrivateChannels} private channels.`;
+      }
     } else {
       return channelMapPrefix + '.';
     }

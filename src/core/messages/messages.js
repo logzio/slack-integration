@@ -11,7 +11,9 @@ const Messages = {
     "Sorry, there isn't an account with that alias. If you want to see your accounts, type `@Alice accounts`.",
 
   NO_ACCOUNTS_YET:
-    "You haven't added any accounts yet. To add one, type @Alice add account"
+    "You haven't added any accounts yet. To add one, type @Alice add account",
+
+  getResults: (alias) => `Getting results from \`${alias}\`\n`
 };
 
 module.exports = Messages;

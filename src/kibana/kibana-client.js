@@ -24,7 +24,9 @@ class KibanaClient {
     }
 
     const kibanaObjects = queryResult['hits'];
-    return kibanaObjects.map(kibanaObject => this.createObject(kibanaObject));
+    const kibanaObjectsMap = kibanaObjects.map(kibanaObject => this.createObject(kibanaObject));
+    kibanaObjectsMap.alias = queryResult.alias;
+    return kibanaObjectsMap;
   }
 
   createObject(object) {

@@ -1,7 +1,9 @@
 function filterAlertsByName(alerts, alertName) {
-  return alerts.filter(alert =>
+  let filteredAlerts = alerts.filter(alert =>
     alert.title.toLowerCase().includes(alertName.toLowerCase())
   );
+  filteredAlerts.alias = alerts.alias;
+  return filteredAlerts;
 }
 
 class AlertsClient {
@@ -12,15 +14,13 @@ class AlertsClient {
   getAlertByName(channelId, teamId, alertName, alias) {
     return this.httpClient
       .get(channelId, teamId, '/v1/alerts', alias)
-      .then(alerts => filterAlertsByName(alerts, alertName))
+      .then(alerts =>
+        alertName?filterAlertsByName(alerts, alertName):alerts)
       .then(matchedAlerts => {
         if (matchedAlerts.length === 0) {
           throw new Error(`Unable to find alert with title ${alertName}`);
         }
-        if (matchedAlerts.length > 1) {
-          throw new Error(`There are multiple alerts with title ${alertName}`);
-        }
-        return matchedAlerts[0];
+        return matchedAlerts;
       });
   }
 

@@ -184,7 +184,7 @@ describe('Migration', () => {
       )
       .then(message => {
         expect(message.text).toBe(
-          `Displaying ${pageSize} out of ${total} events`
+          Messages.getResults(alias1) + `Displaying ${pageSize} out of ${total} events`
         );
         expect(globalTestConfiguration.httpSpy.alerts).toHaveBeenCalledWith(
           jasmine.objectContaining({
@@ -205,7 +205,7 @@ describe('Migration', () => {
       )
       .then(message => {
         expect(message.text).toBe(
-          `Displaying ${pageSize} out of ${total2} events`
+          Messages.getResults(alias2) +`Displaying ${pageSize} out of ${total2} events`
         );
         expect(globalTestConfiguration.httpSpy.alerts).toHaveBeenCalledWith(
           jasmine.objectContaining({
@@ -235,7 +235,7 @@ describe('Migration', () => {
       )
       .then(message => {
         expect(message.text).toBe(
-          `Displaying ${pageSize} out of ${total} events`
+          Messages.getResults(alias1) +`Displaying ${pageSize} out of ${total} events`
         );
         expect(globalTestConfiguration.httpSpy.alerts).toHaveBeenCalledWith(
           jasmine.objectContaining({
@@ -254,7 +254,7 @@ describe('Migration', () => {
       )
       .then(message => {
         expect(message.text).toBe(
-          `Displaying ${pageSize} out of ${total2} events`
+          Messages.getResults(alias2) +`Displaying ${pageSize} out of ${total2} events`
         );
         expect(globalTestConfiguration.httpSpy.alerts).toHaveBeenCalledWith(
           jasmine.objectContaining({

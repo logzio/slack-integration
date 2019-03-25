@@ -2,10 +2,14 @@ const Command = require('../core/commands/command');
 const LoggerFactory = require('../core/logging/logger-factory');
 const { getEventMetadata } = require('../core/logging/logging-metadata');
 const logger = LoggerFactory.getLogger(__filename);
-const commandShowByIdWithAlias = /(.+) (show|get) alert by id (\d*)/;
-const commandShowById = /(show|get) alert by id (\d*)/;
-const commandShowByNameWithAlias = /(.+) (show|get) alert (.*)/;
-const commandShowByName = /(show|get) alert (.*)/;
+const commandShowByIdWithAlias = /(.+) (get) alert by id (\d*)/;
+const commandShowById = /(get) alert by id (\d*)/;
+const commandShowByNameWithAlias = /(.+) (get) alert (.*)/;
+const commandShowByName = /(get) alert (.*)/;
+const commandShowAll = /(get) alerts/;
+const commandShowAllWithAlias = /(.+) (get) alerts/;
+const Messages = require('../core/messages/messages');
+const Table = require('easy-table');
 
 class ShowAlertCommand extends Command {
   constructor(alertsClient) {
@@ -14,6 +18,23 @@ class ShowAlertCommand extends Command {
   }
 
   configure(controller) {
+
+    controller.hears(
+      [commandShowAllWithAlias],
+      'direct_message,direct_mention',
+      (bot, message) => {
+        this.getAllAlerts(message.channel, message, bot, true);
+      }
+    );
+
+    controller.hears(
+      [commandShowAll],
+      'direct_message,direct_mention',
+      (bot, message) => {
+        this.getAllAlerts(message.channel, message, bot, false);
+      }
+    );
+
     controller.hears(
       [commandShowByIdWithAlias],
       'direct_message,direct_mention',
@@ -64,8 +85,42 @@ class ShowAlertCommand extends Command {
     const alertName = matches[index];
     this.alertsClient
       .getAlertByName(channel, message.team, alertName, alias)
-      .then(alert => this.createAlertDetailsMessage(alert))
-      .then(alertMessage => bot.reply(message, alertMessage))
+      .then(alerts =>
+        this.sendMatchedObjectsTable(bot,message,alerts))
+      .catch(err => {
+        this.handleError(bot, message, err, err => {
+          logger.warn(
+            `Failed to get details for alert with title: ${alertName}`,
+            err,
+            getEventMetadata(message, 'failed-to-show-alert')
+          );
+          bot.reply(
+            message,
+            `Failed to get details for alert with title: ${alertName}`
+          );
+        });
+      });
+  }
+
+  getAllAlerts(channel, message, bot, withAlias) {
+    logger.info(
+      `User ${message.user} from team ${
+        message.team
+        } requested all alerts info by name`,
+      getEventMetadata(message, 'get-alerts-by-name')
+    );
+    const matches = message.match;
+    let alias;
+    let index = 2;
+    if (withAlias) {
+      alias = matches[1];
+      index++;
+    }
+    const alertName = matches[index];
+    this.alertsClient
+      . getAlertByName(channel, message.team, null, alias)
+      .then(alerts =>
+        this.sendMatchedObjectsTable(bot,message,alerts))
       .catch(err => {
         this.handleError(bot, message, err, err => {
           logger.warn(
@@ -99,7 +154,9 @@ class ShowAlertCommand extends Command {
     this.alertsClient
       .getAlertById(channel, message.team, alertId, alias)
       .then(this.createAlertDetailsMessage)
-      .then(alertMessage => bot.reply(message, alertMessage))
+      .then(alertMessage => {
+        bot.reply(message, Messages.getResults(alertMessage.alias));
+        bot.reply(message, alertMessage.attachments)})
       .catch(err => {
         this.handleError(bot, message, err, err => {
           logger.warn(
@@ -121,6 +178,7 @@ class ShowAlertCommand extends Command {
 
   getUsage() {
     return [
+      '*[&lt;alias&gt;] get alerts* - Show alert definition',
       '*[&lt;alias&gt;] get alert &lt;alert-name&gt;* - Show alert definition',
       '*[&lt;alias&gt;] get alert by id &lt;alert-id&gt;* - Show alert definition'
     ];
@@ -137,7 +195,7 @@ class ShowAlertCommand extends Command {
       return alert;
     }
 
-    return {
+    const attachments = {
       attachments: [
         {
           title: alert.title,
@@ -157,6 +215,48 @@ class ShowAlertCommand extends Command {
         }
       ]
     };
+    const alertDetails = {
+      attachments:attachments,
+      alias:alert.alias
+    }
+    return alertDetails;
+  }
+
+   sendMatchedObjectsTable(
+    bot,
+    message,
+    alerts,
+  ) {
+    const table = new Table();
+    alerts.forEach(alert => {
+      table.cell('Id', alert.alertId);
+      table.cell('Name', alert.title);
+      table.cell('Severity', ShowAlertCommand.ucFirst(alert.severity));
+      table.cell('Enabled', ShowAlertCommand.ucFirst(`${alert.isEnabled}`));
+      table.newRow();
+    });
+
+     bot.reply(message, Messages.getResults(alerts.alias),()=>this.botReplyAlertsTable(bot, table, message));
+  }
+
+  botReplyAlertsTable(bot, table, message) {
+    bot.api.files.upload(
+      {
+        content: table.toString(),
+        channels: message.channel,
+        filename: 'Alerts',
+        filetype: 'text'
+      },
+      err => {
+        if (err) {
+          logger.error(
+            'Failed to send kibana objects table',
+            getEventMetadata(message, 'failed_to_send_kibana_objects'),
+            err
+          );
+        }
+      }
+    );
   }
 }
 

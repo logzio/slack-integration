@@ -2,6 +2,7 @@ const Command = require('../core/commands/command');
 const LoggerFactory = require('../core/logging/logger-factory');
 const Table = require('easy-table');
 const { getEventMetadata } = require('../core/logging/logging-metadata');
+const Messages = require('../core/messages/messages');
 
 const logger = LoggerFactory.getLogger(__filename);
 
@@ -93,29 +94,7 @@ class KibanaObjectsCommand extends Command {
               table.newRow();
             });
           });
-
-          bot.api.files.upload(
-            {
-              content: table.toString(),
-              channels: message.channel,
-              filename: `Kibana objects of the following types: ${objectTypes.join(
-                ', '
-              )}`,
-              filetype: 'text'
-            },
-            err => {
-              if (err) {
-                logger.error(
-                  'Failed to send kibana objects table',
-                  getEventMetadata(
-                    message,
-                    'failed_to_send_kibana_objects_table'
-                  ),
-                  err
-                );
-              }
-            }
-          );
+          bot.reply(message, Messages.getResults(results[0].alias),()=>this.replayWithKibanaTable(bot, table, message, objectTypes));
         }
       })
       .catch(err => {
@@ -127,6 +106,31 @@ class KibanaObjectsCommand extends Command {
           );
         });
       });
+  }
+
+  replayWithKibanaTable(bot, table, message, objectTypes) {
+    bot.api.files.upload(
+      {
+        content: table.toString(),
+        channels: message.channel,
+        filename: `Kibana objects of the following types: ${objectTypes.join(
+          ', '
+        )}`,
+        filetype: 'text'
+      },
+      err => {
+        if (err) {
+          logger.error(
+            'Failed to send kibana objects table',
+            getEventMetadata(
+              message,
+              'failed_to_send_kibana_objects_table'
+            ),
+            err
+          );
+        }
+      }
+    );
   }
 
   hasResults(results) {
