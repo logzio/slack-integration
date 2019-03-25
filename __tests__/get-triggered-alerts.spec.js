@@ -11,7 +11,7 @@ const alias3 = 'mixed1111';
 const alias4 = 'mixed2222';
 
 describe('Mixed1', () => {
-  const globalTestConfiguration = new GlobalConfiguration(); 
+  const globalTestConfiguration = new GlobalConfiguration();
   const channelId = globalTestConfiguration.openChannelId;
   const pageSize = 5;
   const total = 400;
