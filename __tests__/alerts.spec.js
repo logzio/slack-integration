@@ -5,6 +5,7 @@ const AlertsCommand = require('../src/alerts/show-alert-command');
 const userId = 'u_mixed1';
 const teamId = 't_mixed';
 const alias1 = 'md178';
+const alias4 = 'md478';
 const alias2 = 'md278';
 const alias3 = 'md378';
 
@@ -109,6 +110,68 @@ describe('get alerts', () => {
     ]
   };
 
+
+  it('get alert by name', done => {
+    globalTestConfiguration.bot
+      .usersInput(
+        TestFunctions.createOneAccount(
+          userId,
+          teamId,
+          channelId,
+          'mixed-1-api-token',
+          'us-east-1',
+          alias1
+        )
+      )
+      .then(message =>
+        expect(message.text).toBe(
+          `Okay, you\'re ready to use ${alias1} in Slack!`
+        )
+      )
+      .then(() =>
+        globalTestConfiguration.bot.usersInput(
+          TestFunctions.createOneAccount(
+            userId,
+            teamId,
+            channelId,
+            'mixed-2-api-token',
+            'us-east-1',
+            alias3
+          )
+        )
+      )
+      .then(message =>
+        expect(message.text).toBe(
+          `Okay, you\'re ready to use ${alias3} in Slack!`
+        )
+      )
+      .then(() =>
+        globalTestConfiguration.bot.usersInput(
+          TestFunctions.getAlertByName(
+            userId,
+            teamId,
+            channelId,
+            'Change in user plan'
+          )
+        )
+      )
+      .then(alertMessage => TestFunctions.validateAlertResultsByName(alertMessage, responseByName,globalTestConfiguration,alias1))
+      .then(() =>
+        globalTestConfiguration.bot.usersInput(
+          TestFunctions.showAlertByName(
+            userId,
+            teamId,
+            channelId,
+            'Change in user plan'
+          )
+        )
+      )
+      .then(alertMessage => TestFunctions.validateAlertResultsByName(alertMessage, responseByName,globalTestConfiguration,alias1))
+      .then(() => {
+        done();
+      });
+  });
+
   it('create account and then try to get alert with wrong alias', done => {
     globalTestConfiguration.bot
       .usersInput(
@@ -205,68 +268,6 @@ describe('get alerts', () => {
         )
       )
       .then(alertMessage => TestFunctions.validateAlertResultsByName(alertMessage, responseByName2,globalTestConfiguration,alias2))
-      .then(() => {
-        done();
-      });
-  });
-
-
-  it('get alert by name', done => {
-    globalTestConfiguration.bot
-      .usersInput(
-        TestFunctions.createOneAccount(
-          userId,
-          teamId,
-          channelId,
-          'mixed-1-api-token',
-          'us-east-1',
-          alias1
-        )
-      )
-      .then(message =>
-        expect(message.text).toBe(
-          `Okay, you\'re ready to use ${alias1} in Slack!`
-        )
-      )
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
-          TestFunctions.createOneAccount(
-            userId,
-            teamId,
-            channelId,
-            'mixed-2-api-token',
-            'us-east-1',
-            alias3
-          )
-        )
-      )
-      .then(message =>
-        expect(message.text).toBe(
-          `Okay, you\'re ready to use ${alias3} in Slack!`
-        )
-      )
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
-          TestFunctions.getAlertByName(
-            userId,
-            teamId,
-            channelId,
-            'Change in user plan'
-          )
-        )
-      )
-      .then(alertMessage => TestFunctions.validateAlertResultsByName(alertMessage, responseByName,globalTestConfiguration,alias1))
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
-          TestFunctions.showAlertByName(
-            userId,
-            teamId,
-            channelId,
-            'Change in user plan'
-          )
-        )
-      )
-      .then(alertMessage => TestFunctions.validateAlertResultsByName(alertMessage, responseByName,globalTestConfiguration,alias1))
       .then(() => {
         done();
       });
