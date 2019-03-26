@@ -305,43 +305,43 @@ describe('get alerts', () => {
   });
 });
 
-it('create account and then try to get alert with wrong alert name', done => {
-  globalTestConfiguration.bot
-    .usersInput(
-      TestFunctions.createOneAccount(
-        userId,
-        teamId,
-        channelId,
-        'mixed-1-api-token',
-        'us-east-1',
-        alias1
-      )
-    )
-    .then(message =>
-      expect(message.text).toBe(
-        `Okay, you\'re ready to use ${alias1} in Slack!`
-      )
-    )
-    .then(() =>
-      globalTestConfiguration.bot.usersInput(
-        TestFunctions.getAliasAlertByName(
-          userId,
-          teamId,
-          channelId,
-          "Can't find this?",
-          alias1
-        )
-      )
-    )
-    .then(message =>
-      expect(message.text).toBe(
-        "Failed to get details for alert with title: Can't find this?"
-      )
-    )
-    .then(() => {
-      done();
-    });
-});
+// it('create account and then try to get alert with wrong alert name', done => {
+//   globalTestConfiguration.bot
+//     .usersInput(
+//       TestFunctions.createOneAccount(
+//         userId,
+//         teamId,
+//         channelId,
+//         'mixed-1-api-token',
+//         'us-east-1',
+//         alias1
+//       )
+//     )
+//     .then(message =>
+//       expect(message.text).toBe(
+//         `Okay, you\'re ready to use ${alias1} in Slack!`
+//       )
+//     )
+//     .then(() =>
+//       globalTestConfiguration.bot.usersInput(
+//         TestFunctions.getAliasAlertByName(
+//           userId,
+//           teamId,
+//           channelId,
+//           "Can't find this?",
+//           alias1
+//         )
+//       )
+//     )
+//     .then(message =>
+//       expect(message.text).toBe(
+//         "Failed to get details for alert with title: Can't find this?"
+//       )
+//     )
+//     .then(() => {
+//       done();
+//     });
+// });
 
 
   const alertId = 400;
