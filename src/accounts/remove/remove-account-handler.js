@@ -123,7 +123,7 @@ class removeAccountHandler {
               }
             );
           } else {
-            const messageWithButtons = getMessageWithButtons(`${shouldDeleteAccount}${alias}`);
+            const messageWithButtons = getMessageWithButtons(`${shouldDeleteAccount}${alias}?`);
             this.askForApproval(
               alias,
               bot,
