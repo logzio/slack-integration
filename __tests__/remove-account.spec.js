@@ -76,7 +76,7 @@ describe('Remove account command', () => {
             TestFunctions.confirm(userId, teamId, alias2, channelId, 'remove-yes')
           )
           .then(message => {
-            expect(message.text).toBe(`Okay, I removed ${alias2} from Slack.`);
+            expect(message.text).toBe(Messages.REMOVED_ACCOUNT_MESSAGE);
             globalTestConfigurationSetup.bot
               .usersInput(TestFunctions.getAccounts(userId, teamId, channelId))
               .then(message => {
@@ -114,9 +114,7 @@ describe('Remove account command', () => {
         )
       )
       .then(message => {
-        expect(message.attachments[0].text).toBe(
-          `${alias1} is your workspace account. Are you sure you want to remove it from Slack?`
-        );
+        expect(message.attachments[0].text).toBe(Messages.YOU_ARE_ABOUT_TO_REMOVE_LAST_ACCOUNT);
       })
       .then(() => {
         globalTestConfigurationSetup.bot
@@ -124,7 +122,7 @@ describe('Remove account command', () => {
             TestFunctions.confirm(userId, teamId, alias2, channelId, 'remove-no')
           )
           .then(message => {
-            expect(message.text).toBe(`Okay, ${alias1} is still active.`);
+            expect(message.text).toBe(Messages.I_WONT_REMOVE_ACCOUNT);
             globalTestConfigurationSetup.bot
               .usersInput(TestFunctions.getAccounts(userId, teamId, channelId))
               .then(message => {
@@ -262,7 +260,7 @@ describe('Remove account command', () => {
             TestFunctions.confirm(userId, teamId, alias2, channelId, 'remove-yes')
           )
           .then(message => {
-            expect(message.text).toBe(`Okay, I removed ${alias2} from Slack.`);
+            expect(message.text).toBe(Messages.REMOVED_ACCOUNT_MESSAGE);
             globalTestConfigurationSetup.bot
               .usersInput(TestFunctions.getAccounts(userId, teamId, channelId))
               .then(message => {
@@ -299,9 +297,7 @@ describe('Remove account command', () => {
         )
       ) /// remove default?
       .then(message => {
-        expect(message.attachments[0].text).toBe(
-          `${alias1} is your workspace account. Are you sure you want to remove it from Slack?`
-        );
+        expect(message.attachments[0].text).toBe(Messages.YOU_ARE_ABOUT_TO_REMOVE_LAST_ACCOUNT);
         done();
       });
   });
@@ -329,9 +325,7 @@ describe('Remove account command', () => {
         )
       )
       .then(message =>
-        expect(message.attachments[0].text).toBe(
-          `${alias1} is your workspace account. Are you sure you want to remove it from Slack?`
-        )
+        expect(message.attachments[0].text).toBe(Messages.YOU_ARE_ABOUT_TO_REMOVE_LAST_ACCOUNT)
       )
       .then(() =>
         globalTestConfigurationSetup.bot.usersInput(
@@ -339,7 +333,7 @@ describe('Remove account command', () => {
         )
       )
       .then(message =>
-        expect(message.text).toBe(`Okay, I removed ${alias1} from Slack.`)
+        expect(message.text).toBe(Messages.REMOVED_ACCOUNT_MESSAGE)
       )
       .then(() =>
         globalTestConfigurationSetup.bot.usersInput(

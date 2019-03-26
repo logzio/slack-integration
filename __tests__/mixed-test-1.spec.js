@@ -212,7 +212,7 @@ describe('Mixed1', () => {
             TestFunctions.confirm(userId, teamId, alias2, channelId, 'remove-yes')
           )
           .then(message => {
-            expect(message.text).toBe(`Okay, I removed ${alias2} from Slack.`);
+            expect(message.text).toBe(Messages.REMOVED_ACCOUNT_MESSAGE);
             globalTestConfiguration.bot
               .usersInput(
                 TestFunctions.aliaGetTriggers(userId, teamId, channelId, alias2)

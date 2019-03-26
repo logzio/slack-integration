@@ -355,30 +355,23 @@ describe('get from kibana', () => {
         )
       )
       .then(() => TestFunctions.validateKibanaResults(globalTestConfiguration.bot.api.files.files,'dashboard', [dashbordsResponse2]))
-      .then(() =>  globalTestConfiguration.bot.usersInput(
-       TestFunctions.removeAccount(userId, teamId, alias1, channelId)
-      ))
-      .then(() => {
-        globalTestConfiguration.bot
-          .usersInput(
-            TestFunctions.confirm(userId, teamId, alias1, channelId, 'remove-yes')
-          )
-      })
+      .then(() =>  globalTestConfiguration.bot.usersInput(TestFunctions.removeAccount(userId, teamId, alias2, channelId)))
+      .then(() => globalTestConfiguration.bot.usersInput(TestFunctions.confirm(userId, teamId, alias2, channelId, 'remove-yes')))
       .then(() =>
         globalTestConfiguration.bot.usersInput(
           TestFunctions.createOneAccount(
             userId,
             teamId,
             channelId,
-            'mixed-2-api-token',
+            'mixed-1-api-token',
             'us-east-1',
-            alias1
+            alias2
           )
         )
       )
       .then(message =>
         expect(message.text).toBe(
-          `Okay, you\'re ready to use ${alias1} in Slack!`
+          `Okay, you\'re ready to use ${alias2} in Slack!`
         )
       )
       .then(() =>
@@ -388,11 +381,11 @@ describe('get from kibana', () => {
             teamId,
             channelId,
             "dashboards",
-            alias1
+            alias2
           )
         )
       )
-      .then(() => TestFunctions.validateKibanaResults(globalTestConfiguration.bot.api.files.files,'dashboard', [dashbordsResponse2]))
+      .then(() => TestFunctions.validateKibanaResults(globalTestConfiguration.bot.api.files.files,'dashboard', [dashbordsResponse1]))
       .then(() => {
         done();
       });

@@ -113,9 +113,7 @@ describe('Migration', () => {
         TestFunctions.removeAccountWithoutAlias(userId, teamId, channelId)
       )
       .then(message => {
-        expect(message.attachments[0].text).toBe(
-          `my-account is your workspace account. Are you sure you want to remove it from Slack?`
-        );
+        expect(message.attachments[0].text).toBe(Messages.YOU_ARE_ABOUT_TO_REMOVE_LAST_ACCOUNT);
         done();
       });
   });
@@ -316,7 +314,7 @@ describe('Migration', () => {
             TestFunctions.confirm(userId, teamId, alias2, channelId, 'remove-yes')
           )
           .then(message => {
-            expect(message.text).toBe(`Okay, I removed ${alias2} from Slack.`);
+            expect(message.text).toBe(Messages.REMOVED_ACCOUNT_MESSAGE);
             globalTestConfiguration.bot
               .usersInput(
                 TestFunctions.aliaGetTriggers(userId, teamId, channelId, alias2)

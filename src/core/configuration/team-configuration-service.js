@@ -152,6 +152,12 @@ class TeamConfigurationService {
     });
   }
 
+  numberOfAccounts(teamId) {
+    return this.accountsStore.all(teamId).then(accounts => {
+      return accounts.length
+    });
+  }
+
   isAccountUsedByChannelId(teamId, channelId) {
     return this.channelStore.all_async().then(channels => {
       return (

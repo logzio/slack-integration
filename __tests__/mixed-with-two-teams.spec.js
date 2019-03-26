@@ -1,13 +1,11 @@
 const GlobalConfiguration = require('../src/core/utils/globalTestConfigurationSetup');
 const CommandName = require('./commandName');
 const TestFunctions = require('./testFunctions');
+const Messages = require('../src/core/messages/messages');
 const userId = 'u_mixed2';
 const teamId = 't_mixed3';
-
 const userId2 = 'u_mixed4';
 const teamId2 = 't_mixed5';
-
-const someChannelId = 'someChannelId';
 const channelId2 = 'chan2';
 const alias1 = 'mixed3';
 const alias2 = 'mixed4';
@@ -320,7 +318,7 @@ describe('Mixed1', () => {
             TestFunctions.confirm(userId, teamId, alias2, channelId, 'remove-yes')
           )
           .then(message => {
-            expect(message.text).toBe(`Okay, I removed ${alias2} from Slack.`);
+            expect(message.text).toBe(Messages.REMOVED_ACCOUNT_MESSAGE);
             globalTestConfiguration.bot
               .usersInput(
                 TestFunctions.aliaGetTriggers(userId, teamId, channelId, alias2)
