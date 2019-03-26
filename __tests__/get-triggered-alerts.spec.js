@@ -202,7 +202,7 @@ describe('Mixed1', () => {
       .then(message =>
         expect(message.text).toBe(
           `Okay, you\'re ready to use ${alias3} in Slack!`
-        )
+        ) 
       )
       .then(() =>
         globalTestConfiguration.bot.usersInput(
