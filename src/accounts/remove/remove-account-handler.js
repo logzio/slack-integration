@@ -150,14 +150,14 @@ class removeAccountHandler {
     bot.startPrivateConversation({ user }, (err, convo) => {
       convo.addMessage(
         {
-          text: Messages.REMOVED_ACCOUNT_MESSAGE
+          text: canDeleteDefault?Messages.REMOVED_ACCOUNT_MESSAGE:`Okay, I removed ${alias} from Slack.`
         },
         'successfully_removed_thread'
       );
 
       convo.addMessage(
         {
-          text: Messages.I_WONT_REMOVE_ACCOUNT
+          text: canDeleteDefault?Messages.I_WONT_REMOVE_ACCOUNT:`Okay, ${alias} is still active.`
         },
         'canceled'
       );
