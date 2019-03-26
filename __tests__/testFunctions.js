@@ -119,6 +119,23 @@ class TestFunctions {
     ];
   }
 
+  static getChannelAccount(userId, teamId, channelId) {
+    return [
+      {
+        user: userId,
+        channel: channelId,
+        team: teamId,
+        messages: [
+          {
+            text:'get channel account',
+            isAssertion: true,
+            team: teamId
+          }
+        ]
+      }
+    ];
+  }
+
   static clearChannelAccount(userId, teamId, channelId) {
     return [
       {

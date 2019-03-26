@@ -33,6 +33,7 @@ const SearchClient = require('../../search/search-client');
 const SearchCommand = require('../../search/search-command');
 const KibanaClient = require('../../kibana/kibana-client');
 const KibanaObjectsCommand = require('../../kibana/kibana-objects-command');
+const GetChannelAccountCommand  = require('../../accounts/channel/get-channel-account-command');
 
 class GlobalTestConfigurationSetup {
   constructor() {
@@ -259,7 +260,8 @@ class GlobalTestConfigurationSetup {
       );
       snapshotCommand.configure(this.controller);
 
-
+      const getChannelAccountCommand = new GetChannelAccountCommand(this.teamConfigurationService);
+      getChannelAccountCommand.configure(this.controller);
 
 
     } else if (commandType === CommandName.SNAPSHOT) {
