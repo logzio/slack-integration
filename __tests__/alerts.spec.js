@@ -6,6 +6,7 @@ const userId = 'u_mixed1';
 const teamId = 't_mixed';
 const alias1 = 'md178';
 const alias2 = 'md278';
+const alias3 = 'md378';
 
 const responseByName2 = {
   statusCode: 200,
@@ -235,13 +236,13 @@ describe('get alerts', () => {
             channelId,
             'mixed-2-api-token',
             'us-east-1',
-            alias2
+            alias3
           )
         )
       )
       .then(message =>
         expect(message.text).toBe(
-          `Okay, you\'re ready to use ${alias2} in Slack!`
+          `Okay, you\'re ready to use ${alias3} in Slack!`
         )
       )
       .then(() =>
