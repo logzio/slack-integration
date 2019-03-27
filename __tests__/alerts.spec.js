@@ -433,7 +433,7 @@ describe('get alerts', () => {
       )
       .then(() => {
         done();
-      });
+      }); 
   });
 
   // it('Failed on multiple alerts found', done => {
