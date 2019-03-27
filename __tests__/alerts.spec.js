@@ -4,8 +4,8 @@ const TestFunctions = require('./testFunctions');
 const AlertsCommand = require('../src/alerts/show-alert-command');
 const userId = 'u_mixed1';
 const teamId = 't_mixed';
-const alias1 = 'md178';
-const alias2 = 'md278';
+const alias1 = Math.random().toString(36).substr(2, 9);
+const alias2 = Math.random().toString(36).substr(2, 9);
 
 const responseByName = {
   statusCode: 200,
@@ -433,7 +433,7 @@ describe('get alerts', () => {
       )
       .then(() => {
         done();
-      }); 
+      });
   });
 
   // it('Failed on multiple alerts found', done => {
