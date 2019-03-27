@@ -207,68 +207,68 @@ describe('get alerts', () => {
       });
   });
 
-  it('create two accounts and get alert by name with alias', done => {
-    globalTestConfiguration.bot
-      .usersInput(
-        TestFunctions.createOneAccount(
-          userId,
-          teamId,
-          channelId,
-          'mixed-1-api-token',
-          'us-east-1',
-          alias1
-        )
-      )
-      .then(message =>
-        expect(message.text).toBe(
-          `Okay, you\'re ready to use ${alias1} in Slack!`
-        )
-      )
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
-          TestFunctions.createOneAccount(
-            userId,
-            teamId,
-            channelId,
-            'mixed-2-api-token',
-            'us-east-1',
-            alias2
-          )
-        )
-      )
-      .then(message =>
-        expect(message.text).toBe(
-          `Okay, you\'re ready to use ${alias2} in Slack!`
-        )
-      )
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
-          TestFunctions.getAliasAlertByName(
-            userId,
-            teamId,
-            channelId,
-            'Change in user plan',
-            alias1
-          )
-        )
-      )
-      .then(alertMessage => TestFunctions.validateAlertResultsByName(alertMessage, responseByName,globalTestConfiguration,alias1))
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
-          TestFunctions.getAliasAlertByName(
-            userId,
-            teamId,
-            channelId,
-            'Change in user plan2',
-            alias2
-          )
-        )
-      )
-      .then(alertMessage => TestFunctions.validateAlertResultsByName(alertMessage, responseByName2,globalTestConfiguration,alias2))
-      .then(() => {
-        done();
-      });
-  });
+  // it('create two accounts and get alert by name with alias', done => {
+  //   globalTestConfiguration.bot
+  //     .usersInput(
+  //       TestFunctions.createOneAccount(
+  //         userId,
+  //         teamId,
+  //         channelId,
+  //         'mixed-1-api-token',
+  //         'us-east-1',
+  //         alias1
+  //       )
+  //     )
+  //     .then(message =>
+  //       expect(message.text).toBe(
+  //         `Okay, you\'re ready to use ${alias1} in Slack!`
+  //       )
+  //     )
+  //     .then(() =>
+  //       globalTestConfiguration.bot.usersInput(
+  //         TestFunctions.createOneAccount(
+  //           userId,
+  //           teamId,
+  //           channelId,
+  //           'mixed-2-api-token',
+  //           'us-east-1',
+  //           alias2
+  //         )
+  //       )
+  //     )
+  //     .then(message =>
+  //       expect(message.text).toBe(
+  //         `Okay, you\'re ready to use ${alias2} in Slack!`
+  //       )
+  //     )
+  //     .then(() =>
+  //       globalTestConfiguration.bot.usersInput(
+  //         TestFunctions.getAliasAlertByName(
+  //           userId,
+  //           teamId,
+  //           channelId,
+  //           'Change in user plan',
+  //           alias1
+  //         )
+  //       )
+  //     )
+  //     .then(alertMessage => TestFunctions.validateAlertResultsByName(alertMessage, responseByName,globalTestConfiguration,alias1))
+  //     .then(() =>
+  //       globalTestConfiguration.bot.usersInput(
+  //         TestFunctions.getAliasAlertByName(
+  //           userId,
+  //           teamId,
+  //           channelId,
+  //           'Change in user plan2',
+  //           alias2
+  //         )
+  //       )
+  //     )
+  //     .then(alertMessage => TestFunctions.validateAlertResultsByName(alertMessage, responseByName2,globalTestConfiguration,alias2))
+  //     .then(() => {
+  //       done();
+  //     });
+  // });
 
   it('create account and then try to get alert with wrong alias', done => {
     globalTestConfiguration.bot
