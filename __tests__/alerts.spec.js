@@ -2,7 +2,7 @@ const GlobalConfiguration = require('../src/core/utils/globalTestConfigurationSe
 const CommandName = require('./commandName');
 const TestFunctions = require('./testFunctions');
 const AlertsCommand = require('../src/alerts/show-alert-command');
-const userId = 'u_mixed1';
+const userId = 'u'+Math.random().toString(16).substr(2, 6);
 const teamId = 't'+Math.random().toString(16).substr(2, 6);
 const alias1 = 'b1'+Math.random().toString(16).substr(2, 6);
 const alias2 = 'b2'+Math.random().toString(16).substr(2, 7);
@@ -108,49 +108,6 @@ const responseById = {
 describe('get alerts', () => {
   const globalTestConfiguration = new GlobalConfiguration();
   const channelId = globalTestConfiguration.openChannelId;
-  const responseByName = {
-    statusCode: 200,
-    body: [
-      {
-        alertId: 400,
-        severity: 'MEDIUM',
-        title: 'Change in user plan',
-        isEnabled: false
-      },
-      {
-        alertId: 401,
-        severity: 'HIGH',
-        title: 'Services rejected queries',
-        isEnabled: true
-      },
-      {
-        alertId: 403,
-        severity: 'HIGH',
-        title: 'multiple alerts example',
-        isEnabled: true
-      },
-      {
-        alertId: 402,
-        severity: 'HIGH',
-        title: 'multiple alerts example',
-        isEnabled: true
-      },
-      {
-        alertId: 403,
-        severity: 'HIGH',
-        title: 'one title with many results',
-        isEnabled: true
-      },
-      {
-        alertId: 404,
-        severity: 'HIGH',
-        title: 'one title with many results 2',
-        isEnabled: true
-      }
-    ]
-  };
-
-
   it('get alert by name', done => {
     globalTestConfiguration.bot
       .usersInput(
