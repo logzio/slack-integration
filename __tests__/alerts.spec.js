@@ -3,7 +3,7 @@ const CommandName = require('./commandName');
 const TestFunctions = require('./testFunctions');
 const AlertsCommand = require('../src/alerts/show-alert-command');
 const userId = 'u_mixed1';
-const teamId = 't_'+Math.random().toString(16).substr(2, 3);
+const teamId = 't'+Math.random().toString(16).substr(2, 6);
 const alias1 = 'b1'+Math.random().toString(16).substr(2, 6);
 const alias2 = 'b2'+Math.random().toString(16).substr(2, 7);
 
