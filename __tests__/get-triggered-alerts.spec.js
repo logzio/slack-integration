@@ -4,11 +4,11 @@ const TestFunctions = require('./testFunctions');
 const Messages = require('../src/core/messages/messages');
 const userId = 'u_mixed1';
 const teamId = 't_mixed1';
-const alias1 = 'mixed111';
-const alias2 = 'mixed222';
+const alias1 = 'mi111';
+const alias2 = 'mi222';
 
-const alias3 = 'mixed1111';
-const alias4 = 'mixed2222'; 
+const alias3 = 'm1111';
+const alias4 = 'm2222';
 
 describe('Mixed1', () => {
   const globalTestConfiguration = new GlobalConfiguration();
