@@ -4,8 +4,8 @@ const TestFunctions = require('./testFunctions');
 const AlertsCommand = require('../src/alerts/show-alert-command');
 const userId = 'u_mixed1';
 const teamId = 't_mixed';
-const alias1 = 'b1'+Math.random().toString(36).substr(2, 9);
-const alias2 = 'b1'+Math.random().toString(36).substr(2, 9);
+const alias1 = 'b1'+Math.random().toString(36).substr(2, 6);
+const alias2 = 'b1'+Math.random().toString(36).substr(2, 6);
 
 const responseByName = {
   statusCode: 200,
@@ -436,59 +436,59 @@ it('create account and then try to get alert with wrong alert name', done => {
       });
   });
 
-  it('Failed on multiple alerts found', done => {
-    globalTestConfiguration.bot
-      .usersInput(
-        TestFunctions.createOneAccount(
-          userId,
-          teamId,
-          channelId,
-          'mixed-1-api-token',
-          'us-east-1',
-          alias1
-        )
-      )
-      .then(message =>
-        expect(message.text).toBe(
-          `Okay, you\'re ready to use ${alias1} in Slack!`
-        )
-      )
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
-          TestFunctions.getAliasAlertByName(
-            userId,
-            teamId,
-            channelId,
-            'multiple alerts example',
-            alias1
-          )
-        )
-      )
-      .then(message =>
-        expect(message.text).toBe(
-          'Failed to get details for alert with title: multiple alerts example'
-        )
-      )
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
-          TestFunctions.showAliasAlertByName(
-            userId,
-            teamId,
-            channelId,
-            'multiple alerts example',
-            alias1
-          )
-        )
-      )
-      .then(message =>
-        expect(message.text).toBe(
-          'Failed to get details for alert with title: multiple alerts example'
-        )
-      )
-      .then(() => {
-        done();
-      });
-  });
+  // it('Failed on multiple alerts found', done => {
+  //   globalTestConfiguration.bot
+  //     .usersInput(
+  //       TestFunctions.createOneAccount(
+  //         userId,
+  //         teamId,
+  //         channelId,
+  //         'mixed-1-api-token',
+  //         'us-east-1',
+  //         alias1
+  //       )
+  //     )
+  //     .then(message =>
+  //       expect(message.text).toBe(
+  //         `Okay, you\'re ready to use ${alias1} in Slack!`
+  //       )
+  //     )
+  //     .then(() =>
+  //       globalTestConfiguration.bot.usersInput(
+  //         TestFunctions.getAliasAlertByName(
+  //           userId,
+  //           teamId,
+  //           channelId,
+  //           'multiple alerts example',
+  //           alias1
+  //         )
+  //       )
+  //     )
+  //     .then(message =>
+  //       expect(message.text).toBe(
+  //         'Failed to get details for alert with title: multiple alerts example'
+  //       )
+  //     )
+  //     .then(() =>
+  //       globalTestConfiguration.bot.usersInput(
+  //         TestFunctions.showAliasAlertByName(
+  //           userId,
+  //           teamId,
+  //           channelId,
+  //           'multiple alerts example',
+  //           alias1
+  //         )
+  //       )
+  //     )
+  //     .then(message =>
+  //       expect(message.text).toBe(
+  //         'Failed to get details for alert with title: multiple alerts example'
+  //       )
+  //     )
+  //     .then(() => {
+  //       done();
+  //     });
+  // });
 
 
   beforeAll(async done => {
