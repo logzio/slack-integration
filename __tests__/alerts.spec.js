@@ -2,10 +2,10 @@ const GlobalConfiguration = require('../src/core/utils/globalTestConfigurationSe
 const CommandName = require('./commandName');
 const TestFunctions = require('./testFunctions');
 const AlertsCommand = require('../src/alerts/show-alert-command');
-const userId = 'u'+Math.random().toString(16).substr(2, 6);
-const teamId = 't'+Math.random().toString(16).substr(2, 6);
-const alias1 = 'i'+Math.random().toString(16).substr(2, 6);
-const alias2 = 'i'+Math.random().toString(16).substr(2, 7);
+const userId = 'u'+Math.random().toString(16).substr(2, 4);
+const teamId = 't'+Math.random().toString(16).substr(2, 4);
+const alias1 = 'i'+Math.random().toString(16).substr(2, 4);
+const alias2 = 'i'+Math.random().toString(16).substr(2, 4);
 
 const responseByName = {
   statusCode: 200,
