@@ -5,8 +5,8 @@ const Messages = require('../src/core/messages/messages');
 const userId = 'u_mixed2';
 const teamId = 't_mixed3';
 const channelId2 = 'chan2';
-const alias1 = 'g1'+Math.random().toString(36).substr(2, 6);
-const alias2 = 'g2'+Math.random().toString(36).substr(2, 6);
+const alias1 = 'x1'+Math.random().toString(36).substr(2, 7);
+const alias2 = 'x2'+Math.random().toString(36).substr(2, 7);
 
 
 
