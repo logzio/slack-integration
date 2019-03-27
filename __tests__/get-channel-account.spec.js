@@ -87,26 +87,25 @@ describe('Get channel account', () => {
         expect(message.text).toBe(Messages.getCurrentChannel(alias2));
         done();
       })
-
-      // .then(() =>
-      //   globalTestConfiguration.bot.usersInput(
-      //     TestFunctions.removeAccount(userId, teamId, alias2, channelId)
-      //   )
-      // )
-      // .then(() => {
-      //   globalTestConfiguration.bot
-      //     .usersInput(
-      //       TestFunctions.confirm(userId, teamId, alias2, channelId, 'remove-yes')
-      //     )
-      //     .then(message => {
-      //       expect(message.text).toBe(`Okay, I removed ${alias2} from Slack.`);
-      //       globalTestConfiguration.bot.usersInput(TestFunctions.getChannelAccount(userId, teamId, channelId2))
-      //         .then(message => {
-      //           expect(message.text).toBe(Messages.NO_CHANNEL_ACCOUNT);
-      //           done();
-      //         });
-      //     });
-      // });
+      .then(() =>
+        globalTestConfiguration.bot.usersInput(
+          TestFunctions.removeAccount(userId, teamId, alias2, channelId)
+        )
+      )
+      .then(() => {
+        globalTestConfiguration.bot
+          .usersInput(
+            TestFunctions.confirm(userId, teamId, alias2, channelId, 'remove-yes')
+          )
+          .then(message => {
+            expect(message.text).toBe(`Okay, I removed ${alias2} from Slack.`);
+            globalTestConfiguration.bot.usersInput(TestFunctions.getChannelAccount(userId, teamId, channelId2))
+              .then(message => {
+                expect(message.text).toBe(Messages.NO_CHANNEL_ACCOUNT);
+                done();
+              });
+          });
+      });
   });
 
   beforeAll(async done => {
