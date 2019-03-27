@@ -5,9 +5,49 @@ const AlertsCommand = require('../src/alerts/show-alert-command');
 const userId = 'u_mixed1';
 const teamId = 't_mixed';
 const alias1 = 'md178';
-const alias4 = 'md478';
 const alias2 = 'md278';
-const alias3 = 'md378';
+
+const responseByName = {
+  statusCode: 200,
+  body: [
+    {
+      alertId: 400,
+      severity: 'MEDIUM',
+      title: 'Change in user plan',
+      isEnabled: false
+    },
+    {
+      alertId: 401,
+      severity: 'HIGH',
+      title: 'Services rejected queries',
+      isEnabled: true
+    },
+    {
+      alertId: 403,
+      severity: 'HIGH',
+      title: 'multiple alerts example',
+      isEnabled: true
+    },
+    {
+      alertId: 402,
+      severity: 'HIGH',
+      title: 'multiple alerts example',
+      isEnabled: true
+    },
+    {
+      alertId: 403,
+      severity: 'HIGH',
+      title: 'one title with many results',
+      isEnabled: true
+    },
+    {
+      alertId: 404,
+      severity: 'HIGH',
+      title: 'one title with many results 2',
+      isEnabled: true
+    }
+  ]
+};
 
 const responseByName2 = {
   statusCode: 200,
@@ -136,13 +176,13 @@ describe('get alerts', () => {
             channelId,
             'mixed-2-api-token',
             'us-east-1',
-            alias3
+            alias2
           )
         )
       )
       .then(message =>
         expect(message.text).toBe(
-          `Okay, you\'re ready to use ${alias3} in Slack!`
+          `Okay, you\'re ready to use ${alias2} in Slack!`
         )
       )
       .then(() =>
