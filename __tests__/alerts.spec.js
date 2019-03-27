@@ -5,7 +5,7 @@ const AlertsCommand = require('../src/alerts/show-alert-command');
 const userId = 'u_mixed1';
 const teamId = 't_mixed';
 const alias1 = 'b1'+Math.random().toString(36).substr(2, 6);
-const alias2 = 'b1'+Math.random().toString(36).substr(2, 6);
+const alias2 = 'b2'+Math.random().toString(36).substr(2, 6);
 
 const responseByName = {
   statusCode: 200,
