@@ -8,7 +8,7 @@ const alias1 = 'mixed111';
 const alias2 = 'mixed222';
 
 const alias3 = 'mixed1111';
-const alias4 = 'mixed2222';
+const alias4 = 'mixed2222'; 
 
 describe('Mixed1', () => {
   const globalTestConfiguration = new GlobalConfiguration();
