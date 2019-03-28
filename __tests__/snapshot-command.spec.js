@@ -100,10 +100,14 @@ describe('SnapshotCommand', () => {
   const kibanaObjectId2 = 'test-dashboard2-id-2';
 
   it('there are multiple results with the specified name', done => {
-    const kibanaClient = globalTestConfiguration.createKibanaClientMock([
-      { _id: kibanaObjectId, _source: { title: objectName }, alias:'my-account'},
-      { _id: kibanaObjectId2, _source: { title: objectName }, alias:'my-account'}
-    ]);
+
+    const matchedKibanaObjects = [
+      { _id: kibanaObjectId, _source: { title: objectName }},
+      { _id: kibanaObjectId2, _source: { title: objectName }}
+    ];
+    matchedKibanaObjects.alias = 'my-account';
+    const kibanaClient = globalTestConfiguration.createKibanaClientMock(matchedKibanaObjects);
+
     globalTestConfiguration
       .initBeforeEach(kibanaClient, CommandName.SNAPSHOT)
       .then(() => {
@@ -117,11 +121,12 @@ describe('SnapshotCommand', () => {
   });
 
   it('there are multiple results with the specified name - when more then one id name contain objectName - wrong?', done => {
-    const kibanaClient = globalTestConfiguration.createKibanaClientMock([
-      { _id: kibanaObjectId, _source: { title: objectName }, alias:'my-account' },
-      { _id: kibanaObjectId2, _source: { title: 'test-dashboard2' }, alias:'my-account' }
-    ]);
-
+    const matchedKibanaObjects = [
+      { _id: kibanaObjectId, _source: { title: objectName } },
+      { _id: kibanaObjectId2, _source: { title: 'test-dashboard2' } }
+    ];
+    matchedKibanaObjects.alias = 'my-account';
+    const kibanaClient = globalTestConfiguration.createKibanaClientMock(matchedKibanaObjects);
     globalTestConfiguration
       .initBeforeEach(kibanaClient, CommandName.SNAPSHOT)
       .then(() => {
@@ -135,10 +140,11 @@ describe('SnapshotCommand', () => {
   });
 
   it('there are multiple results with the specified name - when more then one title contain objectName - wrong?', done => {
-    const kibanaClient = globalTestConfiguration.createKibanaClientMock([
-      { _id: kibanaObjectId, _source: { title: objectName }, alias:'my-account' },
-      { _id: 'somename', _source: { title: 'test-dashboard-id-3' }, alias:'my-account' }
-    ]);
+    const matchedKibanaObjects = [{ _id: kibanaObjectId, _source: { title: objectName } },
+      { _id: 'somename', _source: { title: 'test-dashboard-id-3' } }
+    ]
+    matchedKibanaObjects.alias = 'my-account';
+    const kibanaClient = globalTestConfiguration.createKibanaClientMock(matchedKibanaObjects);
     globalTestConfiguration
       .initBeforeEach(kibanaClient, CommandName.SNAPSHOT)
       .then(() => {
