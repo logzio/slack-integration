@@ -113,7 +113,7 @@ describe('SnapshotCommand', () => {
       .then(() => {
         globalTestConfiguration.bot.usersInput(userInputs).then(message => {
           expect(message.text).toBe( Messages.getResults('my-account') +
-            `There's more than one ${objectType} with that name or ID,Please refine your request.`
+            `There's more than one ${objectType} with that name or ID. Please refine your request.`
           );
           done();
         });
@@ -132,7 +132,7 @@ describe('SnapshotCommand', () => {
       .then(() => {
         globalTestConfiguration.bot.usersInput(userInputs).then(message => {
           expect(message.text).toBe(Messages.getResults('my-account') +
-            `There's more than one ${objectType} with that name or ID,Please refine your request.`
+            `There's more than one ${objectType} with that name or ID. Please refine your request.`
           );
           done();
         });
@@ -150,7 +150,7 @@ describe('SnapshotCommand', () => {
       .then(() => {
         globalTestConfiguration.bot.usersInput(userInputs).then(message => {
           expect(message.text).toBe(Messages.getResults('my-account') +
-            `There's more than one ${objectType} with that name or ID,Please refine your request.`
+            `There's more than one ${objectType} with that name or ID. Please refine your request.`
           );
           done();
         });
