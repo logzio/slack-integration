@@ -47,7 +47,7 @@ function sendMatchedKibanaObjectsTable(
 
   bot.reply(
     message,
-    Messages.getResults(matchedKibanaObjects[0].alias) +
+    Messages.getResults(matchedKibanaObjects.alias) +
       `There are multiple ${objectType}s with the specified name or id, please refine you request.`
   );
   bot.api.files.upload(
