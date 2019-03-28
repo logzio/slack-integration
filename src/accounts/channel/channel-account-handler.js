@@ -6,10 +6,9 @@ class ChannelAccountHandler {
   }
 
   setDefault(teamId, channelId, alias) {
-    return HttpClient.validateAlias(this.teamConfService, teamId, alias)
-      .then(() =>
-        this.teamConfService.saveAccountForChannel(teamId, channelId, alias)
-      );
+    return HttpClient.validateAlias(this.teamConfService, teamId, alias).then(
+      () => this.teamConfService.saveAccountForChannel(teamId, channelId, alias)
+    );
   }
 
   clearDefault(teamId, channelId) {

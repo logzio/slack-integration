@@ -5,17 +5,15 @@ const shouldDeleteAccountWithCurrentChannels = ' is used in these channels:';
 const areYouSure = ' Are you sure you want to remove it from Slack?';
 const shouldDeleteAccount = 'Are you sure you want to remove ';
 
-function getMessageWithButtons(text,removeStyle) {
-
-
+function getMessageWithButtons(text, removeStyle) {
   let removeButton = {
     text: 'Remove',
     value: 'remove-yes',
     type: 'button',
     name: 'yes'
   };
-  if(removeStyle){
-    removeButton.style = "danger";
+  if (removeStyle) {
+    removeButton.style = 'danger';
   }
   return {
     attachments: [
@@ -46,23 +44,35 @@ class removeAccountHandler {
 
   removeAccount(teamId, channel, userAlias, bot, user, message) {
     if (!userAlias) {
-      return this.PromiseToRemove(teamId, channel, userAlias, bot, user,message);
+      return this.PromiseToRemove(
+        teamId,
+        channel,
+        userAlias,
+        bot,
+        user,
+        message
+      );
     } else {
       return HttpClient.validateAlias(
         this.teamConfigService,
         teamId,
         userAlias
-      ).then(() => this.PromiseToRemove(teamId, channel, userAlias, bot, user,message));
+      ).then(() =>
+        this.PromiseToRemove(teamId, channel, userAlias, bot, user, message)
+      );
     }
   }
 
-  PromiseToRemove(teamId, channel, userAlias, bot, user ,message) {
+  PromiseToRemove(teamId, channel, userAlias, bot, user, message) {
     let teamConfiguration;
     let alias = userAlias;
     return this.teamConfigService
       .getDefault(teamId)
       .then(configuration =>
-        !userAlias?HttpClient.validateConfiguration(configuration):configuration)
+        !userAlias
+          ? HttpClient.validateConfiguration(configuration)
+          : configuration
+      )
       .then(validTeamConfiguration => {
         teamConfiguration = validTeamConfiguration;
         if (!alias) {
@@ -76,34 +86,56 @@ class removeAccountHandler {
         }
         return alias;
       })
-      .then(()=>{
-        if(teamConfiguration.config.alias === alias){
-          return this.teamConfigService.numberOfAccounts(teamId)
+      .then(() => {
+        if (teamConfiguration.config.alias === alias) {
+          return this.teamConfigService.numberOfAccounts(teamId);
         }
       })
       .then(numberOfAccounts =>
-        this.ConfirmRemove(teamConfiguration, alias, bot, user, teamId,numberOfAccounts,message)
+        this.ConfirmRemove(
+          teamConfiguration,
+          alias,
+          bot,
+          user,
+          teamId,
+          numberOfAccounts,
+          message
+        )
       );
   }
 
-  ConfirmRemove(teamConfiguration, alias, bot, user, teamId, numberOfAccounts,message) {
-    let noAlias = alias === undefined;
+  ConfirmRemove(
+    teamConfiguration,
+    alias,
+    bot,
+    user,
+    teamId,
+    numberOfAccounts,
+    message
+  ) {
     let canDeleteDefault = false;
-    if (noAlias || teamConfiguration.config.alias === alias) {
-      if (noAlias) {
-        alias = 'This';
-      }
+    if (teamConfiguration.config.alias === alias) {
       let deleteDefaultMessage;
-      if(numberOfAccounts === 1){
+      if (numberOfAccounts === 1) {
         canDeleteDefault = true;
         deleteDefaultMessage = Messages.YOU_ARE_ABOUT_TO_REMOVE_LAST_ACCOUNT;
-        const messageWithButtons = getMessageWithButtons(deleteDefaultMessage,true);
-        this.askForApproval(alias, bot, user, teamId, messageWithButtons, true, canDeleteDefault);
-      }else{
+        const messageWithButtons = getMessageWithButtons(
+          deleteDefaultMessage,
+          true
+        );
+        this.askForApproval(
+          alias,
+          bot,
+          user,
+          teamId,
+          messageWithButtons,
+          true,
+          canDeleteDefault
+        );
+      } else {
         deleteDefaultMessage = Messages.CANT_REMOVE_DEFAULT_ACCOUNT;
         bot.reply(message, deleteDefaultMessage);
       }
-
     } else {
       this.teamConfigService
         .getAliasAccountsUsedByChannel(teamId, alias)
@@ -111,7 +143,9 @@ class removeAccountHandler {
           if (accounts.length > 0) {
             ApiExtract.extractAccountsChannels(bot, accounts).then(
               channelNames => {
-                const messageWithButtons = getMessageWithButtons(`${alias}${shouldDeleteAccountWithCurrentChannels}${channelNames}.${areYouSure}`);
+                const messageWithButtons = getMessageWithButtons(
+                  `${alias}${shouldDeleteAccountWithCurrentChannels}${channelNames}.${areYouSure}`
+                );
                 this.askForApproval(
                   alias,
                   bot,
@@ -123,7 +157,9 @@ class removeAccountHandler {
               }
             );
           } else {
-            const messageWithButtons = getMessageWithButtons(`${shouldDeleteAccount}${alias}?`);
+            const messageWithButtons = getMessageWithButtons(
+              `${shouldDeleteAccount}${alias}?`
+            );
             this.askForApproval(
               alias,
               bot,
@@ -150,14 +186,18 @@ class removeAccountHandler {
     bot.startPrivateConversation({ user }, (err, convo) => {
       convo.addMessage(
         {
-          text: canDeleteDefault?Messages.REMOVED_ACCOUNT_MESSAGE:`Okay, I removed ${alias} from Slack.`
+          text: canDeleteDefault
+            ? Messages.REMOVED_ACCOUNT_MESSAGE
+            : `Okay, I removed ${alias} from Slack.`
         },
         'successfully_removed_thread'
       );
 
       convo.addMessage(
         {
-          text: canDeleteDefault?Messages.I_WONT_REMOVE_ACCOUNT:`Okay, ${alias} is still active.`
+          text: canDeleteDefault
+            ? Messages.I_WONT_REMOVE_ACCOUNT
+            : `Okay, ${alias} is still active.`
         },
         'canceled'
       );

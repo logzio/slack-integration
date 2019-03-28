@@ -47,7 +47,9 @@ function runSearchAndSendResults(
   command.searchClient
     .search(message.channel, message.team, query, alias)
     .then(searchResult => {
-      bot.reply(message, Messages.getResults(searchResult.alias),()=> uploadSearchResults(searchResult));
+      bot.reply(message, Messages.getResults(searchResult.alias), () =>
+        uploadSearchResults(searchResult)
+      );
     })
     .catch(err => {
       command.handleError(bot, message, err, err => {

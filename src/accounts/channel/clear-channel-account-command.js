@@ -16,38 +16,31 @@ class ClearChannelAccountCommand extends Command {
       [commandRegex],
       'direct_message,direct_mention',
       (bot, message) => {
-        const {team = null, channel = null} = message;
-        this.defaultHandler
-          .isAccountUsedByChannel(team, channel)
-          .then(res => {
-            if (res) {
-              this.defaultHandler
-                .clearDefault(team, channel)
-                .then(() => {
-                  bot.reply(message, `Okay, I cleared the channel account.`);
-                })
-                .catch(err => {
-                  this.handleError(
-                    bot,
-                    message,
+        const { team = null, channel = null } = message;
+        this.defaultHandler.isAccountUsedByChannel(team, channel).then(res => {
+          if (res) {
+            this.defaultHandler
+              .clearDefault(team, channel)
+              .then(() => {
+                bot.reply(message, `Okay, I cleared the channel account.`);
+              })
+              .catch(err => {
+                this.handleError(bot, message, err, err => {
+                  logger.warn(
+                    'Failed to clear channel account',
                     err,
-                    err => {
-                      logger.warn(
-                        'Failed to clear channel account',
-                        err,
-                        getEventMetadata(
-                          message,
-                          'failed-to-clear-channel-account'
-                        )
-                      );
-                      bot.reply(message, Messages.DEFAULT_ERROR_MESSAGE);
-                    }
+                    getEventMetadata(message, 'failed-to-clear-channel-account')
                   );
+                  bot.reply(message, Messages.DEFAULT_ERROR_MESSAGE);
                 });
-            } else {
-              bot.reply(message, `There's no channel account set, so you're good. 😎`);
-            }
-          });
+              });
+          } else {
+            bot.reply(
+              message,
+              `There's no channel account set, so you're good. 😎`
+            );
+          }
+        });
       }
     );
   }

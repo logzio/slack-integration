@@ -13,15 +13,18 @@ const Messages = {
   NO_ACCOUNTS_YET:
     "You haven't added any accounts yet. To add one, type @Alice add account",
 
-  getResults: (alias) => `Getting results from \`${alias}\`\n`,
+  getResults: alias => `Getting results from \`${alias}\`\n`,
 
-  REMOVED_ACCOUNT_MESSAGE: 'Okay, I removed the account. When you\'re ready to use Logz.io in Slack again, type `add account`.',
-  YOU_ARE_ABOUT_TO_REMOVE_LAST_ACCOUNT: '✋ *You\'re about to remove your last Logz.io account from Slack.*\nAre you sure you want to remove it?',
-  I_WONT_REMOVE_ACCOUNT:  `Okay, I won't remove the account. Carry on. 🙂`,
-  CANT_REMOVE_DEFAULT_ACCOUNT :'⛔️ That\'s your default workspace account. I can\'t remove it until you set another account as the workspace account.\n',
+  REMOVED_ACCOUNT_MESSAGE:
+    "Okay, I removed the account. When you're ready to use Logz.io in Slack again, type `add account`.",
+  YOU_ARE_ABOUT_TO_REMOVE_LAST_ACCOUNT:
+    "✋ *You're about to remove your last Logz.io account from Slack.*\nAre you sure you want to remove it?",
+  I_WONT_REMOVE_ACCOUNT: `Okay, I won't remove the account. Carry on. 🙂`,
+  CANT_REMOVE_DEFAULT_ACCOUNT:
+    "⛔️ That's your default workspace account. I can't remove it until you set another account as the workspace account.\n",
   NO_CHANNEL_ACCOUNT: 'There’s no channel account set for this channel.',
-  getCurrentChannel:(alias) => `\`${alias}\` is the channel account for this channel.`
-
+  getCurrentChannel: alias =>
+    `\`${alias}\` is the channel account for this channel.`
 };
 
 module.exports = Messages;

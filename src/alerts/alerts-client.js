@@ -15,7 +15,8 @@ class AlertsClient {
     return this.httpClient
       .get(channelId, teamId, '/v1/alerts', alias)
       .then(alerts =>
-        alertName?filterAlertsByName(alerts, alertName):alerts)
+        alertName ? filterAlertsByName(alerts, alertName) : alerts
+      )
       .then(matchedAlerts => {
         if (matchedAlerts.length === 0) {
           throw new Error(`Unable to find alert with title ${alertName}`);

@@ -69,10 +69,9 @@ class GetTriggeredAlertsCommand extends Command {
         'DATE',
         'DESC'
       )
-      .then(({ results, total, alias}) => {
-          bot.reply(message, createTriggeredAlertsMessage(results, total, alias));
-        }
-      )
+      .then(({ results, total, alias }) => {
+        bot.reply(message, createTriggeredAlertsMessage(results, total, alias));
+      })
       .catch(err => {
         this.handleError(
           bot,

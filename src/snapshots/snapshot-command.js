@@ -46,8 +46,9 @@ function sendMatchedKibanaObjectsTable(
   });
 
   bot.reply(
-    message, Messages.getResults(matchedKibanaObjects[0].alias)+
-    `There are multiple ${objectType}s with the specified name or id, please refine you request.`
+    message,
+    Messages.getResults(matchedKibanaObjects[0].alias) +
+      `There are multiple ${objectType}s with the specified name or id, please refine you request.`
   );
   bot.api.files.upload(
     {
@@ -104,7 +105,10 @@ function sendSnapshotRequest(
     )
     .then(data => {
       if (data.errorCode === undefined) {
-        bot.reply(message, Messages.getResults(data.alias)+ 'Snapshot request has been sent.');
+        bot.reply(
+          message,
+          Messages.getResults(data.alias) + 'Snapshot request has been sent.'
+        );
       } else {
         throw Error();
       }
@@ -160,8 +164,7 @@ class SnapshotCommand extends Command {
 
     this.kibanaClient
       .listObjects(channel, message.team, objectType, alias)
-      .then(kibanaObjects =>
-        filterObjectsByIdOrName(kibanaObjects, objectName))
+      .then(kibanaObjects => filterObjectsByIdOrName(kibanaObjects, objectName))
       .then(matchedKibanaObjects => {
         if (matchedKibanaObjects.length === 0) {
           bot.reply(
@@ -214,7 +217,7 @@ class SnapshotCommand extends Command {
 
   getUsage() {
     return [
-       '*[&lt;alias&gt;] snapshot &lt;dashboard|visualization&gt; &lt;object-name|object-id&gt; last &lt;time-value&gt; &lt;time-unit&gt; [query &lt;query-string&gt;]* - Create a snapshot of a dashboard or visualization\n\tExamples:\n\t\t_snapshot dashboard ELB logs last 1 h_\n\t\t_snapshot dashboard fa5c7aaa-ee10-a2d0-ddf9-725f707f8c67 last 15 m_\n\t\t_snapshot dashboard ELB logs last 15 m query ͏`*`͏_'
+      '*[&lt;alias&gt;] snapshot &lt;dashboard|visualization&gt; &lt;object-name|object-id&gt; last &lt;time-value&gt; &lt;time-unit&gt; [query &lt;query-string&gt;]* - Create a snapshot of a dashboard or visualization\n\tExamples:\n\t\t_snapshot dashboard ELB logs last 1 h_\n\t\t_snapshot dashboard fa5c7aaa-ee10-a2d0-ddf9-725f707f8c67 last 15 m_\n\t\t_snapshot dashboard ELB logs last 15 m query ͏`*`͏_'
     ];
   }
 }

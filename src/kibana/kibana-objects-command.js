@@ -94,7 +94,9 @@ class KibanaObjectsCommand extends Command {
               table.newRow();
             });
           });
-          bot.reply(message, Messages.getResults(results[0].alias),()=>this.replayWithKibanaTable(bot, table, message, objectTypes));
+          bot.reply(message, Messages.getResults(results[0].alias), () =>
+            this.replayWithKibanaTable(bot, table, message, objectTypes)
+          );
         }
       })
       .catch(err => {
@@ -122,10 +124,7 @@ class KibanaObjectsCommand extends Command {
         if (err) {
           logger.error(
             'Failed to send kibana objects table',
-            getEventMetadata(
-              message,
-              'failed_to_send_kibana_objects_table'
-            ),
+            getEventMetadata(message, 'failed_to_send_kibana_objects_table'),
             err
           );
         }

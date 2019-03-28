@@ -17,13 +17,16 @@ class GetCurrentChannelAccountCommand extends Command {
       (bot, message) => {
         return this.teamConfigService
           .getAccountForChannel(message.team, message.channel)
-          .then(channelAccount=>{
-            if(!channelAccount){
-              bot.reply(message,Messages.NO_CHANNEL_ACCOUNT);
-            }else{
-              bot.reply(message,Messages.getCurrentChannel(channelAccount.config.alias));
+          .then(channelAccount => {
+            if (!channelAccount) {
+              bot.reply(message, Messages.NO_CHANNEL_ACCOUNT);
+            } else {
+              bot.reply(
+                message,
+                Messages.getCurrentChannel(channelAccount.config.alias)
+              );
             }
-           })
+          })
           .catch(err => logger.error(err));
       }
     );

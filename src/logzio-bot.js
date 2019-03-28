@@ -30,7 +30,7 @@ const GetAccountsCommand = require('./accounts/get/get-accounts-command');
 const RemoveAccountCommand = require('./accounts/remove/remove-command');
 const RemoveAccountHandler = require('./accounts/remove/remove-account-handler');
 const SetupCommand = require('./accounts/add/setup-command');
-const GetChannelAccountCommand  = require('./accounts/channel/get-channel-account-command');
+const GetChannelAccountCommand = require('./accounts/channel/get-channel-account-command');
 const { createWebhookProxyEndpoint } = require('./core/webhook/webhook-proxy');
 
 const logger = LoggerFactory.getLogger(__filename);
@@ -127,10 +127,12 @@ function registerAndConfigureCommands(logzioBot) {
   CommandsRegistry.register(new ClearActiveCommand(channelAccountHandler));
   CommandsRegistry.register(new SetActiveCommand(channelAccountHandler));
   CommandsRegistry.register(new SetDefaultCommand(defaultHandler));
-  CommandsRegistry.register(new GetChannelAccountCommand(teamConfigurationService));
+  CommandsRegistry.register(
+    new GetChannelAccountCommand(teamConfigurationService)
+  );
   CommandsRegistry.register(new GetAccountsCommand(teamConfigurationService));
   CommandsRegistry.register(new RemoveAccountCommand(removeAccountHandler));
-  CommandsRegistry.register(new SetupCommand);
+  CommandsRegistry.register(new SetupCommand());
   CommandsRegistry.register(new UnknownCommand());
 
   CommandsRegistry.getCommands().forEach(command =>

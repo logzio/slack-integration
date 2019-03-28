@@ -104,22 +104,6 @@ function buildAndSendConfigurationDialog(
   });
 }
 
-function buildAndSendAliasConfigurationDialog(bot, reply, config, callback_id) {
-  const dialog = bot
-    .createDialog('Alias Configuration', callback_id, 'Save')
-    .addText('Alias', 'alias', null, {
-      placeholder: '',
-      hint:
-        'A Slack alias for your Logz.io account. (Letters, numbers, hyphens, and underscores only.)'
-    });
-
-  bot.replyWithDialog(reply, dialog.asObject(), err => {
-    if (err) {
-      logger.error('Unknown error while replying with dialog', err);
-    }
-  });
-}
-
 class AddAccountDialogSender {
   constructor(teamConfigurationService, apiConfig) {
     this.teamConfigurationService = teamConfigurationService;
@@ -130,7 +114,9 @@ class AddAccountDialogSender {
     bot.startPrivateConversation({ user }, (err, convo) => {
       convo.addMessage(
         {
-          text: `Okay, I won't add an account now. When you're ready, just type ${bot.identity.name} add account.`
+          text: `Okay, I won't add an account now. When you're ready, just type ${
+            bot.identity.name
+          } add account.`
         },
         'canceled'
       );
@@ -141,7 +127,12 @@ class AddAccountDialogSender {
           {
             pattern: 'add-yes',
             callback: (reply, convo) => {
-              this.replayWithDialogSetup(reply, convo, bot, isInitializationPhase);
+              this.replayWithDialogSetup(
+                reply,
+                convo,
+                bot,
+                isInitializationPhase
+              );
             }
           },
           {
@@ -165,21 +156,17 @@ class AddAccountDialogSender {
   }
 
   replayWithDialogSetup(reply, convo, bot, isInitializationPhase) {
-    this.teamConfigurationService
-      .getDefault(reply.team.id)
-      .then(config => {
-        convo.stop();
-        bot.replyInteractive(reply, messageWithoutButtons);
-        buildAndSendConfigurationDialog(
-          bot,
-          this.selectableRegionList,
-          reply,
-          config,
-          isInitializationPhase
-            ? 'initialization_setup_dialog'
-            : 'setup_dialog'
-        );
-      });
+    this.teamConfigurationService.getDefault(reply.team.id).then(config => {
+      convo.stop();
+      bot.replyInteractive(reply, messageWithoutButtons);
+      buildAndSendConfigurationDialog(
+        bot,
+        this.selectableRegionList,
+        reply,
+        config,
+        isInitializationPhase ? 'initialization_setup_dialog' : 'setup_dialog'
+      );
+    });
   }
 }
 

@@ -33,7 +33,7 @@ const SearchClient = require('../../search/search-client');
 const SearchCommand = require('../../search/search-command');
 const KibanaClient = require('../../kibana/kibana-client');
 const KibanaObjectsCommand = require('../../kibana/kibana-objects-command');
-const GetChannelAccountCommand  = require('../../accounts/channel/get-channel-account-command');
+const GetChannelAccountCommand = require('../../accounts/channel/get-channel-account-command');
 
 class GlobalTestConfigurationSetup {
   constructor() {
@@ -122,7 +122,6 @@ class GlobalTestConfigurationSetup {
       }
     };
 
-
     if (fn) {
       for (let [i] in jasmineSpyHandlers) {
         const handler = jasmineSpyHandlers[i];
@@ -134,24 +133,18 @@ class GlobalTestConfigurationSetup {
             return jasmineSpyHandlerReturnValues[handler.handlerName][
               req.headers['x-api-token']
             ][req.body.type];
-          } else if(req.originalUrl === '/v1/snapshotter'){
-
+          } else if (req.originalUrl === '/v1/snapshotter') {
             return jasmineSpyHandlerReturnValues[handler.handlerName][
               req.headers['x-api-token']
-              ];
-
-          }else if(req.originalUrl === '/webhook/t_mixed1/openc1'){
-
+            ];
+          } else if (req.originalUrl === '/webhook/t_mixed1/openc1') {
             return jasmineSpyHandlerReturnValues[handler.handlerName][
               req.headers['x-api-token']
-              ];
-
-          }
-          else {
-
+            ];
+          } else {
             return jasmineSpyHandlerReturnValues[handler.handlerName][
               req.headers['x-api-token']
-              ];
+            ];
           }
         });
       }
@@ -260,12 +253,11 @@ class GlobalTestConfigurationSetup {
       );
       snapshotCommand.configure(this.controller);
 
-      const getChannelAccountCommand = new GetChannelAccountCommand(this.teamConfigurationService);
+      const getChannelAccountCommand = new GetChannelAccountCommand(
+        this.teamConfigurationService
+      );
       getChannelAccountCommand.configure(this.controller);
-
-
     } else if (commandType === CommandName.SNAPSHOT) {
-
       this.httpClient = new HttpClient(
         this.teamConfigurationService,
         this.endpointResolver

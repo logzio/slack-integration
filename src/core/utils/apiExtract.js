@@ -12,39 +12,41 @@ class ApiExtract {
       this.extractChannelName(bot, account.id)
     );
 
-    return Promise.all(promiseList)
-      .then(accounts => {
+    return Promise.all(promiseList).then(accounts => {
+      if (accounts.length === 0) {
+        return '';
+      }
+      const hasPrivateChannel = accounts.some(channel => channel.isPrivate);
+      const numPrivateChannels = _.sumBy(accounts, function(channel) {
+        return channel.isPrivate ? 1 : 0;
+      });
 
-          if (accounts.length === 0) {
-            return '';
+      const channelMap = accounts
+        .map(channel => {
+          if (!channel.isPrivate) {
+            return ` <#${channel.channelId}|${channel.channelName}>`;
           }
-          const hasPrivateChannel = accounts.some(channel => channel.isPrivate);
-          const numPrivateChannels = _.sumBy(accounts,
-            function (channel) {
-              return channel.isPrivate?1:0;
-            }
+        })
+        .filter(x => typeof x === 'string' && x.length > 0);
+      const channelMapPrefix = channelMap.join(',');
+      if (hasPrivateChannel) {
+        if (numPrivateChannels === 1) {
+          return (
+            channelMapPrefix +
+            (channelMap.length > 0 ? ', ' : ' ') +
+            `one private channel`
           );
-
-          const channelMap = accounts.map(
-            channel => {
-              if (!channel.isPrivate) {
-                return ` <#${channel.channelId}|${channel.channelName}>`
-              }
-            }
-          ).filter(x => typeof x === 'string' && x.length > 0);
-          const channelMapPrefix = channelMap.join(',');
-          if (hasPrivateChannel) {
-
-            if(numPrivateChannels===1){
-              return channelMapPrefix + (channelMap.length > 0 ? ', ' : ' ') + `one private channel`;
-            }else{
-              return channelMapPrefix + (channelMap.length > 0 ? ', ' : ' ') + `${numPrivateChannels} private channels`;
-            }
-          } else {
-            return channelMapPrefix;
-          }
+        } else {
+          return (
+            channelMapPrefix +
+            (channelMap.length > 0 ? ', ' : ' ') +
+            `${numPrivateChannels} private channels`
+          );
         }
-      )
+      } else {
+        return channelMapPrefix;
+      }
+    });
   }
 
   static extractChannelName(bot, channelId) {
@@ -53,15 +55,14 @@ class ApiExtract {
         if (response.ok) {
           resolve({
             channelName: response.channel.name.toString(),
-            isPrivate : false,
-            channelId : channelId
+            isPrivate: false,
+            channelId: channelId
           });
-
         } else {
           resolve({
             channelName: 'private channel',
-            isPrivate : true,
-            channelId : channelId
+            isPrivate: true,
+            channelId: channelId
           });
         }
       });
@@ -75,13 +76,13 @@ class ApiExtract {
           resolve({
             channelName: response.channel.name.toString(),
             channelId: channelId,
-            isPrivate : false
+            isPrivate: false
           });
         } else {
           resolve({
             channelName: 'private',
             channelId: channelId,
-            isPrivate : true
+            isPrivate: true
           });
         }
       });
@@ -89,7 +90,11 @@ class ApiExtract {
   }
 
   static createAccountDescription(item) {
-    return `• \`${item.accountAlias}\`: Slack alias for ${item.accountName}.${ApiExtract.defaultSuffixIfDefault(item.isDefault)}${ApiExtract.createChannelNames(item)}\n`;
+    return `• \`${item.accountAlias}\`: Slack alias for ${
+      item.accountName
+    }.${ApiExtract.defaultSuffixIfDefault(
+      item.isDefault
+    )}${ApiExtract.createChannelNames(item)}\n`;
   }
 
   static defaultSuffixIfDefault(isDefault) {
@@ -97,37 +102,43 @@ class ApiExtract {
   }
 
   static createChannelNames(item) {
-
     if (item.channels.length === 0) {
       return '';
     }
     const hasPrivateChannel = item.channels.some(channel => channel.isPrivate);
-    const numPrivateChannels = _.sumBy(item.channels,
-      function (channel) {
-        return channel.isPrivate?1:0;
-      }
-    );
-    const channelMap = item.channels.map(
-      channel => {
+    const numPrivateChannels = _.sumBy(item.channels, function(channel) {
+      return channel.isPrivate ? 1 : 0;
+    });
+    const channelMap = item.channels
+      .map(channel => {
         if (!channel.isPrivate) {
-          return `<#${channel.channelId}|${channel.channelName}>`
+          return `<#${channel.channelId}|${channel.channelName}>`;
         }
-      }
-    ).filter(x => typeof x === 'string' && x.length > 0);
+      })
+      .filter(x => typeof x === 'string' && x.length > 0);
 
-    const channelMapPrefix = ` This is the channel account for`+(hasPrivateChannel?'':' ') + channelMap.join(',');
+    const channelMapPrefix =
+      ` This is the channel account for` +
+      (hasPrivateChannel ? '' : ' ') +
+      channelMap.join(',');
     if (hasPrivateChannel) {
-      if(numPrivateChannels===1){
-        return channelMapPrefix + (channelMap.length > 0 ? ', ' : ' ') + `a private channel.`;
-      }else{
-        return channelMapPrefix + (channelMap.length > 0 ? ', ' : ' ') + `${numPrivateChannels} private channels.`;
+      if (numPrivateChannels === 1) {
+        return (
+          channelMapPrefix +
+          (channelMap.length ? ', ' : ' ') +
+          `a private channel.`
+        );
+      } else {
+        return (
+          channelMapPrefix +
+          (channelMap.length ? ', ' : ' ') +
+          `${numPrivateChannels} private channels.`
+        );
       }
     } else {
       return channelMapPrefix + '.';
     }
   }
-
-
 }
 
 module.exports = ApiExtract;

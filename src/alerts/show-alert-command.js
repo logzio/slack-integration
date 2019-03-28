@@ -18,7 +18,6 @@ class ShowAlertCommand extends Command {
   }
 
   configure(controller) {
-
     controller.hears(
       [commandShowAllWithAlias],
       'direct_message,direct_mention',
@@ -85,8 +84,7 @@ class ShowAlertCommand extends Command {
     const alertName = matches[index];
     this.alertsClient
       .getAlertByName(channel, message.team, alertName, alias)
-      .then(alerts =>
-        this.sendMatchedObjectsTable(bot,message,alerts))
+      .then(alerts => this.sendMatchedObjectsTable(bot, message, alerts))
       .catch(err => {
         this.handleError(bot, message, err, err => {
           logger.warn(
@@ -106,7 +104,7 @@ class ShowAlertCommand extends Command {
     logger.info(
       `User ${message.user} from team ${
         message.team
-        } requested all alerts info by name`,
+      } requested all alerts info by name`,
       getEventMetadata(message, 'get-alerts-by-name')
     );
     const matches = message.match;
@@ -118,9 +116,8 @@ class ShowAlertCommand extends Command {
     }
     const alertName = matches[index];
     this.alertsClient
-      . getAlertByName(channel, message.team, null, alias)
-      .then(alerts =>
-        this.sendMatchedObjectsTable(bot,message,alerts))
+      .getAlertByName(channel, message.team, null, alias)
+      .then(alerts => this.sendMatchedObjectsTable(bot, message, alerts))
       .catch(err => {
         this.handleError(bot, message, err, err => {
           logger.warn(
@@ -156,7 +153,8 @@ class ShowAlertCommand extends Command {
       .then(this.createAlertDetailsMessage)
       .then(alertMessage => {
         bot.reply(message, Messages.getResults(alertMessage.alias));
-        bot.reply(message, alertMessage.attachments)})
+        bot.reply(message, alertMessage.attachments);
+      })
       .catch(err => {
         this.handleError(bot, message, err, err => {
           logger.warn(
@@ -216,17 +214,13 @@ class ShowAlertCommand extends Command {
       ]
     };
     const alertDetails = {
-      attachments:attachments,
-      alias:alert.alias
-    }
+      attachments: attachments,
+      alias: alert.alias
+    };
     return alertDetails;
   }
 
-   sendMatchedObjectsTable(
-    bot,
-    message,
-    alerts,
-  ) {
+  sendMatchedObjectsTable(bot, message, alerts) {
     const table = new Table();
     alerts.forEach(alert => {
       table.cell('Id', alert.alertId);
@@ -236,7 +230,9 @@ class ShowAlertCommand extends Command {
       table.newRow();
     });
 
-     bot.reply(message, Messages.getResults(alerts.alias),()=>this.botReplyAlertsTable(bot, table, message));
+    bot.reply(message, Messages.getResults(alerts.alias), () =>
+      this.botReplyAlertsTable(bot, table, message)
+    );
   }
 
   botReplyAlertsTable(bot, table, message) {
