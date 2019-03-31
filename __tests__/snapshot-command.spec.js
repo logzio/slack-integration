@@ -134,24 +134,21 @@ describe('SnapshotCommand', () => {
           )))
       .then(() => done());
   });
-  //
-  // it('there are multiple results with the specified name - when more then one title contain objectName - wrong?', done => {
-  //   const matchedKibanaObjects = [{ _id: kibanaObjectId, _source: { title: objectName } },
-  //     { _id: 'somename', _source: { title: 'test-dashboard-id-3' } }
-  //   ]
-  //   matchedKibanaObjects.alias = 'my-account';
-  //   const kibanaClient = globalTestConfiguration.createKibanaClientMock(matchedKibanaObjects);
-  //   globalTestConfiguration
-  //     .initBeforeEach(kibanaClient, CommandName.SNAPSHOT)
-  //     .then(() => {
-  //       globalTestConfiguration.bot.usersInput(userInputs).then(message => {
-  //         expect(message.text).toBe(Messages.getResults('my-account') +
-  //           `There's more than one ${objectType} with that name or ID. Please refine your request.`
-  //         );
-  //         done();
-  //       });
-  //     });
-  // });
+
+  it('there are multiple results with the specified name - when more then one title contain objectName - wrong?', done => {
+    const matchedKibanaObjects = [{ _id: kibanaObjectId, _source: { title: objectName } },
+      { _id: 'somename', _source: { title: 'test-dashboard-id-3' } }
+    ]
+    matchedKibanaObjects.alias = 'my-account';
+    const kibanaClient = globalTestConfiguration.createKibanaClientMock(matchedKibanaObjects);
+    globalTestConfiguration
+      .initBeforeEach(kibanaClient, CommandName.SNAPSHOT)
+      .then(() => globalTestConfiguration.bot.usersInput(userInputs).then(message =>
+          expect(message.text).toBe(Messages.getResults('my-account') +
+            `There's more than one ${objectType} with that name or ID. Please refine your request.`))
+      )
+      .then(()=>done())
+  });
 
   beforeAll(async done => {
 
