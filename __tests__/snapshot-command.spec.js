@@ -73,27 +73,26 @@ describe('SnapshotCommand', () => {
       .then(()=>done());
   });
 
-  // it('should message an error when there is no snapshot with specified name', done => {
-  //   const userInputs = [
-  //     {
-  //       user: userId,
-  //       channel: channelId,
-  //       messages: [
-  //         {
-  //           team: teamId,
-  //           text: `snapshot ${objectType} 'bad-object-name' last 1h query ${query}`,
-  //           isAssertion: true
-  //         }
-  //       ]
-  //     }
-  //   ];
-  //   globalTestConfiguration.bot.usersInput(userInputs).then(message => {
-  //     expect(message.text).toBe(
-  //       `Unable to find ${objectType} with the specified name`
-  //     );
-  //     done();
-  //   });
-  // });
+  it('should message an error when there is no snapshot with specified name', done => {
+    const userInputs = [
+      {
+        user: userId,
+        channel: channelId,
+        messages: [
+          {
+            team: teamId,
+            text: `snapshot ${objectType} 'bad-object-name' last 1h query ${query}`,
+            isAssertion: true
+          }
+        ]
+      }
+    ];
+    globalTestConfiguration.bot.usersInput(userInputs)
+      .then(message =>
+        expect(message.text).toBe(
+          `Unable to find ${objectType} with the specified name`))
+      .then(() => done());
+  });
 
   const kibanaObjectId = 'test-dashboard-id';
   const kibanaObjectId2 = 'test-dashboard2-id-2';
