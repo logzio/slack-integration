@@ -8,7 +8,7 @@ const objectType = 'dashboard';
 const objectName = 'test-dashboard';
 const query = '"type:kube-apiserver"';
 const channelId = 'someChannelId';
-const userCommand = `snapshot ${objectType} ${objectName} last 1h query ${query}`;
+const userCommand = `snapshot ${objectType} ${objectName} last 1h query ${query}`; 
 const userInputs = [
   {
     user: userId,
