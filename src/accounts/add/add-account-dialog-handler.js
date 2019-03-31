@@ -106,6 +106,7 @@ class AddAccountDialogHandler {
             aliasExists
           );
           if (configErrors) {
+            logger.info("configErrors:"+configErrors[0].error);
             bot.dialogError(configErrors);
             bot.dialogOk();
             return;
@@ -117,6 +118,7 @@ class AddAccountDialogHandler {
                 realName
               );
               if (configErrors) {
+                logger.info("configErrors:"+configErrors[0].error);
                 bot.dialogError(configErrors);
                 return;
               }
