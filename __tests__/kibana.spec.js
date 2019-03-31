@@ -1,6 +1,6 @@
 const GlobalConfiguration = require('../src/core/utils/globalTestConfigurationSetup');
-const CommandName = require('../__tests__/commandName');
-const TestFunctions = require('../__tests__/testFunctions');
+const CommandName = require('./commandName');
+const TestFunctions = require('./testFunctions');
 const Messages = require('../src/core/messages/messages');
 const userId = 'u_mixed1';
 const teamId = 't_mixed1';
@@ -254,11 +254,8 @@ describe('get from kibana', () => {
         "dashboards"
       )
     )
-      .then(message =>
-        expect(message.text).toBe(Messages.LOFZ_IO_IS_NOT_CONFIGURED))
-      .then(() => {
-        done();
-      });
+      .then(message => expect(message.text).toBe(Messages.LOFZ_IO_IS_NOT_CONFIGURED))
+      .then(() => done());
   });
 
   it('get dashboards', done => {
@@ -475,10 +472,7 @@ describe('get from kibana', () => {
 
   beforeEach(async (done) => {
     const kibanaClient = globalTestConfiguration.createKibanaClientMock([]);
-    await globalTestConfiguration.initBeforeEach(
-      kibanaClient,
-      CommandName.SETUP
-    );
+    await globalTestConfiguration.initBeforeEach(kibanaClient, CommandName.SETUP);
     done();
   });
 
@@ -486,8 +480,7 @@ describe('get from kibana', () => {
     globalTestConfiguration.afterAll(done);
   });
   afterEach((done) => {
-    globalTestConfiguration.afterEach();
-    done();
+    globalTestConfiguration.afterEach(done);
   });
 
 });
