@@ -1,6 +1,6 @@
 const GlobalTestConfigurationSetup = require('../src/core/utils/globalTestConfigurationSetup');
-const TestFunctions = require('../__tests__/testFunctions');
-const CommandName = require('../__tests__/commandName');
+const TestFunctions = require('./testFunctions');
+const CommandName = require('./commandName');
 const Messages = require('../src/core/messages/messages');
 const userId = 'r_user';
 const teamId = 'rm_t';
@@ -428,7 +428,7 @@ describe('Remove account command', () => {
     done();
   });
 
-  beforeEach(async () => {
+  beforeEach(async (done) => {
     await globalTestConfigurationSetup.mockFirstInstall(
       teamId,
       userId,
@@ -445,12 +445,13 @@ describe('Remove account command', () => {
       kibanaClient,
       CommandName.SETUP
     );
+    done();
   });
 
   afterAll(done => {
     globalTestConfigurationSetup.afterAll(done);
   });
-  afterEach(() => {
-    globalTestConfigurationSetup.afterEach();
+  afterEach((done) => {
+    globalTestConfigurationSetup.afterEach(done);
   });
 });
