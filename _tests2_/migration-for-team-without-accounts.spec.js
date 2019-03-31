@@ -414,7 +414,7 @@ describe('Migration', () => {
     done();
   });
 
-  beforeEach(async () => {
+  beforeEach(async (done) => {
     await globalTestConfiguration.createTestStorage({
       user: DBUtils.getRequiredValueFromEnv("MYSQL_USER"),
       password: DBUtils.getRequiredValueFromEnv("MYSQL_PASSWORD"),
@@ -437,12 +437,13 @@ describe('Migration', () => {
       CommandName.SETUP,
       true
     );
+    done
   });
 
   afterAll(done => {
     globalTestConfiguration.afterAll(done);
   });
-  afterEach(() => {
-    globalTestConfiguration.afterEach();
+  afterEach((done) => {
+    globalTestConfiguration.afterEach(done);
   });
 });
