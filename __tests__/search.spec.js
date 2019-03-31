@@ -32,7 +32,7 @@ const searchResults2 = [
   }
 ];
 
-describe('search', () => {
+describe('search', () => { 
   const globalTestConfiguration = new GlobalConfiguration();
   const channelId = globalTestConfiguration.openChannelId;
   const total = 2;
@@ -297,7 +297,7 @@ describe('search', () => {
         )
       )
       .then(() => validateSearchResult(searchResults2))
-      .then(() => done()); 
+      .then(() => done());
   });
 
   beforeAll(async (done) => {
