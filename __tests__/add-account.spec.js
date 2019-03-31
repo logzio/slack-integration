@@ -338,7 +338,7 @@ describe('Add account command', () => {
     done();
   });
 
-  beforeEach(async () => {
+  beforeEach(async (done) => {
     const kibanaClient = globalTestConfigurationSetup.createKibanaClientMock(
       []
     );
@@ -346,12 +346,13 @@ describe('Add account command', () => {
       kibanaClient,
       CommandName.SETUP
     );
+    done();
   });
 
   afterAll(done => {
     globalTestConfigurationSetup.afterAll(done);
   });
-  afterEach(() => {
-    globalTestConfigurationSetup.afterEach();
+  afterEach((done) => {
+    globalTestConfigurationSetup.afterEach(done);
   });
 });

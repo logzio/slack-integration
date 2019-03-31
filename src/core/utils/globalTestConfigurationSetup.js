@@ -161,10 +161,11 @@ class GlobalTestConfigurationSetup {
   afterAll(done) {
     this.httpSpy.server.stop(done);
   }
-  afterEach() {
+  afterEach(done) {
     for (let i = 0; i < this.handlers.length; i++) {
       this.httpSpy[this.handlers[i]].calls.reset();
     }
+    done();
   }
 
   async initBeforeEach(kibanaClient, commandType, migration) {

@@ -123,7 +123,7 @@ describe('Get channel account', () => {
   afterAll(done => {
     globalTestConfiguration.afterAll(done);
   });
-  afterEach(() => {
-    globalTestConfiguration.afterEach();
+  afterEach((done) => {
+    globalTestConfiguration.afterEach(done);
   });
 });

@@ -1,7 +1,7 @@
 const GlobalConfiguration = require('../src/core/utils/globalTestConfigurationSetup');
-const CommandName = require('./commandName');
+const CommandName = require('../__tests__/commandName');
 const DBUtils = require('../src/core/utils/basicUp');
-const TestFunctions = require('./testFunctions');
+const TestFunctions = require('../__tests__/testFunctions');
 const Messages = require('../src/core/messages/messages');
 const userId = 'u_mixed1';
 const teamId = 't_mixed1';
@@ -40,9 +40,7 @@ describe('Migration', () => {
         TestFunctions.setWorkspaceAccount(userId, teamId, channelId, alias1)
       )
       .then(message => {
-        expect(message.text).toBe(
-          `Sorry, there isn't an account with that alias. If you want to see your accounts, type \`@Alice accounts\`.`
-        );
+        expect(message.text).toBe(Messages.THERE_IS_NO_ACCOUNT_WITH_THAT_ALIAS);
         done();
       });
   });
@@ -71,9 +69,7 @@ describe('Migration', () => {
         )
       )
       .then(message => {
-        expect(message.text).toBe(
-          `Okay, 'my-account' is the channel account now.`
-        );
+        expect(message.text).toBe(Messages.THERE_IS_NO_ACCOUNT_WITH_THAT_ALIAS);
         done();
       });
   });
@@ -87,11 +83,12 @@ describe('Migration', () => {
         expect(message.text).toBe(
           `Sorry, there isn't an account with that alias. If you want to see your accounts, type \`@Alice accounts\`.`
         );
+
+        expect(message.text).toBe(Messages.THERE_IS_NO_ACCOUNT_WITH_THAT_ALIAS);
         done();
       });
   });
 
-  // //todo ARIE - set channel account
   it('set channel account', done => {
     globalTestConfiguration.bot
       .usersInput(
@@ -101,8 +98,6 @@ describe('Migration', () => {
         expect(message.text).toBe(
           `Which account do you want to set as the channel account?`
         );
-        //INPUT => Sorry, there isn't an account with that alias. If you want to see your accounts, type
-        //REFACTOR
         done();
       });
   });
@@ -113,7 +108,7 @@ describe('Migration', () => {
         TestFunctions.removeAccountWithoutAlias(userId, teamId, channelId)
       )
       .then(message => {
-        expect(message.attachments[0].text).toBe(Messages.YOU_ARE_ABOUT_TO_REMOVE_LAST_ACCOUNT);
+        expect(message.text).toBe(Messages.LOFZ_IO_IS_NOT_CONFIGURED);
         done();
       });
   });
@@ -122,20 +117,7 @@ describe('Migration', () => {
     globalTestConfiguration.bot
       .usersInput(getTriggers(channelId))
       .then(message => {
-        expect(message.text).toBe(
-          Messages.getResults(aliasFromMigration) + `Displaying ${pageSize} out of ${total} events`
-        );
-        expect(globalTestConfiguration.httpSpy.alerts).toHaveBeenCalledWith(
-          jasmine.objectContaining({
-            body: jasmine.objectContaining({
-              from: 0,
-              size: pageSize,
-              severity: ['HIGH', 'MEDIUM', 'LOW'],
-              sortBy: 'DATE',
-              sortOrder: 'DESC'
-            })
-          })
-        );
+        expect(message.text).toBe(Messages.LOFZ_IO_IS_NOT_CONFIGURED);
         done();
       });
   });
@@ -145,9 +127,7 @@ describe('Migration', () => {
       .usersInput(TestFunctions.getAccounts(userId, teamId, channelId))
       .then(message => {
         expect(message.channel).toBe(channelId);
-        expect(message.text).toBe(
-          `These are the accounts in this workspace:\n• \`my-account\`: Slack alias for Migration App Test Prod. *This is the default workspace account.*\n`
-        );
+        expect(message.text).toBe(Messages.NO_ACCOUNTS_YET);
         done();
       });
   });
@@ -195,15 +175,16 @@ describe('Migration', () => {
       .then(message => {
         expect(message.channel).toBe(channelId);
         expect(message.text).toBe(
-          `These are the accounts in this workspace:\n• \`${alias1}\`: Slack alias for Logzio App Test 1 Prod.\n• \`${alias2}\`: Slack alias for Logzio App Test 2 Prod.\n• \`${aliasFromMigration}\`: Slack alias for Migration App Test Prod. *This is the default workspace account.*\n`
-        );
-      })
+          `These are the accounts in this workspace:\n`+
+          `• \`mixed1\`: Slack alias for Logzio App Test 1 Prod. *This is the default workspace account.*\n`+
+          `• \`mixed2\`: Slack alias for Logzio App Test 2 Prod.\n`
+        );})
       .then(() =>
         globalTestConfiguration.bot.usersInput(getTriggers(channelId))
       )
       .then(message => {
         expect(message.text).toBe(
-          Messages.getResults(aliasFromMigration) +`Displaying ${pageSize} out of ${total} events`
+          Messages.getResults(alias1) + `Displaying ${pageSize} out of ${total} events`
         );
         expect(globalTestConfiguration.httpSpy.alerts).toHaveBeenCalledWith(
           jasmine.objectContaining({
@@ -254,7 +235,7 @@ describe('Migration', () => {
       )
       .then(message => {
         expect(message.text).toBe(
-          Messages.getResults(aliasFromMigration) + `Displaying ${pageSize} out of ${total} events`
+          Messages.getResults(alias1) +`Displaying ${pageSize} out of ${total} events`
         );
         expect(globalTestConfiguration.httpSpy.alerts).toHaveBeenCalledWith(
           jasmine.objectContaining({
@@ -295,8 +276,9 @@ describe('Migration', () => {
       .then(message => {
         expect(message.channel).toBe(channelId);
         expect(message.text).toBe(
-          `These are the accounts in this workspace:\n• \`${alias1}\`: Slack alias for Logzio App Test 1 Prod.\n• \`${alias2}\`: Slack alias for Logzio App Test 2 Prod. This is the channel account for <#${channelId2}|${channelId2}_name>.\n• \`${aliasFromMigration}\`: Slack alias for Migration App Test Prod. *This is the default workspace account.*\n`
-        );
+          `These are the accounts in this workspace:\n`+
+          `• \`mixed1\`: Slack alias for Logzio App Test 1 Prod. *This is the default workspace account.*\n`+
+          `• \`mixed2\`: Slack alias for Logzio App Test 2 Prod. This is the channel account for <#chan2|chan2_name>.\n`     );
       })
       .then(() =>
         globalTestConfiguration.bot.usersInput(
@@ -305,7 +287,7 @@ describe('Migration', () => {
       )
       .then(message => {
         expect(message.attachments[0].text).toBe(
-          `${alias2} is used in these channels: <#${channelId2}|chan2_name>. Are you sure you want to remove it from Slack?`
+          `${alias2} is used in these channels: <#${channelId2}|${channelId2}_name>. Are you sure you want to remove it from Slack?`
         );
       })
       .then(() => {
@@ -438,14 +420,13 @@ describe('Migration', () => {
       password: DBUtils.getRequiredValueFromEnv("MYSQL_PASSWORD"),
       host: DBUtils.getRequiredValueFromEnv("MYSQL_HOST"),
     });
-    await globalTestConfiguration.mockFirstInstallForMigration(
+    await globalTestConfiguration.mockFirstInstallForMigration( //without api token!
       teamId,
       userId,
       'Logz.io Mixed1',
       'us-east-1',
       'xoxb-357770700357',
-      'xoxp-8241711843-408',
-      'api-token'
+      'xoxp-8241711843-408'
     );
     await globalTestConfiguration.executeGoToVersionTwoMigration();
     await DBUtils.migrateDatabase(globalTestConfiguration.dbConfig);
