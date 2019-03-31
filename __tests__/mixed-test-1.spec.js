@@ -5,8 +5,8 @@ const Messages = require('../src/core/messages/messages');
 const userId = 'u_mixed2';
 const teamId = 't_mixed3';
 const channelId2 = 'chan2';
-const alias1 = 'mixed3';
-const alias2 = 'mixed4';
+const alias1 = 'a3'+Math.random().toString(36).substr(2, 4);
+const alias2 = 'a4'+Math.random().toString(36).substr(2, 4);
 
 // This test is used for the following scenario:
 // 1. team login
