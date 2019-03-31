@@ -354,13 +354,12 @@ describe('search', () => {
 
   });
 
-  beforeEach(async (done) => {
+  beforeEach(async () => {
     const kibanaClient = globalTestConfiguration.createKibanaClientMock([]);
     await globalTestConfiguration.initBeforeEach(
       kibanaClient,
       CommandName.SETUP
     );
-    done();
   });
 
   afterAll(done => {

@@ -428,7 +428,7 @@ describe('Remove account command', () => {
     done();
   });
 
-  beforeEach(async (done) => {
+  beforeEach(async () => {
     await globalTestConfigurationSetup.mockFirstInstall(
       teamId,
       userId,
@@ -445,7 +445,6 @@ describe('Remove account command', () => {
       kibanaClient,
       CommandName.SETUP
     );
-    done();
   });
 
   afterAll(done => {

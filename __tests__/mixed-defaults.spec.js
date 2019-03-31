@@ -446,13 +446,12 @@ describe('Mixed1', () => {
     done();
   });
 
-  beforeEach(async (done) => {
+  beforeEach(async () => {
     const kibanaClient = globalTestConfiguration.createKibanaClientMock([]);
     await globalTestConfiguration.initBeforeEach(
       kibanaClient,
       CommandName.SETUP
     );
-    done();
   });
 
   afterAll(done => {
