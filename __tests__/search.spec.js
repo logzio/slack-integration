@@ -1,6 +1,6 @@
 const GlobalConfiguration = require('../src/core/utils/globalTestConfigurationSetup');
-const CommandName = require('../__tests__/commandName');
-const TestFunctions = require('../__tests__/testFunctions');
+const CommandName = require('./commandName');
+const TestFunctions = require('./testFunctions');
 const userId = 'u_mixed1';
 const teamId = 't_mixed1';
 const alias1 = 'mixed1';
@@ -307,7 +307,7 @@ describe('search', () => {
       });
   });
 
-  beforeAll(async () => {
+  beforeAll(async (done) => {
     const searchReturnValue1 = {
       statusCode: 200,
       body: {
@@ -351,7 +351,7 @@ describe('search', () => {
       'xoxb-357770700357',
       'xoxp-8241711843-408'
     );
-
+    done()
   });
 
   beforeEach(async () => {
@@ -365,7 +365,7 @@ describe('search', () => {
   afterAll(done => {
     globalTestConfiguration.afterAll(done);
   });
-  afterEach(() => {
-    globalTestConfiguration.afterEach();
+  afterEach((done) => {
+    globalTestConfiguration.afterEach(done);
   });
 });
