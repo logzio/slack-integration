@@ -2,13 +2,13 @@ const moment = require('moment');
 const Messages = require('../src/core/messages/messages');
 const userId = 'UserId1';
 const GlobalConfiguration = require('../src/core/utils/globalTestConfigurationSetup');
-const CommandName = require('./commandName');
+const CommandName = require('../__tests__/commandName');
 const teamId = 'teamId66';
 const objectType = 'dashboard';
 const objectName = 'test-dashboard';
 const query = '"type:kube-apiserver"';
 const channelId = 'someChannelId';
-const userCommand = `snapshot ${objectType} ${objectName} last 1h query ${query}`; 
+const userCommand = `snapshot ${objectType} ${objectName} last 1h query ${query}`;
 const userInputs = [
   {
     user: userId,
