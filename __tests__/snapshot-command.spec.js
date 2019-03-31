@@ -2,6 +2,7 @@ const moment = require('moment');
 const Messages = require('../src/core/messages/messages');
 const userId = 'UserId1';
 const GlobalConfiguration = require('../src/core/utils/globalTestConfigurationSetup');
+const LoggerFactory = require('../core/logging/logger-factory');
 const CommandName = require('./commandName');
 const teamId = 'teamId66';
 const objectType = 'dashboard';
@@ -97,26 +98,27 @@ describe('SnapshotCommand', () => {
   const kibanaObjectId = 'test-dashboard-id';
   const kibanaObjectId2 = 'test-dashboard2-id-2';
 
-  // it('there are multiple results with the specified name', done => {
-  //
-  //   const matchedKibanaObjects = [
-  //     { _id: kibanaObjectId, _source: { title: objectName }},
-  //     { _id: kibanaObjectId2, _source: { title: objectName }}
-  //   ];
-  //   matchedKibanaObjects.alias = 'my-account';
-  //   const kibanaClient = globalTestConfiguration.createKibanaClientMock(matchedKibanaObjects);
-  //
-  //   globalTestConfiguration
-  //     .initBeforeEach(kibanaClient, CommandName.SNAPSHOT)
-  //     .then(() => {
-  //       globalTestConfiguration.bot.usersInput(userInputs).then(message => {
-  //         expect(message.text).toBe( Messages.getResults('my-account') +
-  //           `There's more than one ${objectType} with that name or ID. Please refine your request.`
-  //         );
-  //         done();
-  //       });
-  //     });
-  // });
+  it('there are multiple results with the specified name', done => {
+
+    const matchedKibanaObjects = [
+      { _id: kibanaObjectId, _source: { title: objectName }},
+      { _id: kibanaObjectId2, _source: { title: objectName }}
+    ];
+    matchedKibanaObjects.alias = 'my-account';
+    const kibanaClient = globalTestConfiguration.createKibanaClientMock(matchedKibanaObjects);
+
+    globalTestConfiguration
+      .initBeforeEach(kibanaClient, CommandName.SNAPSHOT)
+      .then(() =>
+        globalTestConfiguration.bot.usersInput(userInputs).then(message =>
+          expect(message.text).toBe( Messages.getResults('my-account') +
+            `There's more than one ${objectType} with that name or ID. Please refine your request.`
+          )
+        ))
+      .then(()=>done())
+
+    ;
+  });
 
   // it('there are multiple results with the specified name - when more then one id name contain objectName - wrong?', done => {
   //   const matchedKibanaObjects = [
@@ -156,6 +158,7 @@ describe('SnapshotCommand', () => {
   // });
 
   beforeAll(async done => {
+
     await globalTestConfiguration.beforeAll(
       [
         {
