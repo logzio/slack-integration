@@ -60,7 +60,7 @@ describe('SnapshotCommand', () => {
       .then(()=> done());
   });
 
-  it('undefined user', done => {
+  it('undefined user', done => { 
     globalTestConfiguration
       .initBeforeEach(
         globalTestConfiguration.createKibanaClientMock(undefined),
