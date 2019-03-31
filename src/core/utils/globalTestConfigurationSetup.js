@@ -58,7 +58,11 @@ class GlobalTestConfigurationSetup {
       password: DBUtils.getRequiredValueFromEnv('MYSQL_PASSWORD'),
       host: DBUtils.getRequiredValueFromEnv('MYSQL_HOST')
     };
+    const random = 'random'+Math.random().toString(16).substr(2, 4);
+    logger.info("\n**********setupGeneralTestConfigurations starts "+random);
     this.storage = await this.createTestStorage(this.dbConfig);
+    logger.info("\n************setupGeneralTestConfigurations ends "+random);
+
     this.teamConfigurationService = new TeamConfigurationService(this.storage);
     this.port = await findFreePort(3000);
     this.externalDomain = `http://localhost:${this.port}`;
