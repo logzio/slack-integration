@@ -59,7 +59,7 @@ describe('SnapshotCommand', () => {
         expect(duration.asSeconds()).toBe(60 * 60);
       })
       .then(()=> done());
-  });
+  }); 
 
   it('undefined user', done => {
     globalTestConfiguration
