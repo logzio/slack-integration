@@ -297,7 +297,7 @@ describe('search', () => {
         )
       )
       .then(() => validateSearchResult(searchResults2))
-      .then(() => done());
+      .then(() => done()); 
   });
 
   beforeAll(async (done) => {
