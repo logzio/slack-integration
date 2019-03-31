@@ -25,40 +25,40 @@ const userInputs = [
 describe('SnapshotCommand', () => {
 
   const globalTestConfiguration = new GlobalConfiguration();
-  // it('should send snapshot request', done => {
-  //   globalTestConfiguration.bot
-  //     .usersInput(userInputs)
-  //     .then(message => {
-  //       expect(message.text).toBe(Messages.getResults('my-account')+'Snapshot request has been sent.');
-  //       expect(globalTestConfiguration.httpSpy.snapshots).toHaveBeenCalledWith(
-  //         jasmine.objectContaining({
-  //           body: jasmine.objectContaining({
-  //             snapshotType: objectType.toUpperCase(),
-  //             snapshotSavedObjectId: kibanaObjectId,
-  //             message: jasmine.stringMatching(`.*${query}`),
-  //             queryString: query,
-  //             darkTheme: true,
-  //             snapshotTimeZone: 'UTC',
-  //             slackWebhookUrls: [
-  //               `${
-  //                 globalTestConfiguration.externalDomain
-  //                 }/webhook/${teamId}/${channelId}`
-  //             ]
-  //           })
-  //         })
-  //       );
-  //
-  //       const requestBody = globalTestConfiguration.httpSpy.snapshots.calls.first()
-  //         .args[0].body;
-  //       const timeFrameFrom = requestBody.timeFrameFrom;
-  //       const timeFrameTo = requestBody.timeFrameTo;
-  //       const duration = moment.duration(
-  //         moment(timeFrameTo).diff(moment(timeFrameFrom))
-  //       );
-  //       expect(duration.asSeconds()).toBe(60 * 60);
-  //       done();
-  //     });
-  // });
+  it('should send snapshot request', done => {
+    globalTestConfiguration.bot
+      .usersInput(userInputs)
+      .then(message => {
+        expect(message.text).toBe(Messages.getResults('my-account')+'Snapshot request has been sent.');
+        expect(globalTestConfiguration.httpSpy.snapshots).toHaveBeenCalledWith(
+          jasmine.objectContaining({
+            body: jasmine.objectContaining({
+              snapshotType: objectType.toUpperCase(),
+              snapshotSavedObjectId: kibanaObjectId,
+              message: jasmine.stringMatching(`.*${query}`),
+              queryString: query,
+              darkTheme: true,
+              snapshotTimeZone: 'UTC',
+              slackWebhookUrls: [
+                `${
+                  globalTestConfiguration.externalDomain
+                  }/webhook/${teamId}/${channelId}`
+              ]
+            })
+          })
+        );
+
+        const requestBody = globalTestConfiguration.httpSpy.snapshots.calls.first()
+          .args[0].body;
+        const timeFrameFrom = requestBody.timeFrameFrom;
+        const timeFrameTo = requestBody.timeFrameTo;
+        const duration = moment.duration(
+          moment(timeFrameTo).diff(moment(timeFrameFrom))
+        );
+        expect(duration.asSeconds()).toBe(60 * 60);
+      })
+      .then(()=> done());
+  });
 
   it('undefined user', done => {
     globalTestConfiguration
