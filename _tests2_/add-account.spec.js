@@ -348,7 +348,6 @@ describe('Add account command', () => {
     );
     done();
   });
-
   afterAll(done => {
     globalTestConfigurationSetup.afterAll(done);
   });

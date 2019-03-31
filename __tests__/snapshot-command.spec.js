@@ -2,7 +2,7 @@ const moment = require('moment');
 const Messages = require('../src/core/messages/messages');
 const userId = 'UserId1';
 const GlobalConfiguration = require('../src/core/utils/globalTestConfigurationSetup');
-const CommandName = require('../__tests__/commandName');
+const CommandName = require('./commandName');
 const teamId = 'teamId66';
 const objectType = 'dashboard';
 const objectName = 'test-dashboard';
@@ -191,7 +191,7 @@ describe('SnapshotCommand', () => {
     done();
   });
 
-  beforeEach(async () => {
+  beforeEach(async (done) => {
     const kibanaClient = globalTestConfiguration.createKibanaClientMock([
       {
         _id: kibanaObjectId,
@@ -205,12 +205,12 @@ describe('SnapshotCommand', () => {
       kibanaClient,
       CommandName.SNAPSHOT
     );
-  });
-
+    done();
+  })
   afterAll(done => {
     globalTestConfiguration.afterAll(done);
   });
-  afterEach(() => {
-    globalTestConfiguration.afterEach();
+  afterEach((done) => {
+    globalTestConfiguration.afterEach(done);
   });
 });
