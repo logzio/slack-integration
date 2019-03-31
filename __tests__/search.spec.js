@@ -93,8 +93,7 @@ describe('search', () => {
         )
       )
       .then(() => validateSearchResult(searchResults1))
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
+      .then(() => globalTestConfiguration.bot.usersInput(
           TestFunctions.search(
             userId,
             teamId,
@@ -105,8 +104,7 @@ describe('search', () => {
         )
       )
       .then(() => validateSearchResult(searchResults1))
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
+      .then(() => globalTestConfiguration.bot.usersInput(
           TestFunctions.search(userId, teamId, channelId, 'error', 'last 3 h')
         )
       )
@@ -123,9 +121,7 @@ describe('search', () => {
         )
       )
       .then(() => validateSearchResult(searchResults1))
-      .then(() => {
-        done();
-      });
+      .then(() => done());
   });
 
   it('search - test valid commands with alias', done => {
@@ -236,9 +232,8 @@ describe('search', () => {
         )
       )
       .then(() => validateSearchResult(searchResults1))
-      .then(() => {
-        done();
-      });
+      .then(() => done()
+      );
   });
 
   it('search - test valid commands', done => {
@@ -302,9 +297,7 @@ describe('search', () => {
         )
       )
       .then(() => validateSearchResult(searchResults2))
-      .then(() => {
-        done();
-      });
+      .then(() => done());
   });
 
   beforeAll(async (done) => {
