@@ -85,8 +85,8 @@ describe('Get channel account', () => {
       )
       .then(message => {
         expect(message.text).toBe(Messages.getCurrentChannel(alias2));
-        done();
       })
+      .then(() =>done());
   });
 
   beforeAll(async done => {
