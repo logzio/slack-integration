@@ -191,7 +191,7 @@ describe('SnapshotCommand', () => {
     done();
   });
 
-  beforeEach(async () => {
+  beforeEach(async (done) => {
     const kibanaClient = globalTestConfiguration.createKibanaClientMock([
       {
         _id: kibanaObjectId,
@@ -205,6 +205,7 @@ describe('SnapshotCommand', () => {
       kibanaClient,
       CommandName.SNAPSHOT
     );
+    done();
   });
 
   afterAll(done => {
