@@ -4,8 +4,8 @@ const TestFunctions = require('./testFunctions');
 const Messages = require('../src/core/messages/messages');
 const userId = 'u_mixed1';
 const teamId = 't_mixed1';
-const alias1 = 'mixed11';
-const alias2 = 'mixed22';
+const alias1 = 'k1'+Math.random().toString(36).substr(2, 4);
+const alias2 = 'k2'+Math.random().toString(36).substr(2, 4);
 
 
 const dashbordsResponse1 = {
