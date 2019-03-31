@@ -1,12 +1,12 @@
 const GlobalConfiguration = require('../src/core/utils/globalTestConfigurationSetup');
-const CommandName = require('./commandName');
-const TestFunctions = require('./testFunctions');
+const CommandName = require('../__tests__/commandName');
+const TestFunctions = require('../__tests__/testFunctions');
 const Messages = require('../src/core/messages/messages');
 const userId = 'u_mixed1';
 const teamId = 't_mixed1';
 const channelId2 = 'chan2';
-const alias1 = 'mixed1';
-const alias2 = 'mixed2';
+const alias1 = 'd1'+Math.random().toString(16).substr(2, 4);
+const alias2 = 'd2'+Math.random().toString(16).substr(2, 4);
 
 const triggersResults = [
   {
