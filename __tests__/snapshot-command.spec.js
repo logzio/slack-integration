@@ -207,7 +207,7 @@ describe('SnapshotCommand', () => {
       CommandName.SNAPSHOT
     );
     done();
-  })
+  });
   afterAll(done => {
     globalTestConfiguration.afterAll(done);
   });
