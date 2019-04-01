@@ -32,8 +32,7 @@ describe('Get channel account', () => {
         )
       )
 
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
+      .then(() => globalTestConfiguration.bot.usersInput(
           TestFunctions.createOneAccount(
             userId,
             teamId,
@@ -62,16 +61,12 @@ describe('Get channel account', () => {
         );
       })
 
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
+      .then(() => globalTestConfiguration.bot.usersInput(
           TestFunctions.getChannelAccount(userId, teamId, channelId2)
         )
       )
-      .then(message => {
-        expect(message.text).toBe(Messages.NO_CHANNEL_ACCOUNT);
-      })
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
+      .then(message => expect(message.text).toBe(Messages.NO_CHANNEL_ACCOUNT))
+      .then(() => globalTestConfiguration.bot.usersInput(
           TestFunctions.setChannelAccount(userId, teamId, channelId2, alias2)
         )
       )
@@ -80,8 +75,7 @@ describe('Get channel account', () => {
           `Okay, '${alias2}' is the channel account now.`
         );
       })
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(TestFunctions.getChannelAccount(userId, teamId, channelId2))
+      .then(() => globalTestConfiguration.bot.usersInput(TestFunctions.getChannelAccount(userId, teamId, channelId2))
       )
       .then(message => {
         expect(message.text).toBe(Messages.getCurrentChannel(alias2));
@@ -90,14 +84,15 @@ describe('Get channel account', () => {
   });
 
   beforeAll(async done => {
-
+    logger.info('get-channel-beforeAll-start');
     var handlers = [];
     const handlersReturnValues = new Object();
 
     await globalTestConfiguration.beforeAll(
       handlers,
       handlersReturnValues,
-      true
+      true,
+      'get-channel'
     );
     await globalTestConfiguration.mockFirstInstall(
       teamId,
@@ -108,7 +103,9 @@ describe('Get channel account', () => {
       'xoxp-8241711843-408',
       'mixed-1-api-token'
     );
+    logger.info('get-channel-beforeAll-done-1');
     done();
+    logger.info('get-channel-beforeAll-done-2');
   });
 
   beforeEach(async (done) => {
@@ -121,9 +118,13 @@ describe('Get channel account', () => {
   });
 
   afterAll(async done => {
+    logger.info('get-channel-afterAll-start');
     globalTestConfiguration.afterAll(done);
+    logger.info('get-channel-afterAll-end');
   });
   afterEach(async (done) => {
+    logger.info('get-channel-afterEach-start');
     globalTestConfiguration.afterEach(done);
+    logger.info('get-channel-afterEach-end');
   });
 });
