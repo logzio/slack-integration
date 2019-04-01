@@ -93,7 +93,7 @@ describe('Mixed1', () => {
           channelId,
           'mixed-1-api-token',
           'us-east-1',
-          alias111
+          alias11
         )
       )
       .then(message =>
@@ -146,7 +146,7 @@ describe('Mixed1', () => {
         done();
       });
   });
-  
+
   it('create two accounts with alias1-token1, alias2-token2. then get triggers. then create account with alias1 and token2. get triggers.', done => {
     globalTestConfiguration.bot
       .usersInput(
