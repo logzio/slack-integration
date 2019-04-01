@@ -37,7 +37,7 @@ describe('search', () => {
   const channelId = globalTestConfiguration.openChannelId;
   const total = 2;
 
-  const validateSearchResult = searchResults => { 
+  const validateSearchResult = searchResults => {  
     const content = JSON.parse(
       globalTestConfiguration.bot.api.files.files.content
     );
