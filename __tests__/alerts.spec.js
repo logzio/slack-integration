@@ -7,7 +7,12 @@ const logger = LoggerFactory.getLogger(__filename);
 const userId = 'u'+Math.random().toString(16).substr(2, 4);
 const teamId = 't'+Math.random().toString(16).substr(2, 4);
 const alias1 = 'i'+Math.random().toString(16).substr(2, 4);
-const alias2 = 'i'+Math.random().toString(16).substr(2, 4);
+const alias2 = 'i2'+Math.random().toString(16).substr(2, 4);
+
+
+const alias11 = 'ip'+Math.random().toString(16).substr(2, 4);
+const alias12 = 'ir'+Math.random().toString(16).substr(2, 4);
+
 
 const responseByName = {
   statusCode: 200,
@@ -180,12 +185,12 @@ describe('get alerts', () => {
           channelId,
           'mixed-1-api-token',
           'us-east-1',
-          alias1
+          alias11
         )
       )
       .then(message =>
         expect(message.text).toBe(
-          `Okay, you\'re ready to use ${alias1} in Slack!`
+          `Okay, you\'re ready to use ${alias11} in Slack!`
         )
       )
       .then(() =>
@@ -195,7 +200,7 @@ describe('get alerts', () => {
             teamId,
             channelId,
             'Change in user plan',
-            alias2
+            alias12
           )
         )
       )
