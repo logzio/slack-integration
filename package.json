@@ -41,7 +41,7 @@
     "mysql": "^2.16.0",
     "sql-template-strings": "^2.2.2",
     "winston": "^2.4.4",
-    "winston-logzio": "^1.0.8"
+    "winston-logzio": "^4.0.2"
   },
   "devDependencies": {
     "botkit-mock": "^0.1.11",
