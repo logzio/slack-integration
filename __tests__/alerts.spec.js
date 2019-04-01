@@ -2,6 +2,8 @@ const GlobalConfiguration = require('../src/core/utils/globalTestConfigurationSe
 const CommandName = require('./commandName');
 const TestFunctions = require('./testFunctions');
 const AlertsCommand = require('../src/alerts/show-alert-command');
+const LoggerFactory = require('../src/core/logging/logger-factory');
+const logger = LoggerFactory.getLogger(__filename);
 const userId = 'u'+Math.random().toString(16).substr(2, 4);
 const teamId = 't'+Math.random().toString(16).substr(2, 4);
 const alias1 = 'i'+Math.random().toString(16).substr(2, 4);
@@ -449,6 +451,7 @@ it('create account and then try to get alert with wrong alert name', done => {
 
 
   beforeAll(async done => {
+    logger.info('alerts-beforeAll-starts');
     var handlers = [
       {
         method: 'get',
@@ -473,7 +476,8 @@ it('create account and then try to get alert with wrong alert name', done => {
     await globalTestConfiguration.beforeAll(
       handlers,
       handlersReturnValues,
-      true
+      true,
+      2
     );
     await globalTestConfiguration.mockFirstInstall(
       teamId,
@@ -483,22 +487,31 @@ it('create account and then try to get alert with wrong alert name', done => {
       'xoxb-357770700357',
       'xoxp-8241711843-408'
     );
+    logger.info('alerts-beforeAll-done-1');
     done();
+    logger.info('alerts-beforeAll-done-2');
   });
 
   beforeEach(async (done) => {
+    logger.info('alerts-beforeEach-starts');
     const kibanaClient = globalTestConfiguration.createKibanaClientMock([]);
     await globalTestConfiguration.initBeforeEach(
       kibanaClient,
       CommandName.SETUP
     );
+    logger.info('alerts-beforeEach-done-1');
     done();
+    logger.info('alerts-beforeEach-done-2');
   });
 
   afterAll(done => {
+    logger.info('alerts-afterAll-start');
     globalTestConfiguration.afterAll(done);
+    logger.info('alerts-afterAll-end');
   });
   afterEach((done) => {
+    logger.info('alerts-afterEach-start');
     globalTestConfiguration.afterEach(done);
+    logger.info('alerts-afterEach-start');
   });
 });
