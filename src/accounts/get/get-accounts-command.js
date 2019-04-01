@@ -16,7 +16,8 @@ class GetAccountsCommand extends Command {
         return this.teamConfigService
           .getAllAccountsSafeView(message.team, bot)
           .then(allAccountsSafeView =>
-            this.replayWith(allAccountsSafeView, bot, message))
+            this.replayWith(allAccountsSafeView, bot, message)
+          )
           .catch(err => logger.error(err));
       }
     );
@@ -40,13 +41,13 @@ class GetAccountsCommand extends Command {
   }
 }
 
-
-
-
 function createAccountsViewReply(allAccountsSafeView) {
-
-  return 'These are the accounts in this workspace:\n' +
-    allAccountsSafeView.map(item => ApiExtract.createAccountDescription(item)).join('');
+  return (
+    'These are the accounts in this workspace:\n' +
+    allAccountsSafeView
+      .map(item => ApiExtract.createAccountDescription(item))
+      .join('')
+  );
 }
 
 module.exports = GetAccountsCommand;

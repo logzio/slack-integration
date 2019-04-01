@@ -4,7 +4,7 @@ const logger = LoggerFactory.getLogger(__filename);
 const ApiExtract = require('../utils/apiExtract');
 
 class TeamConfigurationService {
-  constructor(storage ,httpClient) {
+  constructor(storage, httpClient) {
     this.teamStore = storage.teams;
     this.channelStore = storage.channels;
     this.accountsStore = storage.configuredAccounts;
@@ -82,6 +82,7 @@ class TeamConfigurationService {
   }
 
   addAccount(teamId, teamConfiguration) {
+    logger.info("---saving---:alias" + teamConfiguration.getAlias()+",teamId="+teamId);
     return this.accountsStore
       .save({
         team_id: teamId,
@@ -93,7 +94,11 @@ class TeamConfigurationService {
       .then(() => this.getAccountForAlias(teamConfiguration.getAlias(), teamId))
       .then(result => {
         if (!result) {
+          logger.error("tc:"+result+",alias" + teamConfiguration.getAlias()+",teamId="+teamId)
           throw Error();
+        }else{
+          logger.info("tc-saved:"+result+",alias" + teamConfiguration.getAlias()+",teamId="+teamId)
+          return result;
         }
       });
   }
@@ -149,6 +154,12 @@ class TeamConfigurationService {
           channel => channel.alias === alias && channel.team === teamId
         )
       );
+    });
+  }
+
+  numberOfAccounts(teamId) {
+    return this.accountsStore.all(teamId).then(accounts => {
+      return accounts.length;
     });
   }
 
@@ -252,11 +263,12 @@ class TeamConfigurationService {
   extractRealName(account) {
     return new Promise(resolve => {
       if (account.alias === 'my-account') {
-        this.httpClient.getRealName(account.apiToken,account.region)
+        this.httpClient
+          .getRealName(account.apiToken, account.region)
           .then(realName => {
             account.realName = realName.accountName;
             resolve(account);
-          })
+          });
       } else {
         resolve(account);
       }
@@ -279,7 +291,14 @@ class TeamConfigurationService {
             channels: []
           };
         } else {
-          map = accounts.map(configuredAccount => this.getAccountSafeView(configuredAccount, teamId, bot, defaultAccount));
+          map = accounts.map(configuredAccount =>
+            this.getAccountSafeView(
+              configuredAccount,
+              teamId,
+              bot,
+              defaultAccount
+            )
+          );
         }
         return Promise.all(map);
       })
@@ -293,16 +312,16 @@ class TeamConfigurationService {
   getAccountSafeView(configuredAccount, teamId, bot, defaultAccount) {
     return this.extractRealName(configuredAccount)
       .then(configuredAccount =>
-        this.getAliasAccountsUsedByChannel(teamId, configuredAccount.alias))
+        this.getAliasAccountsUsedByChannel(teamId, configuredAccount.alias)
+      )
       .then(aliasAccounts =>
         ApiExtract.extractAccountsChannelsWithId(bot, aliasAccounts)
       )
       .then(channels => ({
         accountName: configuredAccount.realName,
         accountAlias: configuredAccount.alias,
-        isDefault:
-          defaultAccount.config.alias === configuredAccount.alias,
-        channels: channels,
+        isDefault: defaultAccount.config.alias === configuredAccount.alias,
+        channels: channels
       }));
   }
 }

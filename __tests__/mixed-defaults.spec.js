@@ -5,8 +5,8 @@ const Messages = require('../src/core/messages/messages');
 const userId = 'u_mixed1';
 const teamId = 't_mixed1';
 const channelId2 = 'chan2';
-const alias1 = 'mixed1';
-const alias2 = 'mixed2';
+const alias1 = 'd1'+Math.random().toString(16).substr(2, 4);
+const alias2 = 'd2'+Math.random().toString(16).substr(2, 4);
 
 const triggersResults = [
   {
@@ -94,9 +94,10 @@ describe('Mixed1', () => {
     message,
     expectedPageSize,
     expectedTotal,
-    triggersResults
+    triggersResults,
+    alias
   ) {
-    expect(message.text).toBe(
+    expect(message.text).toBe(Messages.getResults(alias)+
       `Displaying ${expectedPageSize} out of ${expectedTotal} events`
     );
     expect(message.attachments[0].title === triggersResults[0].name);
@@ -158,7 +159,7 @@ describe('Mixed1', () => {
         globalTestConfiguration.bot.usersInput(getTriggers(channelId))
       )
       .then(message =>
-        validateTriggersResult(message, pageSize, total, triggersResults)
+        validateTriggersResult(message, pageSize, total, triggersResults, alias1)
       )
       .then(() =>
         globalTestConfiguration.bot.usersInput(
@@ -166,7 +167,7 @@ describe('Mixed1', () => {
         )
       )
       .then(message =>
-        validateTriggersResult(message, pageSize, total2, triggersResults2)
+        validateTriggersResult(message, pageSize, total2, triggersResults2, alias2)
       )
       .then(() =>
         globalTestConfiguration.bot.usersInput(
@@ -177,7 +178,7 @@ describe('Mixed1', () => {
         globalTestConfiguration.bot.usersInput(getTriggers(channelId))
       )
       .then(message =>
-        validateTriggersResult(message, pageSize, total2, triggersResults2)
+        validateTriggersResult(message, pageSize, total2, triggersResults2,alias2)
       )
       .then(() =>
         globalTestConfiguration.bot.usersInput(
@@ -188,7 +189,7 @@ describe('Mixed1', () => {
         globalTestConfiguration.bot.usersInput(getTriggers(channelId))
       )
       .then(message =>
-        validateTriggersResult(message, pageSize, total, triggersResults)
+        validateTriggersResult(message, pageSize, total, triggersResults,alias1)
       )
       .then(() => done());
   });
@@ -242,13 +243,13 @@ describe('Mixed1', () => {
         globalTestConfiguration.bot.usersInput(getTriggers(channelId2))
       )
       .then(message =>
-        validateTriggersResult(message, pageSize, total2, triggersResults2)
+        validateTriggersResult(message, pageSize, total2, triggersResults2, alias2)
       )
       .then(() =>
         globalTestConfiguration.bot.usersInput(getTriggers(channelId))
       )
       .then(message =>
-        validateTriggersResult(message, pageSize, total, triggersResults)
+        validateTriggersResult(message, pageSize, total, triggersResults ,alias1)
       )
       .then(() =>
         globalTestConfiguration.bot.usersInput(
@@ -259,7 +260,7 @@ describe('Mixed1', () => {
         globalTestConfiguration.bot.usersInput(getTriggers(channelId2))
       )
       .then(message =>
-        validateTriggersResult(message, pageSize, total, triggersResults)
+        validateTriggersResult(message, pageSize, total, triggersResults,alias1)
       )
       .then(() => done());
   });
@@ -316,43 +317,30 @@ describe('Mixed1', () => {
         globalTestConfiguration.bot.usersInput(getTriggers(channelId2))
       )
       .then(message =>
-        validateTriggersResult(message, pageSize, total2, triggersResults2)
+        validateTriggersResult(message, pageSize, total2, triggersResults2, alias2)
       )
       .then(() =>
         globalTestConfiguration.bot.usersInput(getTriggers(channelId))
       )
       .then(message =>
-        validateTriggersResult(message, pageSize, total2, triggersResults2)
-      )
-
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
-          TestFunctions.clearWorkspaceAccount(userId, teamId, channelId2)
-        )
-      )
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(getTriggers(channelId))
-      )
-      .then(message =>
-        expect(message.text).toBe(Messages.LOFZ_IO_IS_NOT_CONFIGURED)
+        validateTriggersResult(message, pageSize, total2, triggersResults2 , alias2)
       )
       .then(() =>
         globalTestConfiguration.bot.usersInput(
           TestFunctions.setWorkspaceAccount(userId, teamId, channelId, alias1)
         )
       )
-
       .then(() =>
         globalTestConfiguration.bot.usersInput(getTriggers(channelId2))
       )
       .then(message =>
-        validateTriggersResult(message, pageSize, total, triggersResults)
+        validateTriggersResult(message, pageSize, total, triggersResults, alias1)
       )
       .then(() =>
         globalTestConfiguration.bot.usersInput(getTriggers(channelId))
       )
       .then(message =>
-        validateTriggersResult(message, pageSize, total, triggersResults)
+        validateTriggersResult(message, pageSize, total, triggersResults, alias1)
       )
       .then(() => done());
   });
@@ -401,7 +389,7 @@ describe('Mixed1', () => {
         globalTestConfiguration.bot.usersInput(getTriggers(channelId2))
       )
       .then(message =>
-        validateTriggersResult(message, pageSize, total2, triggersResults2)
+        validateTriggersResult(message, pageSize, total2, triggersResults2, alias2)
       )
       .then(() => done());
   });
@@ -458,18 +446,19 @@ describe('Mixed1', () => {
     done();
   });
 
-  beforeEach(async () => {
+  beforeEach(async (done) => {
     const kibanaClient = globalTestConfiguration.createKibanaClientMock([]);
     await globalTestConfiguration.initBeforeEach(
       kibanaClient,
       CommandName.SETUP
     );
+    done();
   });
 
-  afterAll(done => {
+  afterAll(async done => {
     globalTestConfiguration.afterAll(done);
   });
-  afterEach(() => {
-    globalTestConfiguration.afterEach();
+  afterEach(async(done) => {
+    globalTestConfiguration.afterEach(done);
   });
 });

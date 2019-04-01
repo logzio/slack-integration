@@ -35,8 +35,8 @@ class TestFunctions {
       user: userId,
       channel: channelId,
       messages: [
-        { team: { id: teamId }, text: 'add account' },
-        { team: { id: teamId }, text: 'add-yes' },
+        { team: { id: teamId }, text: 'add account',timeout:3000},
+        { team: { id: teamId }, text: 'add-yes' ,timeout:3000},
         {
           raw_message: {
             team: { id: teamId, domain: 'logzio' },
@@ -119,6 +119,23 @@ class TestFunctions {
     ];
   }
 
+  static getChannelAccount(userId, teamId, channelId) {
+    return [
+      {
+        user: userId,
+        channel: channelId,
+        team: teamId,
+        messages: [
+          {
+            text:'get channel account',
+            isAssertion: true,
+            team: teamId
+          }
+        ]
+      }
+    ];
+  }
+
   static clearChannelAccount(userId, teamId, channelId) {
     return [
       {
@@ -128,23 +145,6 @@ class TestFunctions {
         messages: [
           {
             text: 'clear channel account',
-            isAssertion: true,
-            team: teamId
-          }
-        ]
-      }
-    ];
-  }
-
-  static clearWorkspaceAccount(userId, teamId, channelId) {
-    return [
-      {
-        user: userId,
-        channel: channelId,
-        team: teamId,
-        messages: [
-          {
-            text: 'clear workspace account',
             isAssertion: true,
             team: teamId
           }
@@ -267,23 +267,6 @@ class TestFunctions {
     return request;
   }
 
-  static showAliasAlertByName(userId, teamId, channelId, alertName, alias) {
-    let request = [
-      {
-        user: userId,
-        channel: channelId,
-        messages: [
-          {
-            team: teamId,
-            text: `${alias} show alert ${alertName}`,
-            isAssertion: true
-          }
-        ]
-      }
-    ];
-    return request;
-  }
-
   static getAliasAlertByName(userId, teamId, channelId, alertName, alias) {
     let request = [
       {
@@ -395,6 +378,15 @@ class TestFunctions {
     expect(alertMessage.attachments[0].fields[1].value).toBe(
       AlertsCommand.ucFirst(expectedResponse.body[0].isEnabled.toString())
     );
+  }
+
+  static validateAlertResultsByName(alertMessage, expectedResponse, globalTestConfiguration, alias) {
+    expect(alertMessage.text).toBe(`Getting results from \`${alias}\`\n`);
+    const content = globalTestConfiguration.bot.api.files.files.content.trim();
+    expect(content).toContain(`${expectedResponse.body[0].alertId}`.trim());
+    expect(content).toContain(`${expectedResponse.body[0].title}`.trim());
+    expect(content).toContain(`${AlertsCommand.ucFirst(expectedResponse.body[0].severity)}`.trim());
+    expect(content).toContain(`${AlertsCommand.ucFirst(expectedResponse.body[0].isEnabled.toString())}`.trim());
   }
 
   static validateTriggeredResults(alertMessage, expectedResponse) {

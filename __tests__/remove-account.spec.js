@@ -67,7 +67,7 @@ describe('Remove account command', () => {
       )
       .then(message => {
         expect(message.attachments[0].text).toBe(
-          `Are you sure you want to remove ${alias2}`
+          `Are you sure you want to remove ${alias2}?`
         );
       })
       .then(() => {
@@ -114,9 +114,7 @@ describe('Remove account command', () => {
         )
       )
       .then(message => {
-        expect(message.attachments[0].text).toBe(
-          `${alias1} is your workspace account. Are you sure you want to remove it from Slack?`
-        );
+        expect(message.attachments[0].text).toBe(Messages.YOU_ARE_ABOUT_TO_REMOVE_LAST_ACCOUNT);
       })
       .then(() => {
         globalTestConfigurationSetup.bot
@@ -124,7 +122,7 @@ describe('Remove account command', () => {
             TestFunctions.confirm(userId, teamId, alias2, channelId, 'remove-no')
           )
           .then(message => {
-            expect(message.text).toBe(`Okay, ${alias1} is still active.`);
+            expect(message.text).toBe(Messages.I_WONT_REMOVE_ACCOUNT);
             globalTestConfigurationSetup.bot
               .usersInput(TestFunctions.getAccounts(userId, teamId, channelId))
               .then(message => {
@@ -299,9 +297,7 @@ describe('Remove account command', () => {
         )
       ) /// remove default?
       .then(message => {
-        expect(message.attachments[0].text).toBe(
-          `${alias1} is your workspace account. Are you sure you want to remove it from Slack?`
-        );
+        expect(message.attachments[0].text).toBe(Messages.YOU_ARE_ABOUT_TO_REMOVE_LAST_ACCOUNT);
         done();
       });
   });
@@ -329,9 +325,7 @@ describe('Remove account command', () => {
         )
       )
       .then(message =>
-        expect(message.attachments[0].text).toBe(
-          `${alias1} is your workspace account. Are you sure you want to remove it from Slack?`
-        )
+        expect(message.attachments[0].text).toBe(Messages.YOU_ARE_ABOUT_TO_REMOVE_LAST_ACCOUNT)
       )
       .then(() =>
         globalTestConfigurationSetup.bot.usersInput(
@@ -339,7 +333,7 @@ describe('Remove account command', () => {
         )
       )
       .then(message =>
-        expect(message.text).toBe(`Okay, I removed ${alias1} from Slack.`)
+        expect(message.text).toBe(Messages.REMOVED_ACCOUNT_MESSAGE)
       )
       .then(() =>
         globalTestConfigurationSetup.bot.usersInput(
@@ -434,7 +428,7 @@ describe('Remove account command', () => {
     done();
   });
 
-  beforeEach(async () => {
+  beforeEach(async (done) => {
     await globalTestConfigurationSetup.mockFirstInstall(
       teamId,
       userId,
@@ -451,14 +445,13 @@ describe('Remove account command', () => {
       kibanaClient,
       CommandName.SETUP
     );
-
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000000;
+    done();
   });
 
-  afterAll(done => {
+  afterAll(async done => {
     globalTestConfigurationSetup.afterAll(done);
   });
-  afterEach(() => {
-    globalTestConfigurationSetup.afterEach();
+  afterEach(async (done) => {
+    globalTestConfigurationSetup.afterEach(done);
   });
 });

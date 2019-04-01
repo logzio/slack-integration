@@ -93,8 +93,7 @@ describe('search', () => {
         )
       )
       .then(() => validateSearchResult(searchResults1))
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
+      .then(() => globalTestConfiguration.bot.usersInput(
           TestFunctions.search(
             userId,
             teamId,
@@ -105,8 +104,7 @@ describe('search', () => {
         )
       )
       .then(() => validateSearchResult(searchResults1))
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
+      .then(() => globalTestConfiguration.bot.usersInput(
           TestFunctions.search(userId, teamId, channelId, 'error', 'last 3 h')
         )
       )
@@ -123,9 +121,7 @@ describe('search', () => {
         )
       )
       .then(() => validateSearchResult(searchResults1))
-      .then(() => {
-        done();
-      });
+      .then(() => done());
   });
 
   it('search - test valid commands with alias', done => {
@@ -236,9 +232,8 @@ describe('search', () => {
         )
       )
       .then(() => validateSearchResult(searchResults1))
-      .then(() => {
-        done();
-      });
+      .then(() => done()
+      );
   });
 
   it('search - test valid commands', done => {
@@ -302,12 +297,10 @@ describe('search', () => {
         )
       )
       .then(() => validateSearchResult(searchResults2))
-      .then(() => {
-        done();
-      });
+      .then(() => done());
   });
 
-  beforeAll(async () => {
+  beforeAll(async (done) => {
     const searchReturnValue1 = {
       statusCode: 200,
       body: {
@@ -351,21 +344,22 @@ describe('search', () => {
       'xoxb-357770700357',
       'xoxp-8241711843-408'
     );
-
+    done()
   });
 
-  beforeEach(async () => {
+  beforeEach(async (done) => {
     const kibanaClient = globalTestConfiguration.createKibanaClientMock([]);
     await globalTestConfiguration.initBeforeEach(
       kibanaClient,
       CommandName.SETUP
     );
+    done();
   });
 
-  afterAll(done => {
+  afterAll(async done => {
     globalTestConfiguration.afterAll(done);
   });
-  afterEach(() => {
-    globalTestConfiguration.afterEach();
+  afterEach(async (done) => {
+    globalTestConfiguration.afterEach(done);
   });
 });

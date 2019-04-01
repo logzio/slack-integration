@@ -1,13 +1,11 @@
 const GlobalConfiguration = require('../src/core/utils/globalTestConfigurationSetup');
 const CommandName = require('./commandName');
 const TestFunctions = require('./testFunctions');
+const Messages = require('../src/core/messages/messages');
 const userId = 'u_mixed2';
 const teamId = 't_mixed3';
-
 const userId2 = 'u_mixed4';
 const teamId2 = 't_mixed5';
-
-const someChannelId = 'someChannelId';
 const channelId2 = 'chan2';
 const alias1 = 'mixed3';
 const alias2 = 'mixed4';
@@ -375,18 +373,19 @@ describe('Mixed1', () => {
     done();
   });
 
-  beforeEach(async () => {
+  beforeEach(async (done) => {
     const kibanaClient = globalTestConfiguration.createKibanaClientMock([]);
     await globalTestConfiguration.initBeforeEach(
       kibanaClient,
       CommandName.SETUP
     );
+    done();
   });
 
-  afterAll(done => {
+  afterAll(async done => {
     globalTestConfiguration.afterAll(done);
   });
-  afterEach(() => {
-    globalTestConfiguration.afterEach();
+  afterEach(async (done) => {
+    globalTestConfiguration.afterEach(done);
   });
 });

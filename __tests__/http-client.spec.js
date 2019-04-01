@@ -147,15 +147,16 @@ describe('HttpClient', () => {
     done();
   });
 
-  afterAll(done => {
+  afterAll(async done => {
     globalTestConfiguration.afterAll(done);
   });
-  afterEach(() => {
-    globalTestConfiguration.afterEach();
+  afterEach(async (done) => {
+    globalTestConfiguration.afterEach(done);
   });
-  beforeEach(async () => {
+  beforeEach(async (done) => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000000;
     const kibanaClient = globalTestConfiguration.createKibanaClientMock([]);
     await globalTestConfiguration.initBeforeEach(kibanaClient);
+    done();
   });
 });

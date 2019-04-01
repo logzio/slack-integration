@@ -2,6 +2,7 @@ const Command = require('../core/commands/command');
 const LoggerFactory = require('../core/logging/logger-factory');
 const moment = require('moment');
 const { getEventMetadata } = require('../core/logging/logging-metadata');
+const Messages = require('../core/messages/messages');
 
 const logger = LoggerFactory.getLogger(__filename);
 
@@ -15,7 +16,7 @@ const commandWithAlias = /(.+) (get|list) triggered alerts/;
 const command = /(get|list) triggered alerts/;
 const events = 'direct_message,direct_mention';
 
-function createTriggeredAlertsMessage(events, total) {
+function createTriggeredAlertsMessage(events, total, alias) {
   const attachments = events.map(({ eventDate, name, severity }) => {
     return {
       color: colors[severity.toLowerCase()],
@@ -24,8 +25,9 @@ function createTriggeredAlertsMessage(events, total) {
     };
   });
 
+  const aliasResults = Messages.getResults(alias);
   return {
-    text: `Displaying ${events.length} out of ${total} events`,
+    text: `${aliasResults}Displaying ${events.length} out of ${total} events`,
     attachments
   };
 }
@@ -67,9 +69,9 @@ class GetTriggeredAlertsCommand extends Command {
         'DATE',
         'DESC'
       )
-      .then(({ results, total }) =>
-        bot.reply(message, createTriggeredAlertsMessage(results, total))
-      )
+      .then(({ results, total, alias }) => {
+        bot.reply(message, createTriggeredAlertsMessage(results, total, alias));
+      })
       .catch(err => {
         this.handleError(
           bot,

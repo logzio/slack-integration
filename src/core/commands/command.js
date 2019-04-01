@@ -19,7 +19,10 @@ class Command {
   handleError(bot, userMessage, err, unknownErrorHandler) {
     if (err instanceof TeamNotConfiguredError) {
       bot.reply(userMessage, Messages.LOFZ_IO_IS_NOT_CONFIGURED);
-    } else if (err instanceof RateLimitExceededError || err instanceof AliasNotExistError) {
+    } else if (
+      err instanceof RateLimitExceededError ||
+      err instanceof AliasNotExistError
+    ) {
       bot.reply(userMessage, err.message);
     } else {
       unknownErrorHandler(err);

@@ -31,34 +31,40 @@ const RemoveAccountHandler = require('../../accounts/remove/remove-account-handl
 const ShowAlertCommand = require('../../alerts/show-alert-command');
 const SearchClient = require('../../search/search-client');
 const SearchCommand = require('../../search/search-command');
-const ClearDefaultCommand = require('../../accounts/default/clear-default-command');
 const KibanaClient = require('../../kibana/kibana-client');
 const KibanaObjectsCommand = require('../../kibana/kibana-objects-command');
+const GetChannelAccountCommand = require('../../accounts/channel/get-channel-account-command');
 
 class GlobalTestConfigurationSetup {
   constructor() {
     this.openChannelId = 'openc1';
   }
 
-  async beforeAll(jasmineSpyHandlers, jasmineSpyHandlerReturnValues, fn) {
+  async beforeAll(jasmineSpyHandlers, jasmineSpyHandlerReturnValues, fn, num) {
     await this.setupGeneralTestConfigurations(
       jasmineSpyHandlers,
       jasmineSpyHandlerReturnValues,
-      fn
+      fn,
+      num
     );
   }
 
   async setupGeneralTestConfigurations(
     jasmineSpyHandlers,
     jasmineSpyHandlerReturnValues,
-    fn
+    fn,
+    num
   ) {
     this.dbConfig = {
       user: DBUtils.getRequiredValueFromEnv('MYSQL_USER'),
       password: DBUtils.getRequiredValueFromEnv('MYSQL_PASSWORD'),
       host: DBUtils.getRequiredValueFromEnv('MYSQL_HOST')
     };
+    const random = 'random'+Math.random().toString(16).substr(2, 4);
+    logger.info("\n**********setupGeneralTestConfigurations starts "+random +",num="+num);
     this.storage = await this.createTestStorage(this.dbConfig);
+    logger.info("\n************setupGeneralTestConfigurations ends "+random+",num="+num);
+
     this.teamConfigurationService = new TeamConfigurationService(this.storage);
     this.port = await findFreePort(3000);
     this.externalDomain = `http://localhost:${this.port}`;
@@ -122,7 +128,6 @@ class GlobalTestConfigurationSetup {
       }
     };
 
-
     if (fn) {
       for (let [i] in jasmineSpyHandlers) {
         const handler = jasmineSpyHandlers[i];
@@ -134,6 +139,14 @@ class GlobalTestConfigurationSetup {
             return jasmineSpyHandlerReturnValues[handler.handlerName][
               req.headers['x-api-token']
             ][req.body.type];
+          } else if (req.originalUrl === '/v1/snapshotter') {
+            return jasmineSpyHandlerReturnValues[handler.handlerName][
+              req.headers['x-api-token']
+            ];
+          } else if (req.originalUrl === '/webhook/t_mixed1/openc1') {
+            return jasmineSpyHandlerReturnValues[handler.handlerName][
+              req.headers['x-api-token']
+            ];
           } else {
             return jasmineSpyHandlerReturnValues[handler.handlerName][
               req.headers['x-api-token']
@@ -154,10 +167,11 @@ class GlobalTestConfigurationSetup {
   afterAll(done) {
     this.httpSpy.server.stop(done);
   }
-  afterEach() {
+  afterEach(done) {
     for (let i = 0; i < this.handlers.length; i++) {
       this.httpSpy[this.handlers[i]].calls.reset();
     }
+    done();
   }
 
   async initBeforeEach(kibanaClient, commandType, migration) {
@@ -234,14 +248,29 @@ class GlobalTestConfigurationSetup {
       const clearActiveCommand = new ClearActiveCommand(channelAccountHandler);
       clearActiveCommand.configure(this.controller);
 
-      const clearWorkspaceCommand = new ClearDefaultCommand(defaultHandler);
-      clearWorkspaceCommand.configure(this.controller);
-
       const kibanaClient = new KibanaClient(this.httpClient);
       const kibanaObjectsCommand = new KibanaObjectsCommand(kibanaClient);
       kibanaObjectsCommand.configure(this.controller);
+
+      const snapshotsClient = new SnapshotsClient(this.httpClient);
+      const snapshotCommand = new SnapshotCommand(
+        this.externalDomain,
+        kibanaClient,
+        snapshotsClient
+      );
+      snapshotCommand.configure(this.controller);
+
+      const getChannelAccountCommand = new GetChannelAccountCommand(
+        this.teamConfigurationService
+      );
+      getChannelAccountCommand.configure(this.controller);
     } else if (commandType === CommandName.SNAPSHOT) {
-      const snapshotsClient = this.createSnapshotClient();
+      this.httpClient = new HttpClient(
+        this.teamConfigurationService,
+        this.endpointResolver
+      );
+      this.teamConfigurationService.httpClient = this.httpClient;
+      const snapshotsClient = this.createSnapshotClient(this.httpClient);
       this.command = new SnapshotCommand(
         this.externalDomain,
         kibanaClient,
@@ -328,12 +357,12 @@ class GlobalTestConfigurationSetup {
     this.bot.api.setData('channels.info', temp);
   }
 
-  createSnapshotClient() {
-    this.httpClient = new HttpClient(
-      this.teamConfigurationService,
-      this.endpointResolver
-    );
-    return new SnapshotsClient(this.httpClient);
+  createSnapshotClient(httpClient) {
+    // this.httpClient = new HttpClient(
+    //   this.teamConfigurationService,
+    //   this.endpointResolver
+    // );
+    return new SnapshotsClient(httpClient);
   }
 
   createKibanaClientMock(args) {

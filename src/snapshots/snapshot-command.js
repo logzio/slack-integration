@@ -4,7 +4,7 @@ const moment = require('moment');
 const Table = require('easy-table');
 const TimeUnit = require('../core/time/time-unit');
 const { getEventMetadata } = require('../core/logging/logging-metadata');
-
+const Messages = require('../core/messages/messages');
 const logger = LoggerFactory.getLogger(__filename);
 const commandWithAlias = /(.+) snapshot (vis|visualization|dash|dashboard) (.*) last (\d+) ?(minutes?|mins?|m|hours?|h)( query (.+))?\s*$/;
 const command = /snapshot (vis|visualization|dash|dashboard) (.*) last (\d+) ?(minutes?|mins?|m|hours?|h)( query (.+))?\s*$/;
@@ -22,12 +22,14 @@ function getKibanaObjectType(objectTypeStr) {
 
 function filterObjectsByIdOrName(kibanaObjects, filter) {
   const lowerCaseFilter = filter.toLowerCase();
-  return kibanaObjects.filter(kibanaObject => {
+  let filteredKibanaObjects = kibanaObjects.filter(kibanaObject => {
     return (
       kibanaObject['_id'].toLowerCase().includes(lowerCaseFilter) ||
       kibanaObject['_source']['title'].toLowerCase().includes(lowerCaseFilter)
     );
   });
+  filteredKibanaObjects.alias = kibanaObjects.alias;
+  return filteredKibanaObjects;
 }
 
 function sendMatchedKibanaObjectsTable(
@@ -45,7 +47,8 @@ function sendMatchedKibanaObjectsTable(
 
   bot.reply(
     message,
-    `There are multiple ${objectType}s with the specified name or id, please refine you request.`
+    Messages.getResults(matchedKibanaObjects.alias) +
+      `There's more than one ${objectType} with that name or ID. Please refine your request.`
   );
   bot.api.files.upload(
     {
@@ -102,7 +105,10 @@ function sendSnapshotRequest(
     )
     .then(data => {
       if (data.errorCode === undefined) {
-        bot.reply(message, 'Snapshot request has been sent.');
+        bot.reply(
+          message,
+          Messages.getResults(data.alias) + 'Snapshot request has been sent.'
+        );
       } else {
         throw Error();
       }
@@ -211,7 +217,7 @@ class SnapshotCommand extends Command {
 
   getUsage() {
     return [
-       '*[&lt;alias&gt;] snapshot &lt;dashboard|visualization&gt; &lt;object-name&gt; last &lt;time-value&gt; &lt;time-unit&gt; [query &lt;query-string&gt;]* - Create a snapshot of a dashboard or visualization\n\tExamples:\n\t\t _snapshot dashboard ELB logs last 1 h_\n\t\t _snapshot dashboard ELB logs last 15 m query ͏`*`͏_'
+      '*[&lt;alias&gt;] snapshot &lt;dashboard|visualization&gt; &lt;object-name|object-id&gt; last &lt;time-value&gt; &lt;time-unit&gt; [query &lt;query-string&gt;]* - Create a snapshot of a dashboard or visualization\n\tExamples:\n\t\t_snapshot dashboard ELB logs last 1 h_\n\t\t_snapshot dashboard fa5c7aaa-ee10-a2d0-ddf9-725f707f8c67 last 15 m_\n\t\t_snapshot dashboard ELB logs last 15 m query ͏`*`͏_'
     ];
   }
 }

@@ -37,19 +37,14 @@ class SetWorkspaceAccountCommand extends Command {
         bot.reply(message, `Okay, ${alias} is the workspace account now`);
       })
       .catch(err => {
-        this.handleError(
-          bot,
-          message,
-          err,
-          err => {
-            logger.warn(
-              'Failed to set workspace account',
-              err,
-              getEventMetadata(message, 'failed-to-set-workspace-account')
-            );
-            bot.reply(message, Messages.DEFAULT_ERROR_MESSAGE);
-          }
-        );
+        this.handleError(bot, message, err, err => {
+          logger.warn(
+            'Failed to set workspace account',
+            err,
+            getEventMetadata(message, 'failed-to-set-workspace-account')
+          );
+          bot.reply(message, Messages.DEFAULT_ERROR_MESSAGE);
+        });
       });
   }
 

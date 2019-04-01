@@ -3,10 +3,10 @@ const TestFunctions = require('./testFunctions');
 const CommandName = require('./commandName');
 const Messages = require('../src/core/messages/messages');
 const userId = 'u_mixed1'
-const teamId = 't_mixed1';
+const teamId = 'r'+Math.random().toString(16).substr(2, 4);
 
-const alias1 = 'mixed1';
-const alias2 = 'mixed2';
+const alias1 = 'c1'+Math.random().toString(16).substr(2, 4);
+const alias2 = 'yc2'+Math.random().toString(16).substr(2, 4);
 
 describe('Add account command', () => {
   const globalTestConfigurationSetup = new GlobalTestConfigurationSetup();
@@ -33,8 +33,8 @@ describe('Add account command', () => {
       expect(message.attachments[0].text).toBe(
         'If you add this account, all workspace users can see information on the account, even if they can’t sign in to Logz.io. Do you still want to add the account?'
       );
-      done();
-    });
+    })
+      .then(()=>done());
   });
 
   it('Add account => confirm yes', done => {
@@ -56,8 +56,8 @@ describe('Add account command', () => {
       expect(dialog.elements[0].label).toBe('Account region');
       expect(dialog.elements[1].label).toBe('API Token');
       expect(dialog.elements[2].label).toBe('Alias');
-      done();
-    });
+    })
+      .then(()=>done());
   });
 
   it('add account => confirm no', done => {
@@ -76,8 +76,8 @@ describe('Add account command', () => {
       expect(message.text).toBe(
         `Okay, I won't add an account now. When you're ready, just type  add account.`
       );
-      done();
-    });
+    })
+      .then(()=>done())
   });
 
   it('try to add account with wrong token', done => {
@@ -99,8 +99,8 @@ describe('Add account command', () => {
         expect(globalTestConfigurationSetup.bot.dialogErrors[0].name).toBe(
           `apiToken`
         );
-        done();
-      });
+      })
+      .then(()=>done());
   });
 
   it('try to add account with blank token', done => {
@@ -122,8 +122,8 @@ describe('Add account command', () => {
         expect(globalTestConfigurationSetup.bot.dialogErrors[0].name).toBe(
           `apiToken`
         );
-        done();
-      });
+      })
+      .then(()=>done());
   });
 
   it('try to add account with blank alias', done => {
@@ -145,8 +145,8 @@ describe('Add account command', () => {
         expect(globalTestConfigurationSetup.bot.dialogErrors[0].name).toBe(
           `alias`
         );
-        done();
-      });
+      })
+      .then(()=>done());
   });
 
   it('try to add account with wrong alias', done => {
@@ -168,8 +168,8 @@ describe('Add account command', () => {
         expect(globalTestConfigurationSetup.bot.dialogErrors[0].name).toBe(
           `alias`
         );
-        done();
-      });
+      })
+      .then(()=>done());
   });
 
   it('add two accounts', done => {
@@ -218,8 +218,8 @@ describe('Add account command', () => {
             `• \`${alias1}\`: Slack alias for Logzio App Test 1 Prod. *This is the default workspace account.*\n` +
             `• \`${alias2}\`: Slack alias for Logzio App Test 2 Prod.\n`
         );
-        done();
-      });
+      })
+      .then(()=> done());
   });
 
   it('add two accounts with same alias and same token', done => {
@@ -265,10 +265,10 @@ describe('Add account command', () => {
         expect(message.channel).toBe(channelId);
         expect(message.text).toBe(
           `These are the accounts in this workspace:\n` +
-            `• \`mixed1\`: Slack alias for Logzio App Test 1 Prod. *This is the default workspace account.*\n`
+            `• \`${alias1}\`: Slack alias for Logzio App Test 1 Prod. *This is the default workspace account.*\n`
         );
-        done();
-      });
+      })
+      .then(()=>done());
   });
 
   it('add two accounts with same alias and different tokens', done => {
@@ -313,10 +313,9 @@ describe('Add account command', () => {
       .then(message => {
         expect(message.channel).toBe(channelId);
         expect(message.text).toBe(
-          `These are the accounts in this workspace:\n• \`${alias1}\`: Slack alias for Logzio App Test 1 Prod. *This is the default workspace account.*\n`
-        );
-        done();
-      });
+          `These are the accounts in this workspace:\n• \`${alias1}\`: Slack alias for Logzio App Test 1 Prod. *This is the default workspace account.*\n`);
+      })
+      .then(()=>done());
   });
 
   beforeAll(async done => {
@@ -338,7 +337,7 @@ describe('Add account command', () => {
     done();
   });
 
-  beforeEach(async () => {
+  beforeEach(async (done) => {
     const kibanaClient = globalTestConfigurationSetup.createKibanaClientMock(
       []
     );
@@ -346,12 +345,12 @@ describe('Add account command', () => {
       kibanaClient,
       CommandName.SETUP
     );
+    done();
   });
-
   afterAll(done => {
     globalTestConfigurationSetup.afterAll(done);
   });
-  afterEach(() => {
-    globalTestConfigurationSetup.afterEach();
+  afterEach((done) => {
+    globalTestConfigurationSetup.afterEach(done);
   });
 });

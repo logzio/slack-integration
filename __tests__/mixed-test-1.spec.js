@@ -1,11 +1,12 @@
 const GlobalConfiguration = require('../src/core/utils/globalTestConfigurationSetup');
 const CommandName = require('./commandName');
 const TestFunctions = require('./testFunctions');
+const Messages = require('../src/core/messages/messages');
 const userId = 'u_mixed2';
 const teamId = 't_mixed3';
 const channelId2 = 'chan2';
-const alias1 = 'mixed3';
-const alias2 = 'mixed4';
+const alias1 = 'a3'+Math.random().toString(36).substr(2, 4);
+const alias2 = 'a4'+Math.random().toString(36).substr(2, 4);
 
 // This test is used for the following scenario:
 // 1. team login
@@ -97,7 +98,7 @@ describe('Mixed1', () => {
       )
       .then(message => {
         expect(message.text).toBe(
-          `Displaying ${pageSize} out of ${total} events`
+          Messages.getResults(alias1)+`Displaying ${pageSize} out of ${total} events`
         );
         expect(globalTestConfiguration.httpSpy.alerts).toHaveBeenCalledWith(
           jasmine.objectContaining({
@@ -118,7 +119,7 @@ describe('Mixed1', () => {
       )
       .then(message => {
         expect(message.text).toBe(
-          `Displaying ${pageSize} out of ${total2} events`
+          Messages.getResults(alias2)+`Displaying ${pageSize} out of ${total2} events`
         );
         expect(globalTestConfiguration.httpSpy.alerts).toHaveBeenCalledWith(
           jasmine.objectContaining({
@@ -148,7 +149,7 @@ describe('Mixed1', () => {
       )
       .then(message => {
         expect(message.text).toBe(
-          `Displaying ${pageSize} out of ${total} events`
+          Messages.getResults(alias1)+`Displaying ${pageSize} out of ${total} events`
         );
         expect(globalTestConfiguration.httpSpy.alerts).toHaveBeenCalledWith(
           jasmine.objectContaining({
@@ -167,7 +168,7 @@ describe('Mixed1', () => {
       )
       .then(message => {
         expect(message.text).toBe(
-          `Displaying ${pageSize} out of ${total2} events`
+          Messages.getResults(alias2)+`Displaying ${pageSize} out of ${total2} events`
         );
         expect(globalTestConfiguration.httpSpy.alerts).toHaveBeenCalledWith(
           jasmine.objectContaining({
@@ -334,18 +335,19 @@ describe('Mixed1', () => {
     done();
   });
 
-  beforeEach(async () => {
+  beforeEach(async (done) => {
     const kibanaClient = globalTestConfiguration.createKibanaClientMock([]);
     await globalTestConfiguration.initBeforeEach(
       kibanaClient,
       CommandName.SETUP
     );
+    done();
   });
 
-  afterAll(done => {
+  afterAll(async done => {
     globalTestConfiguration.afterAll(done);
   });
-  afterEach(() => {
-    globalTestConfiguration.afterEach();
+  afterEach(async(done) => {
+    globalTestConfiguration.afterEach(done);
   });
 });

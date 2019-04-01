@@ -68,7 +68,8 @@ class HttpClient {
           apiToken,
           method,
           path,
-          body
+          body,
+          configuration.getAlias()
         );
       });
   }
@@ -103,7 +104,14 @@ class HttpClient {
     }
   }
 
-  sendRequestWithRegionAndToken(accountRegion, apiToken, method, path, body) {
+  sendRequestWithRegionAndToken(
+    accountRegion,
+    apiToken,
+    method,
+    path,
+    body,
+    alias
+  ) {
     let endpointUrl = this.endpointResolver.getEndpointUrl(accountRegion, path);
     const authHeaders = getAuthHeaders(apiToken);
 
@@ -120,7 +128,10 @@ class HttpClient {
     }
 
     return requestPromise
-      .then(response => response.data)
+      .then(response => {
+        response.data.alias = alias;
+        return response.data;
+      })
       .catch(err => {
         logger.error(err);
         if (err.response.status === 429) {

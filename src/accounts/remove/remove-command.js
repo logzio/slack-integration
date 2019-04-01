@@ -39,7 +39,14 @@ class RemoveCommand extends Command {
       getEventMetadata(message, 'remove account')
     );
     this.removeAccountHandler
-      .removeAccount(message.team, message.channel, alias, bot, message.user)
+      .removeAccount(
+        message.team,
+        message.channel,
+        alias,
+        bot,
+        message.user,
+        message
+      )
       .catch(err => {
         this.handleError(bot, message, err, err => {
           logger.warn(

@@ -3,7 +3,7 @@ const commandRegexWithAlias = /set channel account (.*)/;
 const commandRegex = /set channel account/;
 const LoggerFactory = require('../../core/logging/logger-factory');
 const logger = LoggerFactory.getLogger(__filename);
-const {getEventMetadata} = require('../../core/logging/logging-metadata');
+const { getEventMetadata } = require('../../core/logging/logging-metadata');
 const Messages = require('../../core/messages/messages');
 
 class SetChannelAccountCommand extends Command {
@@ -22,7 +22,11 @@ class SetChannelAccountCommand extends Command {
       }
     );
 
-    controller.hears([commandRegex], 'direct_message,direct_mention', (bot, message) => this.ask(bot,message));
+    controller.hears(
+      [commandRegex],
+      'direct_message,direct_mention',
+      (bot, message) => this.ask(bot, message)
+    );
   }
 
   ask(bot, message) {
@@ -33,7 +37,7 @@ class SetChannelAccountCommand extends Command {
         [
           {
             default: true,
-            callback: function (response, convo) {
+            callback: function(response, convo) {
               command.setChannel(message, bot, response.text);
               convo.stop();
             }
@@ -53,19 +57,14 @@ class SetChannelAccountCommand extends Command {
         bot.reply(message, `Okay, '${alias}' is the channel account now.`);
       })
       .catch(err => {
-        this.handleError(
-          bot,
-          message,
-          err,
-          err => {
-            logger.warn(
-              'Failed to set channel account',
-              err,
-              getEventMetadata(message, 'failed-to-set-channel-account')
-            );
-            bot.reply(message, Messages.DEFAULT_ERROR_MESSAGE);
-          }
-        );
+        this.handleError(bot, message, err, err => {
+          logger.warn(
+            'Failed to set channel account',
+            err,
+            getEventMetadata(message, 'failed-to-set-channel-account')
+          );
+          bot.reply(message, Messages.DEFAULT_ERROR_MESSAGE);
+        });
       });
   }
 
