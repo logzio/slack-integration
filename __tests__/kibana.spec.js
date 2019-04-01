@@ -423,7 +423,6 @@ describe('get from kibana', () => {
 
 
   beforeAll(async done => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000000;
     var handlers = [
       {
         method: 'post',
@@ -474,10 +473,10 @@ describe('get from kibana', () => {
     done();
   });
 
-  afterAll(done => {
+  afterAll(async done => {
     globalTestConfiguration.afterAll(done);
   });
-  afterEach((done) => {
+  afterEach(async (done) => {
     globalTestConfiguration.afterEach(done);
   });
 
