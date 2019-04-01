@@ -201,10 +201,10 @@ describe('SnapshotCommand', () => {
     );
     done();
   });
-  afterAll(done => {
+  afterAll(async done => {
     globalTestConfiguration.afterAll(done);
   });
-  afterEach((done) => {
+  afterEach(async (done) => {
     globalTestConfiguration.afterEach(done);
   });
 });

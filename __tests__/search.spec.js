@@ -19,7 +19,7 @@ const searchResults1 = [
   }
 ];
 
-const searchResults2 = [    
+const searchResults2 = [
   {
     _index: 'logz-uxidm2',
     _type: 'search-test-result2',
