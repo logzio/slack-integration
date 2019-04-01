@@ -9,6 +9,14 @@ const alias2 = 'a2'+Math.random().toString(36).substr(2, 4);
 const alias3 = 'a3'+Math.random().toString(36).substr(2, 4);
 const alias4 = 'a4'+Math.random().toString(36).substr(2, 4);
 
+
+const alias11 = 'a11'+Math.random().toString(36).substr(2, 4);
+const alias22 = 'a22'+Math.random().toString(36).substr(2, 4);
+const alias111 = 'a11'+Math.random().toString(36).substr(2, 4);
+const alias222 = 'a22'+Math.random().toString(36).substr(2, 4);
+const alias1111 = 'a12'+Math.random().toString(36).substr(2, 4);
+const alias2222 = 'a23'+Math.random().toString(36).substr(2, 4);
+
 describe('Mixed1', () => {
   const globalTestConfiguration = new GlobalConfiguration();
   const channelId = globalTestConfiguration.openChannelId;
@@ -85,12 +93,12 @@ describe('Mixed1', () => {
           channelId,
           'mixed-1-api-token',
           'us-east-1',
-          alias1
+          alias111
         )
       )
       .then(message =>
         expect(message.text).toBe(
-          `Okay, you\'re ready to use ${alias1} in Slack!`
+          `Okay, you\'re ready to use ${alias11} in Slack!`
         )
       )
       .then(() =>
@@ -101,13 +109,13 @@ describe('Mixed1', () => {
             channelId,
             'mixed-2-api-token',
             'us-east-1',
-            alias2
+            alias22
           )
         )
       )
       .then(message =>
         expect(message.text).toBe(
-          `Okay, you\'re ready to use ${alias2} in Slack!`
+          `Okay, you\'re ready to use ${alias22} in Slack!`
         )
       )
       .then(() =>
@@ -115,31 +123,30 @@ describe('Mixed1', () => {
           TestFunctions.getTriggers(userId, teamId, channelId)
         )
       )
-      .then(message => validateTriggersResult(message, pageSize, total, alias1))
+      .then(message => validateTriggersResult(message, pageSize, total, alias11))
       .then(() =>
         globalTestConfiguration.bot.usersInput(
           TestFunctions.listTriggers(userId, teamId, channelId)
         )
       )
-      .then(message => validateTriggersResult(message, pageSize, total, alias1))
+      .then(message => validateTriggersResult(message, pageSize, total, alias11))
       .then(() =>
         globalTestConfiguration.bot.usersInput(
-          TestFunctions.aliaGetTriggers(userId, teamId, channelId, alias2)
+          TestFunctions.aliaGetTriggers(userId, teamId, channelId, alias22)
         )
       )
-      .then(message => validateTriggersResult(message, pageSize, total2, alias2))
+      .then(message => validateTriggersResult(message, pageSize, total2, alias22))
       .then(() =>
         globalTestConfiguration.bot.usersInput(
-          TestFunctions.aliaListTriggers(userId, teamId, channelId, alias2)
+          TestFunctions.aliaListTriggers(userId, teamId, channelId, alias22)
         )
       )
-      .then(message => validateTriggersResult(message, pageSize, total2, alias2))
+      .then(message => validateTriggersResult(message, pageSize, total2, alias22))
       .then(() => {
         done();
       });
   });
-
-
+  
   it('create two accounts with alias1-token1, alias2-token2. then get triggers. then create account with alias1 and token2. get triggers.', done => {
     globalTestConfiguration.bot
       .usersInput(
@@ -149,12 +156,12 @@ describe('Mixed1', () => {
           channelId,
           'mixed-1-api-token',
           'us-east-1',
-          alias1
+          alias111
         )
       )
       .then(message =>
         expect(message.text).toBe(
-          `Okay, you\'re ready to use ${alias1} in Slack!`
+          `Okay, you\'re ready to use ${alias111} in Slack!`
         )
       )
       .then(() =>
@@ -165,27 +172,27 @@ describe('Mixed1', () => {
             channelId,
             'mixed-2-api-token',
             'us-east-1',
-            alias2
+            alias222
           )
         )
       )
       .then(message =>
         expect(message.text).toBe(
-          `Okay, you\'re ready to use ${alias2} in Slack!`
+          `Okay, you\'re ready to use ${alias222} in Slack!`
         )
       )
       .then(() =>
         globalTestConfiguration.bot.usersInput(
-          TestFunctions.aliaGetTriggers(userId, teamId, channelId, alias1)
+          TestFunctions.aliaGetTriggers(userId, teamId, channelId, alias111)
         )
       )
-      .then(message => validateTriggersResult(message, pageSize, total, alias1))
+      .then(message => validateTriggersResult(message, pageSize, total, alias111))
       .then(() =>
         globalTestConfiguration.bot.usersInput(
-          TestFunctions.aliaGetTriggers(userId, teamId, channelId, alias2)
+          TestFunctions.aliaGetTriggers(userId, teamId, channelId, alias222)
         )
       )
-      .then(message => validateTriggersResult(message, pageSize, total2 ,alias2))
+      .then(message => validateTriggersResult(message, pageSize, total2 ,alias222))
       .then(() =>
         globalTestConfiguration.bot.usersInput(
           TestFunctions.createOneAccount(
