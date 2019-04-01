@@ -1,12 +1,12 @@
 const GlobalTestConfigurationSetup = require('../src/core/utils/globalTestConfigurationSetup');
-const TestFunctions = require('../__tests__/testFunctions');
-const CommandName = require('../__tests__/commandName');
+const TestFunctions = require('./testFunctions');
+const CommandName = require('./commandName');
 const Messages = require('../src/core/messages/messages');
 const userId = 'u_mixed1'
-const teamId = 't_mixed1';
+const teamId = 'r'+Math.random().toString(16).substr(2, 4);
 
-const alias1 = 'mixed1';
-const alias2 = 'mixed2';
+const alias1 = 'c1'+Math.random().toString(16).substr(2, 4);
+const alias2 = 'yc2'+Math.random().toString(16).substr(2, 4);
 
 describe('Add account command', () => {
   const globalTestConfigurationSetup = new GlobalTestConfigurationSetup();
@@ -265,7 +265,7 @@ describe('Add account command', () => {
         expect(message.channel).toBe(channelId);
         expect(message.text).toBe(
           `These are the accounts in this workspace:\n` +
-            `• \`mixed1\`: Slack alias for Logzio App Test 1 Prod. *This is the default workspace account.*\n`
+            `• \`${alias1}\`: Slack alias for Logzio App Test 1 Prod. *This is the default workspace account.*\n`
         );
         done();
       });
