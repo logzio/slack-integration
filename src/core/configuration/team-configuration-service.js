@@ -82,6 +82,7 @@ class TeamConfigurationService {
   }
 
   addAccount(teamId, teamConfiguration) {
+    logger.info("---saving---:alias" + teamConfiguration.getAlias()+",teamId="+teamId);
     return this.accountsStore
       .save({
         team_id: teamId,
@@ -93,7 +94,10 @@ class TeamConfigurationService {
       .then(() => this.getAccountForAlias(teamConfiguration.getAlias(), teamId))
       .then(result => {
         if (!result) {
+          logger.error("tc:"+result+",alias" + teamConfiguration.getAlias()+",teamId="+teamId)
           throw Error();
+        }else{
+          logger.info("tc-saved:"+result+",alias" + teamConfiguration.getAlias()+",teamId="+teamId)
         }
       });
   }
