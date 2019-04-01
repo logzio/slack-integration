@@ -70,8 +70,7 @@ describe('Get channel account', () => {
       )
       .then(message => expect(message.text).toBe(`Okay, '${alias2}' is the channel account now.`))
       .then(() => globalTestConfiguration.bot.usersInput(TestFunctions.getChannelAccount(userId, teamId, channelId2)))
-      .then(message => expect(message.text).toBe(Messages.getCurrentChannel(alias2));
-      )
+      .then(message => expect(message.text).toBe(Messages.getCurrentChannel(alias2)))
       .then(() =>done());
   });
 
