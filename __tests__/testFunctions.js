@@ -35,8 +35,8 @@ class TestFunctions {
       user: userId,
       channel: channelId,
       messages: [
-        { team: { id: teamId }, text: 'add account' },
-        { team: { id: teamId }, text: 'add-yes' },
+        { team: { id: teamId }, text: 'add account',timeout:1000},
+        { team: { id: teamId }, text: 'add-yes' ,timeout:1000},
         {
           raw_message: {
             team: { id: teamId, domain: 'logzio' },
