@@ -449,7 +449,6 @@ it('create account and then try to get alert with wrong alert name', done => {
 
 
   beforeAll(async done => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000000;
     var handlers = [
       {
         method: 'get',
