@@ -49,8 +49,7 @@ describe('Get channel account', () => {
         )
       )
 
-      .then(() =>
-        globalTestConfiguration.bot.usersInput(
+      .then(() => globalTestConfiguration.bot.usersInput(
           TestFunctions.getAccounts(userId, teamId, channelId)
         )
       )
@@ -60,7 +59,6 @@ describe('Get channel account', () => {
           `These are the accounts in this workspace:\n• \`${alias1}\`: Slack alias for Logzio App Test 1 Prod. *This is the default workspace account.*\n• \`${alias2}\`: Slack alias for Logzio App Test 2 Prod.\n`
         );
       })
-
       .then(() => globalTestConfiguration.bot.usersInput(
           TestFunctions.getChannelAccount(userId, teamId, channelId2)
         )
@@ -70,16 +68,10 @@ describe('Get channel account', () => {
           TestFunctions.setChannelAccount(userId, teamId, channelId2, alias2)
         )
       )
-      .then(message => {
-        expect(message.text).toBe(
-          `Okay, '${alias2}' is the channel account now.`
-        );
-      })
-      .then(() => globalTestConfiguration.bot.usersInput(TestFunctions.getChannelAccount(userId, teamId, channelId2))
+      .then(message => expect(message.text).toBe(`Okay, '${alias2}' is the channel account now.`))
+      .then(() => globalTestConfiguration.bot.usersInput(TestFunctions.getChannelAccount(userId, teamId, channelId2)))
+      .then(message => expect(message.text).toBe(Messages.getCurrentChannel(alias2));
       )
-      .then(message => {
-        expect(message.text).toBe(Messages.getCurrentChannel(alias2));
-      })
       .then(() =>done());
   });
 
