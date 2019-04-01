@@ -8,10 +8,9 @@ const userId = 'u'+Math.random().toString(16).substr(2, 4);
 const teamId = 't'+Math.random().toString(16).substr(2, 4);
 const alias1 = 'i'+Math.random().toString(16).substr(2, 4);
 const alias2 = 'i2'+Math.random().toString(16).substr(2, 4);
-
-
 const alias11 = 'ip'+Math.random().toString(16).substr(2, 4);
 const alias12 = 'ir'+Math.random().toString(16).substr(2, 4);
+const alias111 = 'ip'+Math.random().toString(16).substr(2, 4);
 
 
 const responseByName = {
@@ -318,12 +317,12 @@ it('create account and then try to get alert with wrong alert name', done => {
         channelId,
         'mixed-1-api-token',
         'us-east-1',
-        alias1
+        alias111
       )
     )
     .then(message =>
       expect(message.text).toBe(
-        `Okay, you\'re ready to use ${alias1} in Slack!`
+        `Okay, you\'re ready to use ${alias111} in Slack!`
       )
     )
     .then(() =>
@@ -333,7 +332,7 @@ it('create account and then try to get alert with wrong alert name', done => {
           teamId,
           channelId,
           "Can't find this?",
-          alias1
+          alias111
         )
       )
     )
