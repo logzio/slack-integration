@@ -40,18 +40,20 @@ class GlobalTestConfigurationSetup {
     this.openChannelId = 'openc1';
   }
 
-  async beforeAll(jasmineSpyHandlers, jasmineSpyHandlerReturnValues, fn) {
+  async beforeAll(jasmineSpyHandlers, jasmineSpyHandlerReturnValues, fn, num) {
     await this.setupGeneralTestConfigurations(
       jasmineSpyHandlers,
       jasmineSpyHandlerReturnValues,
-      fn
+      fn,
+      num
     );
   }
 
   async setupGeneralTestConfigurations(
     jasmineSpyHandlers,
     jasmineSpyHandlerReturnValues,
-    fn
+    fn,
+    num
   ) {
     this.dbConfig = {
       user: DBUtils.getRequiredValueFromEnv('MYSQL_USER'),
@@ -59,9 +61,9 @@ class GlobalTestConfigurationSetup {
       host: DBUtils.getRequiredValueFromEnv('MYSQL_HOST')
     };
     const random = 'random'+Math.random().toString(16).substr(2, 4);
-    logger.info("\n**********setupGeneralTestConfigurations starts "+random);
+    logger.info("\n**********setupGeneralTestConfigurations starts "+random +",num="+num);
     this.storage = await this.createTestStorage(this.dbConfig);
-    logger.info("\n************setupGeneralTestConfigurations ends "+random);
+    logger.info("\n************setupGeneralTestConfigurations ends "+random+",num="+num);
 
     this.teamConfigurationService = new TeamConfigurationService(this.storage);
     this.port = await findFreePort(3000);

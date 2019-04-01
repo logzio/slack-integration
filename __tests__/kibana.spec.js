@@ -246,6 +246,7 @@ describe('get from kibana', () => {
   const channelId = globalTestConfiguration.openChannelId;
 
   it('get dashboards with no account', done => {
+    logger.info('get dashboards with no account');
     globalTestConfiguration.bot.usersInput(
       TestFunctions.getFromKibana(
         userId,
@@ -277,6 +278,7 @@ describe('get from kibana', () => {
   // })
 
   it('get dashboards with not existed alias', done => {
+    logger.info('kibana-it-get dashboards with not existed alias');
     globalTestConfiguration.bot.usersInput(
       TestFunctions.getFromKibanaWithAlias(
         userId,
@@ -387,6 +389,7 @@ describe('get from kibana', () => {
   // });
 
   it('get dashboards with no results', done => {
+    logger.info('kibana-it-get dashboards with no results');
     globalTestConfiguration.bot
       .usersInput(
         TestFunctions.createOneAccount(
@@ -423,6 +426,7 @@ describe('get from kibana', () => {
 
 
   beforeAll(async done => {
+    logger.info('kibana-beforeAll-starts');
     var handlers = [
       {
         method: 'post',
@@ -454,7 +458,8 @@ describe('get from kibana', () => {
     await globalTestConfiguration.beforeAll(
       handlers,
       handlersReturnValues,
-      true
+      true,
+      1
     );
     await globalTestConfiguration.mockFirstInstall(
       teamId,
@@ -464,20 +469,29 @@ describe('get from kibana', () => {
       'xoxb-357770700357',
       'xoxp-8241711843-408'
     );
+    logger.info('kibana-beforeAll-done-1');
     done();
+    logger.info('kibana-beforeAll-done-2');
   });
 
   beforeEach(async (done) => {
+    logger.info('kibana-beforeEach-starts');
     const kibanaClient = globalTestConfiguration.createKibanaClientMock([]);
     await globalTestConfiguration.initBeforeEach(kibanaClient, CommandName.SETUP);
+    logger.info('kibana-beforeEach-done-1');
     done();
+    logger.info('kibana-beforeEach-done-2');
   });
 
   afterAll(async done => {
+    logger.info('kibana-afterAll-starts');
     globalTestConfiguration.afterAll(done);
+    logger.info('kibana-afterAll-ends');
   });
   afterEach(async (done) => {
+    logger.info('kibana-afterEach-starts');
     globalTestConfiguration.afterEach(done);
+    logger.info('kibana-afterEach-ends');
   });
 
 });
