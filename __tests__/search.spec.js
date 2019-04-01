@@ -205,7 +205,7 @@ describe('search', () => {
           )
         )
       )
-      .then(() => validateSearchResult(searchResults1))
+      .then(() => validateSearchResult(searchResults1))  
       .then(() =>
         globalTestConfiguration.bot.usersInput(
           TestFunctions.searchWithAlias(
