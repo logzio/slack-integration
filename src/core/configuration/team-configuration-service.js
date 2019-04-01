@@ -98,6 +98,7 @@ class TeamConfigurationService {
           throw Error();
         }else{
           logger.info("tc-saved:"+result+",alias" + teamConfiguration.getAlias()+",teamId="+teamId)
+          return result;
         }
       });
   }
