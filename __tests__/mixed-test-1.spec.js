@@ -1,6 +1,6 @@
 const GlobalConfiguration = require('../src/core/utils/globalTestConfigurationSetup');
-const CommandName = require('../__tests__/commandName');
-const TestFunctions = require('../__tests__/testFunctions');
+const CommandName = require('./commandName');
+const TestFunctions = require('./testFunctions');
 const Messages = require('../src/core/messages/messages');
 const userId = 'u_mixed2';
 const teamId = 't_mixed3';
@@ -344,10 +344,10 @@ describe('Mixed1', () => {
     done();
   });
 
-  afterAll(done => {
+  afterAll(async done => {
     globalTestConfiguration.afterAll(done);
   });
-  afterEach((done) => {
+  afterEach(async(done) => {
     globalTestConfiguration.afterEach(done);
   });
 });
