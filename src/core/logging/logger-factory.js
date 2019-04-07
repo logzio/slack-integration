@@ -1,11 +1,9 @@
-const LogzioWinstonTransport = require('winston-logzio');
 const path = require('path');
 const winston = require('winston');
+const LogzioWinstonTransport = require('winston-logzio');
 
 const rootPath = path.resolve(__dirname, '../../');
 const loggers = {};
-
-const transporters = getTransporters();
 
 function createLogFunctionWithLoggerName(loggerName) {
   return function() {
@@ -34,12 +32,15 @@ class LoggerFactory {
       return loggers[loggerName];
     }
 
-    let logger = new winston.Logger({
+    const logzioToken = process.env['LOGZIO_TOKEN'];
+
+    const logzioWinstonTransport = new LogzioWinstonTransport({
       level: 'info',
-      levels: winston.config.npm.levels,
-      transports: transporters,
-      exceptionHandlers: transporters,
-      exitOnError: true
+      name: 'winston_logzio',
+      token: logzioToken,
+      type: process.env['LOGZIO_LOG_TYPE'] || 'logzio-bot',
+      exitOnError: true,
+      transports: [new winston.transports.File({ filename: 'alice-bot.log' })]
     });
 
     const logger = winston.createLogger({
