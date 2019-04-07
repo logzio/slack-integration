@@ -24,34 +24,6 @@ function createLogFunctionWithLoggerName(loggerName) {
   };
 }
 
-function getTransporters() {
-  const transporters = [new winston.transports.Console({ colorize: true })];
-
-  const logzioToken = process.env['LOGZIO_TOKEN'];
-  if (logzioToken) {
-    const options = {
-      token: logzioToken,
-      type: process.env['LOGZIO_LOG_TYPE'] || 'logzio-bot'
-    };
-
-    const logzioHost = process.env['LOGZIO_HOST'];
-    if (logzioHost) options['host'] = logzioHost;
-
-    const logzioTransport = new LogzioWinstonTransport(options);
-    process.on('uncaughtException', err => {
-      LoggerFactory.getLogger('root').error(
-        'UncaughtException processing: %s',
-        err
-      );
-      logzioTransport.flush(() => process.exit(1));
-    });
-
-    transporters.push(logzioTransport);
-  }
-
-  return transporters;
-}
-
 class LoggerFactory {
   static getLogger(loggerName) {
     if (loggerName.startsWith(rootPath)) {
@@ -70,10 +42,16 @@ class LoggerFactory {
       exitOnError: true
     });
 
-    logger.log = createLogFunctionWithLoggerName(loggerName);
+    const logger = winston.createLogger({
+      transports: [logzioWinstonTransport]
+    });
 
+    if (process.env['NODE_ENV'] === 'dev') {
+      logger.add(new winston.transports.Console({
+        format: winston.format.simple()
+      }));
+    }
     loggers[loggerName] = logger;
-
     return logger;
   }
 }
