@@ -16,7 +16,7 @@ function getTransporters() {
       token: logzioToken,
       type: process.env['LOGZIO_LOG_TYPE'] || 'logzio-bot',
       exitOnError: true,
-      transports: [new winston.transports.File({ filename: 'alice-bot.log' })]
+      transports: []
     };
 
     const logzioHost = process.env['LOGZIO_HOST'];
@@ -48,6 +48,7 @@ class LoggerFactory {
       transports: transporters
     });
 
+    logger.add(new winston.transports.File({ filename: 'alice-bot.log' }));
     if (process.env['NODE_ENV'] === 'dev') {
       logger.add(new winston.transports.Console({
         format: winston.format.simple()
