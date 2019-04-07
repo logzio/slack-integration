@@ -4,23 +4,35 @@ const LogzioWinstonTransport = require('winston-logzio');
 
 const rootPath = path.resolve(__dirname, '../../');
 const loggers = {};
+const transporters = getTransporters();
 
-function createLogFunctionWithLoggerName(loggerName) {
-  return function() {
-    const args = [...arguments];
+function getTransporters() {
+  const transporters = [];
+  const logzioToken = process.env['LOGZIO_TOKEN'];
+  if (logzioToken) {
+    const options = {
+      level: 'info',
+      name: 'winston_logzio',
+      token: logzioToken,
+      type: process.env['LOGZIO_LOG_TYPE'] || 'logzio-bot',
+      exitOnError: true,
+      transports: [new winston.transports.File({ filename: 'alice-bot.log' })]
+    };
 
-    let lastArg = args[args.length - 1];
-    if (typeof lastArg === 'object') {
-      if (!('logger' in lastArg)) {
-        lastArg['logger'] = loggerName;
-      }
-    } else {
-      args[args.length] = { logger: loggerName };
-    }
-
-    winston.Logger.prototype.log.apply(this, args);
-  };
+    const logzioHost = process.env['LOGZIO_HOST'];
+    if (logzioHost) options['host'] = logzioHost;
+    const logzioTransport = new LogzioWinstonTransport(options);
+    process.on('uncaughtException', err => {
+      LoggerFactory.getLogger('root').error(
+        'UncaughtException processing: %s',
+        err
+      );
+    });
+    transporters.push(logzioTransport);
+  }
+  return transporters;
 }
+
 
 class LoggerFactory {
   static getLogger(loggerName) {
@@ -32,19 +44,8 @@ class LoggerFactory {
       return loggers[loggerName];
     }
 
-    const logzioToken = process.env['LOGZIO_TOKEN'];
-
-    const logzioWinstonTransport = new LogzioWinstonTransport({
-      level: 'info',
-      name: 'winston_logzio',
-      token: logzioToken,
-      type: process.env['LOGZIO_LOG_TYPE'] || 'logzio-bot',
-      exitOnError: true,
-      transports: [new winston.transports.File({ filename: 'alice-bot.log' })]
-    });
-
     const logger = winston.createLogger({
-      transports: [logzioWinstonTransport]
+      transports: transporters
     });
 
     if (process.env['NODE_ENV'] === 'dev') {
