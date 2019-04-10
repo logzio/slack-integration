@@ -9,7 +9,7 @@ const commandShowByName = /(get) alert (.*)/;
 const commandShowAll = /(get) alerts/;
 const commandShowAllWithAlias = /(.+) (get) alerts/;
 const Messages = require('../core/messages/messages');
-const Table = require('easy-table');
+const Table = require('easy-table'); 
 
 class ShowAlertCommand extends Command {
   constructor(alertsClient) {

@@ -1,28 +1,30 @@
-function getEventMetadata(message, eventName) {
+function getEventMetadata(message, eventName, log) {
   const metadata = {
     eventName
   };
 
   if (typeof message.team === 'string') {
-    metadata['teamId'] = message.team;
+    metadata['team'] = message.team;
   } else {
-    metadata['teamId'] = message.team.id;
+    metadata['team'] = message.team.id;
     metadata['teamDomain'] = message.team.domain;
   }
 
   if (typeof message.user === 'string') {
-    metadata['userId'] = message.user;
+    metadata['user'] = message.user;
   } else {
-    metadata['userId'] = message.user.id;
+    metadata['user'] = message.user.id;
     metadata['userName'] = message.user.name;
   }
 
   if (typeof message.channel === 'string') {
-    metadata['channelId'] = message.channel;
+    metadata['channel'] = message.channel;
   } else {
-    metadata['channelId'] = message.channel.id;
+    metadata['channel'] = message.channel.id;
     metadata['channelName'] = message.channel.name;
   }
+
+  metadata['log'] = log;
 
   return metadata;
 }
