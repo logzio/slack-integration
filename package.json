@@ -26,7 +26,7 @@
   },
   "homepage": "https://github.com/logzio/slack-integration#readme",
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.18.1",
     "botkit": "^0.6.16",
     "botkit-promise-storage": "^1.1.0",
     "db-migrate": "^0.11.3",
