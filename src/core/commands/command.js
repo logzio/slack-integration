@@ -3,7 +3,7 @@ const RateLimitExceededError = require('../errors/rate-limit-exceeded-error');
 const AliasNotExistError = require('../errors/alias-not-exist-error');
 const Messages = require('../../core/messages/messages');
 
-class Command { 
+class Command{
   configure() {
     throw new Error('Method `configure` must be overridden!');
   }
