@@ -29,28 +29,28 @@
   },
   "homepage": "https://github.com/logzio/slack-integration#readme",
   "dependencies": {
-    "axios": "^0.18.0",
-    "botkit": "^0.7.0",
-    "db-migrate": "^0.11.3",
+    "axios": "^0.18.1",
+    "botkit": "^0.7.4",
+    "db-migrate": "^0.11.6",
     "db-migrate-mysql": "^1.1.10",
     "easy-table": "^1.1.1",
     "hoek": "^5.0.4",
-    "lodash": "^4.17.11",
-    "moment": "^2.22.2",
-    "mysql": "^2.16.0",
+    "lodash": "^4.17.14",
+    "moment": "^2.24.0",
+    "mysql": "^2.17.1",
     "sql-template-strings": "^2.2.2",
     "winston": "^3.2.1",
     "winston-logzio": "^4.0.2"
   },
   "devDependencies": {
     "botkit-mock": "^0.1.11",
-    "eslint": "^5.14.1",
-    "eslint-config-prettier": "^4.0.0",
-    "eslint-plugin-prettier": "^3.0.1",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.3.0",
+    "eslint-plugin-prettier": "^3.1.0",
     "find-free-port": "^1.2.0",
-    "jasmine": "^3.2.0",
-    "jasmine-http-server-spy": "^0.4.1",
+    "jasmine": "^3.4.0",
+    "jasmine-http-server-spy": "^0.5.0",
     "jasmine-spec-reporter": "^4.2.1",
-    "prettier": "^1.16.4"
+    "prettier": "^1.18.2"
   }
 }
