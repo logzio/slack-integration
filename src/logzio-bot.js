@@ -45,7 +45,6 @@ function createBot(logzioBot, bot, config) {
       }
 
       trackBot(logzioBot, bot);
-
       if (config.createdBy) {
         logzioBot.setupDialogSender.sendSetupMessage(
           bot,
@@ -148,6 +147,17 @@ function registerAndConfigureCommands(logzioBot) {
   setupDialogHandler.configure(logzioBot.controller);
 }
 
+function reconnectBot(bot, err) {
+  delete this.bots[bot.config.token];
+  logger.warn(
+    `RTM connection for bot ${
+      bot.config.token
+    } closed - trying to reopen RTM connection`,
+    err
+  );
+  createBot(this, bot, {});
+}
+
 class LogzioBot {
   constructor(apiConfig, externalDomain, storage) {
     this.bots = {};
@@ -194,16 +204,14 @@ class LogzioBot {
     );
 
     this.controller.on('rtm_close', (bot, err) => {
-      delete this.bots[bot.config.token];
-      logger.warn(
-        `RTM connection for bot ${
-          bot.config.token
-        } closed - trying to reopen RTM connection`,
-        err
-      );
-      createBot(this, bot, {});
+      if( this.bots[bot.config.token].rtm._closeCode !== 1006 ) {
+        reconnectBot.call(this, bot, err);
+      }
     });
 
+    this.controller.on('rtm_reconnect_failed', (bot, err) => {
+      reconnectBot.call(this, bot, err);
+    })
     registerAndConfigureCommands(this);
     connectToExistingTeams(this);
   }
