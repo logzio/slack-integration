@@ -204,14 +204,24 @@ class LogzioBot {
     );
 
     this.controller.on('rtm_close', (bot, err) => {
+      let current_bot = this.bots[bot.config.token];
+      logger.error('token:'+current_bot.config.token+'bot='+bot+' ,rtm_close_code:'+ current_bot.rtm._closeCode +',retryBackoff= '+current_bot.retryBackoff+',err= '+err  ,err);
+
       if( this.bots[bot.config.token].rtm._closeCode !== 1006 ) {
         reconnectBot.call(this, bot, err);
       }
     });
 
     this.controller.on('rtm_reconnect_failed', (bot, err) => {
+      logger.error('rtm_reconnect_failed:' ,err);
       reconnectBot.call(this, bot, err);
-    })
+    });
+
+
+     this.controller.on('rtm_open', (bot, config) =>
+
+     );
+
     registerAndConfigureCommands(this);
     connectToExistingTeams(this);
   }
