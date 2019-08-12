@@ -171,7 +171,8 @@ class LogzioBot {
       logger: LoggerFactory.getLogger('botkit'),
       disable_startup_messages: true,
       require_delivery: true,
-      storage: this.storage
+      storage: this.storage,
+      retry: 10
     };
 
     this.controller = Botkit.slackbot(config).configureSlackApp({
