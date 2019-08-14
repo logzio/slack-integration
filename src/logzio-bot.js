@@ -171,7 +171,8 @@ class LogzioBot {
       logger: LoggerFactory.getLogger('botkit'),
       disable_startup_messages: true,
       require_delivery: true,
-      storage: this.storage
+      storage: this.storage,
+      retry: 1000,
     };
 
     this.controller = Botkit.slackbot(config).configureSlackApp({
@@ -179,7 +180,6 @@ class LogzioBot {
       clientSecret: clientSecret,
       clientVerificationToken: clientVerificationToken,
       scopes: ['bot']
-      // retry: 10,
     });
 
     this.controller.setupWebserver(port, (err, webserver) => {
