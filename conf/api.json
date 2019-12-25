@@ -7,6 +7,10 @@
     "eu-central-1": {
       "name": "EU",
       "endpoint": "https://api-eu.logz.io"
+    },
+    "asia-pacific-1": {
+      "name": "Asia Pacific (Sydney)",
+      "endpoint": "https://api-au.logz.io"
     }
   }
 }
