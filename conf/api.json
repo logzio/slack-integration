@@ -1,11 +1,11 @@
 {
   "regions": {
     "us-east-1": {
-      "name": "US",
+      "name": "US East (Northern Virginia)",
       "endpoint": "https://api.logz.io"
     },
     "eu-central-1": {
-      "name": "EU",
+      "name": "Europe (Frankfurt)",
       "endpoint": "https://api-eu.logz.io"
     },
     "asia-pacific-1": {
