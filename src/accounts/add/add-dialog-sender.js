@@ -6,7 +6,6 @@ const question =
   'If you add this account, all workspace users can see information on the account, even if they can’t sign in to Logz.io. Do you still want to add the account?';
 
 const messageWithButtons = {
-
   attachments: [
     {
       title: title,

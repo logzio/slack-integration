@@ -49,11 +49,7 @@ class LoggerFactory {
     });
 
     logger.add(new winston.transports.File({ filename: 'alice-bot.log' }));
-    if (process.env['NODE_ENV'] === 'dev') {
-      logger.add(new winston.transports.Console({
-        format: winston.format.simple()
-      }));
-    }
+    logger.add(new winston.transports.Console({format: winston.format.simple()}));
     loggers[loggerName] = logger;
     return logger;
   }
