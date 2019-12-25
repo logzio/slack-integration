@@ -7,6 +7,22 @@
     "eu-central-1": {
       "name": "EU",
       "endpoint": "https://api-eu.logz.io"
+    },
+    "asia-pacific-1": {
+      "name": "Asia Pacific (Sydney)",
+      "endpoint": "https://api-au.logz.io"
+    },
+    "canada-1": {
+      "name": "Canada (Central)",
+      "endpoint": "https://api-ca.logz.io"
+    },
+    "west-europe-": {
+      "name": "West Europe (Netherlands)",
+      "endpoint": "https://api-nl.logz.io"
+    },
+    "west-us-2": {
+      "name": "West US 2 (Washington))",
+      "endpoint": "https://api-wa.logz.io"
     }
   }
 }
