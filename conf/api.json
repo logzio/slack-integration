@@ -1,7 +1,7 @@
 {
   "regions": {
     "us-east-1": {
-      "name": "US East",
+      "name": "US",
       "endpoint": "https://api.logz.io"
     },
     "eu-central-1": {
