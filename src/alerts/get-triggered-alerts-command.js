@@ -78,7 +78,7 @@ class GetTriggeredAlertsCommand extends Command {
           err,
           err => {
             logger.warn(
-              'Failed to get triggered events ',
+              'Failed to get triggered events',
               err,
               getEventMetadata(message, 'failed-to-get-triggered-alerts')
             );
