@@ -21,7 +21,7 @@
       "endpoint": "https://api-nl.logz.io"
     },
     "west-us-2": {
-      "name": "West US 2 (Washington))",
+      "name": "West US 2 (Washington)",
       "endpoint": "https://api-wa.logz.io"
     }
   }
