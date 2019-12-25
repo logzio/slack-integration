@@ -64,8 +64,7 @@ class GetTriggeredAlertsCommand extends Command {
         alias,
         channel,
         message.team,
-        5,
-        ['HIGH', 'MEDIUM', 'LOW','LOW2'],
+        ['HIGH', 'MEDIUM', 'LOW'],
         'DATE',
         'DESC'
       )
@@ -79,7 +78,7 @@ class GetTriggeredAlertsCommand extends Command {
           err,
           err => {
             logger.warn(
-              'Failed to get triggered events',
+              'Failed to get triggered events ',
               err,
               getEventMetadata(message, 'failed-to-get-triggered-alerts')
             );
