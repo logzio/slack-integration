@@ -53,6 +53,6 @@ services:
       - logzbot
     healthcheck:
       test: "healthcheck"
-      interval: 5s
-      timeout: 3s
-      retries: 3
+      interval: 8s
+      timeout: 15s
+      retries: 20
