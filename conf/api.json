@@ -1,7 +1,7 @@
 {
   "regions": {
     "us-east-1": {
-      "name": "US Eastr (Northern Virginia)",
+      "name": "US East (Northern Virginia)",
       "endpoint": "https://api.logz.io"
     },
     "eu-central-1": {
@@ -21,7 +21,7 @@
       "endpoint": "https://api-nl.logz.io"
     },
     "west-us-2": {
-      "name": "West US 2 (Washington)",
+      "name": "West US (Washington)",
       "endpoint": "https://api-wa.logz.io"
     }
   }
