@@ -16,7 +16,7 @@
       "name": "Canada (Central)",
       "endpoint": "https://api-ca.logz.io"
     },
-    "west-europe-": {
+    "west-europe-1": {
       "name": "West Europe (Netherlands)",
       "endpoint": "https://api-nl.logz.io"
     },
