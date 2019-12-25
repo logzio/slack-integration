@@ -25,5 +25,5 @@ if select="$(echo 'SELECT 1' | mysql "${args[@]}")" && [ "$select" = '1' ]; then
 fi
 
 
-	echo "4444"
+echo "4444"
 exit 1
