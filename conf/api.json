@@ -1,12 +1,28 @@
 {
   "regions": {
     "us-east-1": {
-      "name": "US",
+      "name": "US East (Northern Virginia)",
       "endpoint": "https://api.logz.io"
     },
     "eu-central-1": {
-      "name": "EU",
+      "name": "Europe (Frankfurt)",
       "endpoint": "https://api-eu.logz.io"
+    },
+    "asia-pacific-1": {
+      "name": "Asia Pacific (Sydney)",
+      "endpoint": "https://api-au.logz.io"
+    },
+    "canada-1": {
+      "name": "Canada (Central)",
+      "endpoint": "https://api-ca.logz.io"
+    },
+    "west-europe-1": {
+      "name": "West Europe (Netherlands)",
+      "endpoint": "https://api-nl.logz.io"
+    },
+    "west-us-2": {
+      "name": "West US (Washington)",
+      "endpoint": "https://api-wa.logz.io"
     }
   }
 }

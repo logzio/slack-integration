@@ -57,14 +57,14 @@ function maskApiToken(logzioApiToken) {
 function createSelectableRegionList(apiConfig) {
   const configuredRegions = apiConfig['regions'];
   const selectableRegionList = [];
-  for (const region in configuredRegions) {
+  Object.keys(configuredRegions).sort().forEach(function (region) {
     if (configuredRegions[region]) {
       selectableRegionList.push({
         label: configuredRegions[region]['name'],
         value: region
       });
     }
-  }
+  });
   return selectableRegionList;
 }
 
