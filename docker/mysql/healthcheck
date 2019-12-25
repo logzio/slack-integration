@@ -20,7 +20,10 @@ args=(
 )
 
 if select="$(echo 'SELECT 1' | mysql "${args[@]}")" && [ "$select" = '1' ]; then
+	echo "6666"
 	exit 0
 fi
 
+
+	echo "4444"
 exit 1
