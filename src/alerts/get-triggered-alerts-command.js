@@ -64,7 +64,8 @@ class GetTriggeredAlertsCommand extends Command {
         alias,
         channel,
         message.team,
-        ['HIGH', 'MEDIUM', 'LOW','LOW2'],
+        5,
+        ['HIGH', 'MEDIUM', 'LOW'],
         'DATE',
         'DESC'
       )
