@@ -261,17 +261,19 @@ class TeamConfigurationService {
   }
 
   extractRealName(account) {
-    return new Promise(resolve => {
-      if (account.alias === 'my-account') {
-        this.httpClient
-          .getRealName(account.apiToken, account.region)
-          .then(realName => {
-            account.realName = realName.accountName;
-            resolve(account);
-          });
-      } else {
-        resolve(account);
-      }
+    return new Promise((resolve, reject) => {
+        if (account.alias === 'my-account') {
+          this.httpClient
+            .getRealName(account.apiToken, account.region)
+            .then(realName => {
+              account.realName = realName.accountName;
+              resolve(account);
+            }).catch(err => {
+            reject(err);
+          })
+        } else {
+          resolve(account);
+        }
     });
   }
 
@@ -292,17 +294,16 @@ class TeamConfigurationService {
           };
         } else {
           map = accounts.map(configuredAccount =>
-            this.getAccountSafeView(
-              configuredAccount,
-              teamId,
-              bot,
-              defaultAccount
+                this.getAccountSafeView(
+                configuredAccount,
+                teamId,
+                bot,
+                defaultAccount
+              )
             )
-          );
         }
         return Promise.all(map);
       })
-
       .catch(err => {
         logger.info(err);
         return [];
@@ -322,7 +323,11 @@ class TeamConfigurationService {
         accountAlias: configuredAccount.alias,
         isDefault: defaultAccount.config.alias === configuredAccount.alias,
         channels: channels
-      }));
+      }))
+      .catch(err => {
+          logger.error("getAccountSafeView failed for configuredAccount="+configuredAccount,err);
+        }
+      )
   }
 }
 

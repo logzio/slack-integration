@@ -14,9 +14,9 @@ class GetAccountsCommand extends Command {
       'direct_message,direct_mention',
       (bot, message) => {
         return this.teamConfigService
-          .getAllAccountsSafeView(message.team, bot)
+          .getAllAccountsSafeView(message.team, bot) 
           .then(allAccountsSafeView =>
-            this.replayWith(allAccountsSafeView, bot, message)
+            this.replayWith(allAccountsSafeView.filter(Boolean), bot, message)
           )
           .catch(err => logger.error(err));
       }
