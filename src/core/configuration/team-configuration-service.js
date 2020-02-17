@@ -333,7 +333,7 @@ class TeamConfigurationService {
         channels: channels
       }))
       .catch(err => {
-
+          logger.error("getAccountSafeView failed for configuredAccount="+configuredAccount,err);
         }
       )
   }
