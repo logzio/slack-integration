@@ -7,7 +7,7 @@ EXPOSE 8080
 WORKDIR /usr/src/app
 
 COPY package*.json ./
-RUN npm install
+RUN yarn install
 
 
 CMD ["npm", "run", "test:local" ]
