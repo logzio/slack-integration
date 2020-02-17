@@ -7,6 +7,7 @@ EXPOSE 8080
 WORKDIR /usr/src/app
 
 COPY package*.json ./
+nvm install node --reinstall-packages-from=node
 RUN npm install
 
 
