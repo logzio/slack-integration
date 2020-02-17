@@ -277,14 +277,6 @@ class TeamConfigurationService {
     });
   }
 
-   allSettled(promises) {
-    let wrappedPromises = promises.map(p => Promise.resolve(p)
-      .then(
-        val => ({ status: 'fulfilled', value: val }),
-        err => ({ status: 'rejected', reason: err })));
-    return Promise.all(wrappedPromises);
-  }
-
   async getAllAccountsSafeView(teamId, bot) {
     const defaultAccount = await this.getDefault(teamId);
     return this.accountsStore
