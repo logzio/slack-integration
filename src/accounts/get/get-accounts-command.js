@@ -16,7 +16,7 @@ class GetAccountsCommand extends Command {
         return this.teamConfigService
           .getAllAccountsSafeView(message.team, bot)
           .then(allAccountsSafeView =>
-            this.replayWith(allAccountsSafeView, bot, message)
+            this.replayWith(allAccountsSafeView.filter(Boolean), bot, message)
           )
           .catch(err => logger.error(err));
       }

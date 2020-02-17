@@ -261,18 +261,28 @@ class TeamConfigurationService {
   }
 
   extractRealName(account) {
-    return new Promise(resolve => {
-      if (account.alias === 'my-account') {
-        this.httpClient
-          .getRealName(account.apiToken, account.region)
-          .then(realName => {
-            account.realName = realName.accountName;
-            resolve(account);
-          });
-      } else {
-        resolve(account);
-      }
+    return new Promise((resolve, reject) => {
+        if (account.alias === 'my-account') {
+          this.httpClient
+            .getRealName(account.apiToken, account.region)
+            .then(realName => {
+              account.realName = realName.accountName;
+              resolve(account);
+            }).catch(err => {
+            reject(err);
+          })
+        } else {
+          resolve(account);
+        }
     });
+  }
+
+   allSettled(promises) {
+    let wrappedPromises = promises.map(p => Promise.resolve(p)
+      .then(
+        val => ({ status: 'fulfilled', value: val }),
+        err => ({ status: 'rejected', reason: err })));
+    return Promise.all(wrappedPromises);
   }
 
   async getAllAccountsSafeView(teamId, bot) {
@@ -292,17 +302,16 @@ class TeamConfigurationService {
           };
         } else {
           map = accounts.map(configuredAccount =>
-            this.getAccountSafeView(
-              configuredAccount,
-              teamId,
-              bot,
-              defaultAccount
+                this.getAccountSafeView(
+                configuredAccount,
+                teamId,
+                bot,
+                defaultAccount
+              )
             )
-          );
         }
         return Promise.all(map);
       })
-
       .catch(err => {
         logger.info(err);
         return [];
@@ -322,7 +331,11 @@ class TeamConfigurationService {
         accountAlias: configuredAccount.alias,
         isDefault: defaultAccount.config.alias === configuredAccount.alias,
         channels: channels
-      }));
+      }))
+      .catch(err => {
+
+        }
+      )
   }
 }
 
