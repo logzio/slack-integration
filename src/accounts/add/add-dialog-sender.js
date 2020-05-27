@@ -111,7 +111,9 @@ class AddAccountDialogSender {
   }
 
   sendSetupMessage(bot, user, isInitializationPhase) {
+    logger.debug("sendSetupMessage"+isInitializationPhase);
     bot.startPrivateConversation({ user }, (err, convo) => {
+      logger.debug("startPrivateConversation"+isInitializationPhase);
       convo.addMessage(
         {
           text: `Okay, I won't add an account now. When you're ready, just type ${
