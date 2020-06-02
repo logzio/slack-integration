@@ -111,9 +111,9 @@ class AddAccountDialogSender {
   }
 
   sendSetupMessage(bot, user, isInitializationPhase) {
-    logger.debug("sendSetupMessage"+isInitializationPhase);
+    logger.info("sendSetupMessage"+isInitializationPhase);
     bot.startPrivateConversation({ user }, (err, convo) => {
-      logger.debug("startPrivateConversation"+isInitializationPhase);
+      logger.info("startPrivateConversation"+isInitializationPhase);
       convo.addMessage(
         {
           text: `Okay, I won't add an account now. When you're ready, just type ${
@@ -160,6 +160,7 @@ class AddAccountDialogSender {
   replayWithDialogSetup(reply, convo, bot, isInitializationPhase) {
     this.teamConfigurationService.getDefault(reply.team.id).then(config => {
       convo.stop();
+      logger.info("replyInteractiveDialogSetup:"+isInitializationPhase);
       bot.replyInteractive(reply, messageWithoutButtons);
       buildAndSendConfigurationDialog(
         bot,
