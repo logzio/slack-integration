@@ -41,6 +41,7 @@ function createBot(logzioBot, bot, config) {
   } else {
     bot.startRTM(err => {
       if (err) {
+        logger.error("startRTM error "+err)
         throw new Error(err);
       }
 
