@@ -174,6 +174,7 @@ class LogzioBot {
       require_delivery: true,
       storage: this.storage,
       retry: 1000,
+      clientSigningSecret: clientSecret
     };
 
     this.controller = Botkit.slackbot(config).configureSlackApp({
