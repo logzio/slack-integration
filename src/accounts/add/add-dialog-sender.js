@@ -75,9 +75,10 @@ function buildAndSendConfigurationDialog(
   config,
   callback_id
 ) {
+  logger.info("buildAndSendConfigurationDialog");
   const accountRegion = config.getLogzioAccountRegion();
   const apiToken = maskApiToken(config.getLogzioApiToken());
-
+  logger.info("creating dialog");
   const dialog = bot
     .createDialog('Logz.io Configuration', callback_id, 'Save')
     .addSelect(
@@ -106,6 +107,7 @@ function buildAndSendConfigurationDialog(
 
 class AddAccountDialogSender {
   constructor(teamConfigurationService, apiConfig) {
+    logger.info("AddAccountDialogSender-"+apiConfig+",teamConfigurationService="+teamConfigurationService);
     this.teamConfigurationService = teamConfigurationService;
     this.selectableRegionList = createSelectableRegionList(apiConfig);
   }
@@ -158,6 +160,7 @@ class AddAccountDialogSender {
   }
 
   replayWithDialogSetup(reply, convo, bot, isInitializationPhase) {
+    logger.info("replayWithDialogSetup 1")
     this.teamConfigurationService.getDefault(reply.team.id).then(config => {
       convo.stop();
       logger.info("replyInteractiveDialogSetup:"+isInitializationPhase);

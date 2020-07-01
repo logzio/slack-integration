@@ -11,10 +11,13 @@ class TeamConfigurationService {
     this.httpClient = httpClient;
   }
   getDefault(teamId) {
+    logger.info("getDefault teamId:"+teamId)
     return this.teamStore.get_async(teamId).then(teamDate => {
       if (!teamDate || !teamDate.bot.configuration) {
+        logger.info("getDefault 1")
         return new TeamConfiguration();
       } else {
+        logger.info("getDefault 2 "+ teamDate.bot.configuration+ ", "+ teamDate.name)
         return new TeamConfiguration(teamDate.bot.configuration, teamDate.name);
       }
     });

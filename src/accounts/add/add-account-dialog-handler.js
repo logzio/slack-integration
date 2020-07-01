@@ -86,7 +86,9 @@ class AddAccountDialogHandler {
   }
 
   configure(controller) {
+
     controller.on('dialog_submission', async (bot, message) => {
+      logger.info("dialog_submission:"+ message.callback_id);
       if (
         message.callback_id !== 'setup_dialog' &&
         message.callback_id !== 'initialization_setup_dialog'
