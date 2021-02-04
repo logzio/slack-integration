@@ -15,7 +15,7 @@ class RemoveCommand extends Command {
   configure(controller) {
     controller.hears(
       [commandRegexWithAlias],
-      'direct_message,direct_mention,message_received',
+      'direct_message,direct_mention,message',
       (bot, message) => {
         let alias = message.text.match(commandRegexWithAlias)[1];
         this.removeAccount(message, alias, bot);
@@ -24,7 +24,7 @@ class RemoveCommand extends Command {
 
     controller.hears(
       [commandRegex],
-      'direct_message,direct_mention,message_received',
+      'direct_message,direct_mention,message',
       (bot, message) => {
         this.removeAccount(message, null, bot);
       }
@@ -33,9 +33,7 @@ class RemoveCommand extends Command {
 
   removeAccount(message, alias, bot) {
     logger.info(
-      `User ${message.user} from team ${
-        message.team
-      } triggered remove command on ${alias}`,
+      `User ${message.user} from team ${message.team} triggered remove command on ${alias}`,
       getEventMetadata(message, 'remove account')
     );
     this.removeAccountHandler

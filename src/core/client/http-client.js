@@ -5,6 +5,7 @@ const RateLimitExceededError = require('../errors/rate-limit-exceeded-error');
 const AliasNotExistError = require('../errors/alias-not-exist-error');
 const LoggerFactory = require('../../core/logging/logger-factory');
 const logger = LoggerFactory.getLogger(__filename);
+const { teamConfigurationService } = require('../configuration');
 
 function getAuthHeaders(token) {
   return {
@@ -17,8 +18,7 @@ function getAuthHeaders(token) {
 }
 
 class HttpClient {
-  constructor(teamConfigurationService, endpointResolver) {
-    this.teamConfigurationService = teamConfigurationService;
+  constructor(endpointResolver) {
     this.endpointResolver = endpointResolver;
 
     const axiosInstance = Axios.create();
@@ -49,7 +49,7 @@ class HttpClient {
     );
   }
 
-  validateConfigurationAndSendRequest(
+  async validateConfigurationAndSendRequest(
     alias,
     teamId,
     channelId,
@@ -57,41 +57,43 @@ class HttpClient {
     path,
     body
   ) {
-    return this.teamConfigurationService
-      .getOrDefault(alias, teamId, channelId)
-      .then(configuration => HttpClient.validateConfiguration(configuration))
-      .then(configuration => {
-        const accountRegion = configuration.getLogzioAccountRegion();
-        const apiToken = configuration.getLogzioApiToken();
-        return this.sendRequestWithRegionAndToken(
-          accountRegion,
-          apiToken,
-          method,
-          path,
-          body,
-          configuration.getAlias()
-        );
-      });
+    const configuration = await teamConfigurationService.getOrDefault(
+      alias,
+      teamId,
+      channelId
+    );
+    await HttpClient.validateConfiguration(configuration);
+    const accountRegion = configuration.getLogzioAccountRegion();
+    const apiToken = configuration.getLogzioApiToken();
+    return this.sendRequestWithRegionAndToken(
+      accountRegion,
+      apiToken,
+      method,
+      path,
+      body,
+      configuration.getAlias()
+    );
   }
-  sendRequest(channelId, teamId, method, path, body, alias) {
+
+  async sendRequest(channelId, teamId, method, path, body, alias) {
     if (alias) {
-      return this.teamConfigurationService
-        .doesAliasExist(teamId, alias)
-        .then(isValid => {
-          if (!isValid) {
-            throw new AliasNotExistError(
-              "Sorry, there isn't an account with that alias. If you want to see your accounts, type `@Alice accounts`."
-            );
-          }
-          return this.validateConfigurationAndSendRequest(
-            alias,
-            teamId,
-            channelId,
-            method,
-            path,
-            body
-          );
-        });
+      const isValid = await teamConfigurationService.doesAliasExist(
+        teamId,
+        alias
+      );
+      if (!isValid) {
+        throw new AliasNotExistError(
+          "Sorry, there isn't an account with that alias. If you want to see your accounts, type `@Alice accounts`."
+        );
+      }
+      return this.validateConfigurationAndSendRequest(
+        alias,
+        teamId,
+        channelId,
+        method,
+        path,
+        body
+      );
     } else {
       return this.validateConfigurationAndSendRequest(
         alias,
@@ -164,17 +166,17 @@ class HttpClient {
     return Promise.resolve(configuration);
   }
 
-  static validateAlias(teamConfigurationService, teamId, alias) {
-    return teamConfigurationService
-      .doesAliasExist(teamId, alias)
-      .then(isValid => {
-        if (!isValid) {
-          throw new AliasNotExistError(
-            "Sorry, there isn't an account with that alias. If you want to see your accounts, type `@Alice accounts`."
-          );
-        }
-        return isValid;
-      });
+  static async validateAlias(teamId, alias) {
+    const isValid = await teamConfigurationService.doesAliasExist(
+      teamId,
+      alias
+    );
+    if (!isValid) {
+      throw new AliasNotExistError(
+        "Sorry, there isn't an account with that alias. If you want to see your accounts, type `@Alice accounts`."
+      );
+    }
+    return isValid;
   }
 }
 

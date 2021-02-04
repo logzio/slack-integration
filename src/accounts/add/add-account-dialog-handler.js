@@ -2,6 +2,9 @@ const LoggerFactory = require('../../core/logging/logger-factory');
 const TeamConfiguration = require('../../core/configuration/team-configuration');
 const { getEventMetadata } = require('../../core/logging/logging-metadata');
 const Messages = require('../../core/messages/messages');
+const apiConfig = require('../../../conf/api');
+const { teamConfigurationService } = require('../../core/configuration');
+const { httpClient } = require('../../core/client');
 
 const logger = LoggerFactory.getLogger(__filename);
 
@@ -78,15 +81,12 @@ function sendInvalidConfigurationError(bot) {
 }
 
 class AddAccountDialogHandler {
-  constructor(teamConfigService, httpClient, apiConfig, setupDialogSender) {
-    this.teamConfigService = teamConfigService;
-    this.httpClient = httpClient;
+  constructor(setupDialogSender) {
     this.configuredRegions = apiConfig['regions'];
     this.setupDialogSender = setupDialogSender;
   }
 
   configure(controller) {
-
     controller.on('dialog_submission', async (bot, message) => {
       logger.info("dialog_submission:"+ message.callback_id);
       if (
@@ -97,7 +97,7 @@ class AddAccountDialogHandler {
       }
       const submission = message['submission'];
       const { alias, apiToken, accountRegion } = submission;
-      this.teamConfigService
+      teamConfigurationService
         .getAccountForAlias(alias, message.raw_message.team.id)
         .then(aliasExists => {
           const configErrors = validateConfigurationAndGetErrorsIfInvalid(
@@ -113,7 +113,7 @@ class AddAccountDialogHandler {
             bot.dialogOk();
             return;
           }
-          return this.httpClient
+          return httpClient
             .getRealName(apiToken, accountRegion)
             .then(realName => {
               const configErrors = validateRealNameAndGetErrorsIfInvalid(
@@ -126,7 +126,7 @@ class AddAccountDialogHandler {
               }
               realName = realName.accountName;
               const { team = null, user = null } = message.raw_message;
-              this.teamConfigService
+              teamConfigurationService
                 .getDefault(team.id)
                 .then(defaultConfig =>
                   this.addAccount(
@@ -167,7 +167,7 @@ class AddAccountDialogHandler {
       alias,
       realName
     });
-    return this.teamConfigService.addAccount(team.id, config).then(() => {
+    return teamConfigurationService.addAccount(team.id, config).then(() => {
       this.botReplayWithSetupDialog(bot, message, alias);
       logger.info(
         `Configuration for team ${team.id} (${team.domain}) changed by user ${
@@ -178,7 +178,7 @@ class AddAccountDialogHandler {
 
       if (this.hasNoDefaultWorkspace(defaultConfig, alias, apiToken)) {
         //first one or missing
-        this.teamConfigService.saveDefault(team.id, config);
+        teamConfigurationService.saveDefault(team.id, config);
       }
       bot.dialogOk();
     });
@@ -205,7 +205,7 @@ class AddAccountDialogHandler {
   }
 
   getRealName(token, region) {
-    this.httpClient.getRealName(token, region);
+    return httpClient.getRealName(token, region);
   }
 }
 

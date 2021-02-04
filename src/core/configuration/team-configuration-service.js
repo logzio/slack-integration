@@ -2,25 +2,28 @@ const TeamConfiguration = require('./team-configuration');
 const LoggerFactory = require('../../core/logging/logger-factory');
 const logger = LoggerFactory.getLogger(__filename);
 const ApiExtract = require('../utils/apiExtract');
+const httpClient = require('../client');
+const { storageService } = require('../storage');
 
 class TeamConfigurationService {
-  constructor(storage, httpClient) {
-    this.teamStore = storage.teams;
-    this.channelStore = storage.channels;
-    this.accountsStore = storage.configuredAccounts;
-    this.httpClient = httpClient;
+  constructor() {
+    this.teamStore = storageService.teams;
+    this.channelStore = storageService.channels;
+    this.accountsStore = storageService.configuredAccounts;
   }
-  getDefault(teamId) {
-    logger.info("getDefault teamId:"+teamId)
-    return this.teamStore.get_async(teamId).then(teamDate => {
-      if (!teamDate || !teamDate.bot.configuration) {
-        logger.info("getDefault 1")
-        return new TeamConfiguration();
-      } else {
-        logger.info("getDefault 2 "+ teamDate.bot.configuration+ ", "+ teamDate.name)
-        return new TeamConfiguration(teamDate.bot.configuration, teamDate.name);
-      }
-    });
+
+  async getDefault(teamId) {
+    logger.info('getDefault teamId:' + teamId);
+    const teamDate = await this.teamStore.get_async(teamId);
+    if (!teamDate || !teamDate.bot.configuration) {
+      logger.info('getDefault 1');
+      return new TeamConfiguration();
+    } else {
+      logger.info(
+        'getDefault 2 ' + teamDate.bot.configuration + ', ' + teamDate.name
+      );
+      return new TeamConfiguration(teamDate.bot.configuration, teamDate.name);
+    }
   }
 
   saveDefault(teamId, teamConfiguration) {
@@ -85,7 +88,9 @@ class TeamConfigurationService {
   }
 
   addAccount(teamId, teamConfiguration) {
-    logger.info("---saving---:alias" + teamConfiguration.getAlias()+",teamId="+teamId);
+    logger.info(
+      '---saving---:alias' + teamConfiguration.getAlias() + ',teamId=' + teamId
+    );
     return this.accountsStore
       .save({
         team_id: teamId,
@@ -97,10 +102,24 @@ class TeamConfigurationService {
       .then(() => this.getAccountForAlias(teamConfiguration.getAlias(), teamId))
       .then(result => {
         if (!result) {
-          logger.error("tc:"+result+",alias" + teamConfiguration.getAlias()+",teamId="+teamId)
+          logger.error(
+            'tc:' +
+              result +
+              ',alias' +
+              teamConfiguration.getAlias() +
+              ',teamId=' +
+              teamId
+          );
           throw Error();
-        }else{
-          logger.info("tc-saved:"+result+",alias" + teamConfiguration.getAlias()+",teamId="+teamId)
+        } else {
+          logger.info(
+            'tc-saved:' +
+              result +
+              ',alias' +
+              teamConfiguration.getAlias() +
+              ',teamId=' +
+              teamId
+          );
           return result;
         }
       });
@@ -166,18 +185,17 @@ class TeamConfigurationService {
     });
   }
 
-  isAccountUsedByChannelId(teamId, channelId) {
-    return this.channelStore.all_async().then(channels => {
-      return (
-        channels.length > 0 &&
-        channels.some(
-          channel =>
-            channel.id === channelId &&
-            channel.team === teamId &&
-            channel.alias !== undefined
-        )
-      );
-    });
+  async isAccountUsedByChannelId(teamId, channelId) {
+    const channels = await this.channelStore.all_async();
+    return (
+      channels.length > 0 &&
+      channels.some(
+        channel =>
+          channel.id === channelId &&
+          channel.team === teamId &&
+          channel.alias !== undefined
+      )
+    );
   }
 
   getAliasAccountsUsedByChannel(teamId, alias) {
@@ -188,15 +206,14 @@ class TeamConfigurationService {
     });
   }
 
-  doesAliasExist(teamId, alias) {
-    return this.accountsStore.all(teamId).then(accounts => {
-      return (
-        accounts.length > 0 &&
-        accounts.some(
-          account => new TeamConfiguration(account).getAlias() === alias
-        )
-      );
-    });
+  async doesAliasExist(teamId, alias) {
+    const accounts = await this.accountsStore.all(teamId);
+    return (
+      accounts.length > 0 &&
+      accounts.some(
+        account => new TeamConfiguration(account).getAlias() === alias
+      )
+    );
   }
 
   getOrDefault(alias, teamId, channelId) {
@@ -227,11 +244,10 @@ class TeamConfigurationService {
       });
   }
 
-  clearDefaultForChannel(teamId, channelId) {
-    return this.channelStore.get_async(channelId).then(channelSettings => {
-      delete channelSettings['alias'];
-      return this.channelStore.save(channelSettings);
-    });
+  async clearDefaultForChannel(teamId, channelId) {
+    const channelSettings = await this.channelStore.get_async(channelId);
+    delete channelSettings['alias'];
+    return this.channelStore.save(channelSettings);
   }
 
   setDefault(teamId, alias) {
@@ -247,36 +263,33 @@ class TeamConfigurationService {
       .then(teamConfiguration => this.saveDefault(teamId, teamConfiguration));
   }
 
-  clearDefault(teamId) {
-    return this.teamStore.get_async(teamId).then(currentTeamData => {
-      delete currentTeamData.bot['configuration'];
-      return this.teamStore
-        .save(currentTeamData)
-        .then(() => this.teamStore.get_async(teamId))
-        .then(currentTeamData => {
-          if (currentTeamData.bot.configuration !== undefined) {
-            throw Error();
-          } else {
-            return currentTeamData;
-          }
-        });
-    });
+  async clearDefault(teamId) {
+    const currentTeamData = await this.teamStore.get_async(teamId);
+    delete currentTeamData.bot['configuration'];
+    await this.teamStore.save(currentTeamData);
+    const updatedTeamData = await this.teamStore.get_async(teamId);
+    if (updatedTeamData.bot.configuration !== undefined) {
+      throw Error();
+    } else {
+      return updatedTeamData;
+    }
   }
 
   extractRealName(account) {
     return new Promise((resolve, reject) => {
-        if (account.alias === 'my-account') {
-          this.httpClient
-            .getRealName(account.apiToken, account.region)
-            .then(realName => {
-              account.realName = realName.accountName;
-              resolve(account);
-            }).catch(err => {
-            reject(err);
+      if (account.alias === 'my-account') {
+        httpClient
+          .getRealName(account.apiToken, account.region)
+          .then(realName => {
+            account.realName = realName.accountName;
+            resolve(account);
           })
-        } else {
-          resolve(account);
-        }
+          .catch(err => {
+            reject(err);
+          });
+      } else {
+        resolve(account);
+      }
     });
   }
 
@@ -297,13 +310,13 @@ class TeamConfigurationService {
           };
         } else {
           map = accounts.map(configuredAccount =>
-                this.getAccountSafeView(
-                configuredAccount,
-                teamId,
-                bot,
-                defaultAccount
-              )
+            this.getAccountSafeView(
+              configuredAccount,
+              teamId,
+              bot,
+              defaultAccount
             )
+          );
         }
         return Promise.all(map);
       })
@@ -328,9 +341,12 @@ class TeamConfigurationService {
         channels: channels
       }))
       .catch(err => {
-          logger.error("getAccountSafeView failed for configuredAccount="+configuredAccount,err);
-        }
-      )
+        logger.error(
+          'getAccountSafeView failed for configuredAccount=' +
+            configuredAccount,
+          err
+        );
+      });
   }
 }
 

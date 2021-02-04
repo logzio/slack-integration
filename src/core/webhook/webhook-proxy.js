@@ -37,11 +37,10 @@ function createWebhookProxyEndpoint(logzioBot, webserver) {
     });
   });
 
-  logger.info(
-    `** Serving webhook proxy endpoint at: http://${
-      controller.config.hostname
-    }:${controller.config.port}${endpointUrl}`
-  );
+  // TODO: Find solution for this
+  // logger.info(
+  //   `** Serving webhook proxy endpoint at: http://${controller.config.hostname}:${controller.config.port}${endpointUrl}`
+  // );
 }
 
 module.exports = { createWebhookProxyEndpoint };

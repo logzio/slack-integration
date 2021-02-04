@@ -1,22 +1,22 @@
 const HttpClient = require('../../core/client/http-client');
+const { teamConfigurationService } = require('../../core/configuration');
 
 class ChannelAccountHandler {
-  constructor(teamConfService) {
-    this.teamConfService = teamConfService;
-  }
-
-  setDefault(teamId, channelId, alias) {
-    return HttpClient.validateAlias(this.teamConfService, teamId, alias).then(
-      () => this.teamConfService.saveAccountForChannel(teamId, channelId, alias)
+  async setDefault(teamId, channelId, alias) {
+    await HttpClient.validateAlias(teamId, alias);
+    await teamConfigurationService.saveAccountForChannel(
+      teamId,
+      channelId,
+      alias
     );
   }
 
   clearDefault(teamId, channelId) {
-    return this.teamConfService.clearDefaultForChannel(teamId, channelId);
+    return teamConfigurationService.clearDefaultForChannel(teamId, channelId);
   }
 
   isAccountUsedByChannel(teamId, channelId) {
-    return this.teamConfService.isAccountUsedByChannelId(teamId, channelId);
+    return teamConfigurationService.isAccountUsedByChannelId(teamId, channelId);
   }
 }
 

@@ -1,5 +1,7 @@
 const LoggerFactory = require('../../core/logging/logger-factory');
 const logger = LoggerFactory.getLogger(__filename);
+const apiConfig = require('../../../conf/api');
+const { teamConfigurationService } = require('../../core/configuration');
 
 const title = 'Important: You’ll give all users access to Logz.io';
 const question =
@@ -57,14 +59,16 @@ function maskApiToken(logzioApiToken) {
 function createSelectableRegionList(apiConfig) {
   const configuredRegions = apiConfig['regions'];
   const selectableRegionList = [];
-  Object.keys(configuredRegions).sort().forEach(function (region) {
-    if (configuredRegions[region]) {
-      selectableRegionList.push({
-        label: configuredRegions[region]['name'],
-        value: region
-      });
-    }
-  });
+  Object.keys(configuredRegions)
+    .sort()
+    .forEach(function(region) {
+      if (configuredRegions[region]) {
+        selectableRegionList.push({
+          label: configuredRegions[region]['name'],
+          value: region
+        });
+      }
+    });
   return selectableRegionList;
 }
 
@@ -75,10 +79,10 @@ function buildAndSendConfigurationDialog(
   config,
   callback_id
 ) {
-  logger.info("buildAndSendConfigurationDialog");
+  logger.info('buildAndSendConfigurationDialog');
   const accountRegion = config.getLogzioAccountRegion();
   const apiToken = maskApiToken(config.getLogzioApiToken());
-  logger.info("creating dialog");
+  logger.info('creating dialog');
   const dialog = bot
     .createDialog('Logz.io Configuration', callback_id, 'Save')
     .addSelect(
@@ -106,21 +110,17 @@ function buildAndSendConfigurationDialog(
 }
 
 class AddAccountDialogSender {
-  constructor(teamConfigurationService, apiConfig) {
-    logger.info("AddAccountDialogSender-"+apiConfig+",teamConfigurationService="+teamConfigurationService);
-    this.teamConfigurationService = teamConfigurationService;
+  constructor() {
     this.selectableRegionList = createSelectableRegionList(apiConfig);
   }
 
   sendSetupMessage(bot, user, isInitializationPhase) {
-    logger.info("sendSetupMessage"+isInitializationPhase);
+    logger.info('sendSetupMessage' + isInitializationPhase);
     bot.startPrivateConversation({ user }, (err, convo) => {
-      logger.info("startPrivateConversation"+isInitializationPhase);
+      logger.info('startPrivateConversation' + isInitializationPhase);
       convo.addMessage(
         {
-          text: `Okay, I won't add an account now. When you're ready, just type ${
-            bot.identity.name
-          } add account.`
+          text: `Okay, I won't add an account now. When you're ready, just type ${bot.identity.name} add account.`
         },
         'canceled'
       );
@@ -160,10 +160,10 @@ class AddAccountDialogSender {
   }
 
   replayWithDialogSetup(reply, convo, bot, isInitializationPhase) {
-    logger.info("replayWithDialogSetup 1")
-    this.teamConfigurationService.getDefault(reply.team.id).then(config => {
+    logger.info('replayWithDialogSetup 1');
+    teamConfigurationService.getDefault(reply.team.id).then(config => {
       convo.stop();
-      logger.info("replyInteractiveDialogSetup:"+isInitializationPhase);
+      logger.info('replyInteractiveDialogSetup:' + isInitializationPhase);
       bot.replyInteractive(reply, messageWithoutButtons);
       buildAndSendConfigurationDialog(
         bot,

@@ -1,26 +1,9 @@
 const Command = require('../../core/commands/command');
 const ApiExtract = require('../../core/utils/apiExtract');
-const LoggerFactory = require('../../core/logging/logger-factory');
-const logger = LoggerFactory.getLogger(__filename);
-class GetAccountsCommand extends Command {
-  constructor(teamConfigService) {
-    super();
-    this.teamConfigService = teamConfigService;
-  }
 
-  configure(controller) {
-    controller.hears(
-      /accounts/,
-      'direct_message,direct_mention',
-      (bot, message) => {
-        return this.teamConfigService
-          .getAllAccountsSafeView(message.team, bot) 
-          .then(allAccountsSafeView =>
-            this.replayWith(allAccountsSafeView.filter(Boolean), bot, message)
-          )
-          .catch(err => logger.error(err));
-      }
-    );
+class GetAccountsCommand extends Command {
+  constructor() {
+    super();
   }
 
   replayWith(allAccountsSafeView, bot, message) {

@@ -6,8 +6,6 @@ const TimeUnit = require('../core/time/time-unit');
 const { getEventMetadata } = require('../core/logging/logging-metadata');
 const Messages = require('../core/messages/messages');
 const logger = LoggerFactory.getLogger(__filename);
-const commandWithAlias = /(.+) snapshot (vis|visualization|dash|dashboard) (.*) last (\d+) ?(minutes?|mins?|m|hours?|h)( query (.+))?\s*$/;
-const command = /snapshot (vis|visualization|dash|dashboard) (.*) last (\d+) ?(minutes?|mins?|m|hours?|h)( query (.+))?\s*$/;
 
 function getKibanaObjectType(objectTypeStr) {
   switch (objectTypeStr) {
@@ -81,14 +79,10 @@ function sendSnapshotRequest(
   query,
   alias
 ) {
-  const webhookUrl = `${externalDomain}/webhook/${message.team}/${
-    message.channel
-  }`;
+  const webhookUrl = `${externalDomain}/webhook/${message.team}/${message.channel}`;
   const queryWithFixedQuotes = query.replace('”', '"').replace('“', '"');
   logger.info(
-    `sendSnapshotRequest: ${message.channel},${
-      message.user
-    },${queryWithFixedQuotes},${webhookUrl}`
+    `sendSnapshotRequest: ${message.channel},${message.user},${queryWithFixedQuotes},${webhookUrl}`
   );
   return snapshotsClient
     .createSnapshot(
@@ -121,24 +115,6 @@ class SnapshotCommand extends Command {
     this.externalDomain = externalDomain;
     this.kibanaClient = kibanaClient;
     this.snapshotsClient = snapshotsClient;
-  }
-
-  configure(controller) {
-    controller.hears(
-      [commandWithAlias],
-      'direct_message,direct_mention',
-      (bot, message) => {
-        this.createSnapshot(null, message, bot, true);
-      }
-    );
-
-    controller.hears(
-      [command],
-      'direct_message,direct_mention',
-      (bot, message) => {
-        this.createSnapshot(message.channel, message, bot, false);
-      }
-    );
   }
 
   createSnapshot(channel, message, bot, withAlias) {

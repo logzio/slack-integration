@@ -1,4 +1,5 @@
 const HttpClient = require('../../core/client/http-client');
+const { teamConfigurationService } = require('../../core/configuration');
 const ApiExtract = require('../../core/utils/apiExtract');
 const Messages = require('../../core/messages/messages');
 const shouldDeleteAccountWithCurrentChannels = ' is used in these channels:';
@@ -38,11 +39,7 @@ function getMessageWithButtons(text, removeStyle) {
 }
 
 class removeAccountHandler {
-  constructor(teamConfigService) {
-    this.teamConfigService = teamConfigService;
-  }
-
-  removeAccount(teamId, channel, userAlias, bot, user, message) {
+  async removeAccount(teamId, channel, userAlias, bot, user, message) {
     if (!userAlias) {
       return this.PromiseToRemove(
         teamId,
@@ -53,58 +50,48 @@ class removeAccountHandler {
         message
       );
     } else {
-      return HttpClient.validateAlias(
-        this.teamConfigService,
-        teamId,
-        userAlias
-      ).then(() =>
+      return HttpClient.validateAlias(teamId, userAlias).then(() =>
         this.PromiseToRemove(teamId, channel, userAlias, bot, user, message)
       );
     }
   }
 
-  PromiseToRemove(teamId, channel, userAlias, bot, user, message) {
+  async PromiseToRemove(teamId, channel, userAlias, bot, user, message) {
     let teamConfiguration;
     let alias = userAlias;
-    return this.teamConfigService
-      .getDefault(teamId)
-      .then(configuration =>
-        !userAlias
-          ? HttpClient.validateConfiguration(configuration)
-          : configuration
-      )
-      .then(validTeamConfiguration => {
-        teamConfiguration = validTeamConfiguration;
-        if (!alias) {
-          alias = teamConfiguration.getAlias();
-        }
-        return this.teamConfigService.getAccountForChannel(teamId, channel);
-      })
-      .then(accountConfiguration => {
-        if (!userAlias && accountConfiguration) {
-          alias = accountConfiguration.getAlias();
-        }
-        return alias;
-      })
-      .then(() => {
-        if (teamConfiguration.config.alias === alias) {
-          return this.teamConfigService.numberOfAccounts(teamId);
-        }
-      })
-      .then(numberOfAccounts =>
-        this.ConfirmRemove(
-          teamConfiguration,
-          alias,
-          bot,
-          user,
-          teamId,
-          numberOfAccounts,
-          message
-        )
+    const configuration = await teamConfigurationService.getDefault(teamId);
+    if (!userAlias) {
+      await HttpClient.validateConfiguration(configuration);
+    }
+    teamConfiguration = configuration;
+    if (!alias) {
+      alias = teamConfiguration.getAlias();
+    }
+
+    const accountConfiguration = await teamConfigurationService.getAccountForChannel(
+      teamId,
+      channel
+    );
+    if (!userAlias && accountConfiguration) {
+      alias = accountConfiguration.getAlias();
+    }
+    if (teamConfiguration.config.alias === alias) {
+      const numberOfAccounts = await teamConfigurationService.numberOfAccounts(
+        teamId
       );
+      await this.ConfirmRemove(
+        teamConfiguration,
+        alias,
+        bot,
+        user,
+        teamId,
+        numberOfAccounts,
+        message
+      );
+    }
   }
 
-  ConfirmRemove(
+  async ConfirmRemove(
     teamConfiguration,
     alias,
     bot,
@@ -173,7 +160,7 @@ class removeAccountHandler {
     }
   }
 
-  askForApproval(
+  async askForApproval(
     alias,
     bot,
     user,
@@ -182,8 +169,11 @@ class removeAccountHandler {
     shouldDeleteDefault,
     canDeleteDefault
   ) {
-    const teamConfigService = this.teamConfigService;
-    bot.startPrivateConversation({ user }, (err, convo) => {
+    // TODO: MAKE THIS WORK FOR BOTKIT 4
+    // await bot.startPrivateConversation(user);
+    // await bot.beginDialog('remove-account');
+
+    await bot.startPrivateConversation({ user }, (err, convo) => {
       convo.addMessage(
         {
           text: canDeleteDefault
