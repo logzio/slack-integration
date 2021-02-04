@@ -3,19 +3,6 @@ const LoggerFactory = require('../core/logging/logger-factory');
 const QueryBuilder = require('./query-builder');
 const TimeUnit = require('../core/time/time-unit');
 const { getEventMetadata } = require('../core/logging/logging-metadata');
-
-const searchWithDefaultWindow = /search `(.+)`\s*$/;
-const searchWithDefaultWindowWithAlias = /(.+) search `(.+)`\s*$/;
-const searchWithTimeToSearch = /search `(.+)` last (\d+) ?(minutes?|mins?|m|hours?|h)\s*$/;
-const searchWithTimeToSearchWithAlias = /(.+) search `(.+)` last (\d+) ?(minutes?|mins?|m|hours?|h)\s*$/;
-const searchWithSpecificTimeWindow = /search `(.+)` from (.+) to (.+)\s*$/;
-const searchWithSpecificTimeWindowWithAlias = /(.+) search `(.+)` from (.+) to (.+)\s*$/;
-const searchWithDefaultWindowEscape = /search \u034f`(.+)`\s*$/;
-const searchWithDefaultWindowWithAliasEscape = /(.+) search \u034f`(.+)`\s*$/;
-const searchWithTimeToSearchEscape = /search \u034f`(.+)` last (\d+) ?(minutes?|mins?|m|hours?|h)\s*$/;
-const searchWithTimeToSearchWithAliasEscape = /(.+) search \u034f`(.+)` last (\d+) ?(minutes?|mins?|m|hours?|h)\s*$/;
-const searchWithSpecificTimeWindowEscape = /search \u034f`(.+)` from (.+) to (.+)\s*$/;
-const searchWithSpecificTimeWindowWithAliasEscape = /(.+) search \u034f`(.+)` from (.+) to (.+)\s*$/;
 const Messages = require('../core/messages/messages');
 
 const logger = LoggerFactory.getLogger(__filename);
@@ -72,62 +59,6 @@ class SearchCommand extends Command {
   constructor(searchClient) {
     super();
     this.searchClient = searchClient;
-  }
-
-  configure(controller) {
-    controller.hears(
-      [
-        searchWithDefaultWindowWithAlias,
-        searchWithDefaultWindowWithAliasEscape
-      ],
-      'direct_message,direct_mention',
-      (bot, message) => {
-        this.searchWithDefaultWindow(message, bot, true);
-      }
-    );
-
-    controller.hears(
-      [searchWithDefaultWindow, searchWithDefaultWindowEscape],
-      'direct_message,direct_mention',
-      (bot, message) => {
-        this.searchWithDefaultWindow(message, bot, false);
-      }
-    );
-
-    controller.hears(
-      [searchWithTimeToSearchWithAlias, searchWithTimeToSearchWithAliasEscape],
-      'direct_message,direct_mention',
-      (bot, message) => {
-        this.searchWithTimeToSearch(message, bot, true);
-      }
-    );
-
-    controller.hears(
-      [searchWithTimeToSearch, searchWithTimeToSearchEscape],
-      'direct_message,direct_mention',
-      (bot, message) => {
-        this.searchWithTimeToSearch(message, bot, false);
-      }
-    );
-
-    controller.hears(
-      [
-        searchWithSpecificTimeWindowWithAlias,
-        searchWithSpecificTimeWindowWithAliasEscape
-      ],
-      'direct_message,direct_mention',
-      (bot, message) => {
-        this.searchWithSpecificTimeWindow(message, bot, true);
-      }
-    );
-
-    controller.hears(
-      [searchWithSpecificTimeWindow, searchWithSpecificTimeWindowEscape],
-      'direct_message,direct_mention',
-      (bot, message) => {
-        this.searchWithSpecificTimeWindow(message, bot, false);
-      }
-    );
   }
 
   searchWithSpecificTimeWindow(message, bot, withAlias) {

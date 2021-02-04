@@ -3,11 +3,7 @@ const RateLimitExceededError = require('../errors/rate-limit-exceeded-error');
 const AliasNotExistError = require('../errors/alias-not-exist-error');
 const Messages = require('../../core/messages/messages');
 
-class Command{
-  configure() {
-    throw new Error('Method `configure` must be overridden!');
-  }
-
+class Command {
   getCategory() {
     throw new Error('Method `getCategory` must be overridden!');
   }
@@ -16,16 +12,16 @@ class Command{
     throw new Error('Method `getUsage` must be overridden!');
   }
 
-  handleError(bot, userMessage, err, unknownErrorHandler) {
+  async handleError(bot, userMessage, err, unknownErrorHandler) {
     if (err instanceof TeamNotConfiguredError) {
-      bot.reply(userMessage, Messages.LOFZ_IO_IS_NOT_CONFIGURED);
+      await bot.reply(userMessage, Messages.LOFZ_IO_IS_NOT_CONFIGURED);
     } else if (
       err instanceof RateLimitExceededError ||
       err instanceof AliasNotExistError
     ) {
-      bot.reply(userMessage, err.message);
+      await bot.reply(userMessage, err.message);
     } else {
-      unknownErrorHandler(err);
+      await unknownErrorHandler(err);
     }
   }
 }

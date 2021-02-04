@@ -27,7 +27,7 @@ function isCategoryOrUsageMatchQuery(categoryUsagePair, query) {
   );
 }
 
-function sendUsage(bot, message, query) {
+async function sendUsage(bot, message, query) {
   const usageLines = [];
   const allCommandsPairs = [];
   CommandsRegistry.getCommands()
@@ -42,11 +42,11 @@ function sendUsage(bot, message, query) {
     .forEach(usageLine => usageLines.push(usageLine));
 
   if (usageLines.length === 0) {
-    bot.reply(message, `No available commands match ${query}`);
+    await bot.reply(message, `No available commands match ${query}`);
     return;
   }
 
-  bot.reply(message, usageLines.sort().join('\n'));
+  await bot.reply(message, usageLines.sort().join('\n'));
 }
 
 module.exports = { sendUsage };

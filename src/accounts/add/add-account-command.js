@@ -10,14 +10,6 @@ class AddAccountCommand extends Command {
     this.setupDialogSender = setupDialogSender;
   }
 
-  configure(controller) {
-    controller.hears(
-      ['add account'],
-      'direct_message,direct_mention',
-      (bot, message) => this.handleAddAccountRequest(bot, message)
-    );
-  }
-
   handleAddAccountRequest(bot, message) {
     logger.info(
       `User ${message.user} from team ${

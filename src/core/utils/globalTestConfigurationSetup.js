@@ -20,7 +20,7 @@ const SetupDialogHander = require('../../accounts/add/add-account-dialog-handler
 const AddAccountCommand = require('../../accounts/add/add-account-command');
 const GetAccountsCommand = require('../../accounts/get/get-accounts-command');
 const AlertsClient = require('../../alerts/alerts-client');
-const GetTriggeredAlertsCommand = require('../../alerts/get-triggered-alerts-command');
+const GetTriggeredAlertsCommand = require('../../alerts/triggered-alerts.service');
 const ChannelAccountHandler = require('../../accounts/channel/channel-account-handler');
 const ClearActiveCommand = require('../../accounts/channel/clear-channel-account-command');
 const SetChannelAccountCommand = require('../../accounts/channel/set-channel-account-command');
@@ -314,7 +314,7 @@ class GlobalTestConfigurationSetup {
   }
 
   prapareApiImOpen() {
-    this.bot.api.setData('im.open', {
+    this.bot.api.setData('conversations.open', {
       ok: true,
       channel: {
         id: this.openChannelId
@@ -337,7 +337,7 @@ class GlobalTestConfigurationSetup {
   }
 
   prapareApiChannels() {
-    let temp = this.bot.api.getData('channels.info');
+    let temp = this.bot.api.getData('conversations.info');
 
     temp[this.openChannelId] = {
       ok: true,
@@ -354,7 +354,7 @@ class GlobalTestConfigurationSetup {
         name: 'chan2_name'
       }
     };
-    this.bot.api.setData('channels.info', temp);
+    this.bot.api.setData('conversations.info', temp);
   }
 
   createSnapshotClient(httpClient) {

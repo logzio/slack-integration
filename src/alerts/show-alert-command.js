@@ -2,69 +2,13 @@ const Command = require('../core/commands/command');
 const LoggerFactory = require('../core/logging/logger-factory');
 const { getEventMetadata } = require('../core/logging/logging-metadata');
 const logger = LoggerFactory.getLogger(__filename);
-const commandShowByIdWithAlias = /(.+) (get) alert by id (\d*)/;
-const commandShowById = /(get) alert by id (\d*)/;
-const commandShowByNameWithAlias = /(.+) (get) alert (.*)/;
-const commandShowByName = /(get) alert (.*)/;
-const commandShowAll = /(get) alerts/;
-const commandShowAllWithAlias = /(.+) (get) alerts/;
 const Messages = require('../core/messages/messages');
-const Table = require('easy-table'); 
+const Table = require('easy-table');
 
 class ShowAlertCommand extends Command {
   constructor(alertsClient) {
     super();
     this.alertsClient = alertsClient;
-  }
-
-  configure(controller) {
-    controller.hears(
-      [commandShowAllWithAlias],
-      'direct_message,direct_mention',
-      (bot, message) => {
-        this.getAllAlerts(message.channel, message, bot, true);
-      }
-    );
-
-    controller.hears(
-      [commandShowAll],
-      'direct_message,direct_mention',
-      (bot, message) => {
-        this.getAllAlerts(message.channel, message, bot, false);
-      }
-    );
-
-    controller.hears(
-      [commandShowByIdWithAlias],
-      'direct_message,direct_mention',
-      (bot, message) => {
-        this.showAlertById(null, message, bot, true);
-      }
-    );
-
-    controller.hears(
-      [commandShowById],
-      'direct_message,direct_mention',
-      (bot, message) => {
-        this.showAlertById(message.channel, message, bot, false);
-      }
-    );
-
-    controller.hears(
-      [commandShowByNameWithAlias],
-      'direct_message,direct_mention',
-      (bot, message) => {
-        this.showAlertByName(null, message, bot, true);
-      }
-    );
-
-    controller.hears(
-      [commandShowByName],
-      'direct_message,direct_mention',
-      (bot, message) => {
-        this.showAlertByName(message.channel, message, bot, false);
-      }
-    );
   }
 
   showAlertByName(channel, message, bot, withAlias) {

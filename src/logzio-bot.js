@@ -1,39 +1,254 @@
-const AlertsClient = require('./alerts/alerts-client');
-const Botkit = require('botkit');
+const { Botkit } = require('botkit');
+const {
+  SlackAdapter,
+  SlackMessageTypeMiddleware,
+  SlackEventMiddleware
+} = require('botbuilder-adapter-slack');
 const CommandsRegistry = require('./core/commands/commands-registry');
-const EndpointResolver = require('./core/client/endpoint-resolver');
-const GetTriggeredAlertsCommand = require('./alerts/get-triggered-alerts-command');
-const HelpCommand = require('./help/help-command');
-const HttpClient = require('./core/client/http-client');
-const KibanaClient = require('./kibana/kibana-client');
-const KibanaObjectsCommand = require('./kibana/kibana-objects-command');
+const { kibanaObjectsCommand } = require('./kibana');
 const LoggerFactory = require('./core/logging/logger-factory');
-const SearchClient = require('./search/search-client');
-const SearchCommand = require('./search/search-command');
-const AddAccountCommand = require('./accounts/add/add-account-command');
-const SetupDialogHandler = require('./accounts/add/add-account-dialog-handler');
-const SetupDialogSender = require('./accounts/add/add-dialog-sender');
-const ShowAlertCommand = require('./alerts/show-alert-command');
-const SnapshotCommand = require('./snapshots/snapshot-command');
-const SnapshotsClient = require('./snapshots/snapshots-client');
-const TeamConfigurationService = require('./core/configuration/team-configuration-service');
-const UnknownCommand = require('./help/unknown-command');
+const { searchCommand } = require('./search');
+const {
+  addAccountCommand,
+  setupCommand,
+  addAccountDialogHandler,
+  addAccountDialogSender
+} = require('./accounts/add');
+const { showAlertsCommand } = require('./alerts');
+const { snapshotCommand } = require('./snapshots');
+const {
+  clearChannelAccountCommand,
+  getChannelAccountCommand,
+  setChannelAccountCommand
+} = require('./accounts/channel');
+const { setDefaultCommand } = require('./accounts/default');
+const { getAccountsCommand } = require('./accounts/get');
 
-const ChannelAccountHandler = require('./accounts/channel/channel-account-handler');
-const ClearActiveCommand = require('./accounts/channel/clear-channel-account-command');
-const SetActiveCommand = require('./accounts/channel/set-channel-account-command');
-
-const DefaultHandler = require('./accounts/default/default-handler');
-const SetDefaultCommand = require('./accounts/default/set-default-command');
-
-const GetAccountsCommand = require('./accounts/get/get-accounts-command');
-const RemoveAccountCommand = require('./accounts/remove/remove-command');
-const RemoveAccountHandler = require('./accounts/remove/remove-account-handler');
-const SetupCommand = require('./accounts/add/setup-command');
-const GetChannelAccountCommand = require('./accounts/channel/get-channel-account-command');
 const { createWebhookProxyEndpoint } = require('./core/webhook/webhook-proxy');
+const { triggeredAlertsCommand } = require('./alerts');
+const { helpCommand, unknownCommand } = require('./help');
+const { storageService } = require('./core/storage');
+const addSetAccountChannelDialog = require('./dialogs/set-channel-account');
+const addSetDefaultAccountDialog = require('./dialogs/set-default-account');
 
 const logger = LoggerFactory.getLogger(__filename);
+
+function trackBot(logzioBot, bot) {
+  logzioBot.bots[bot.config.token] = bot;
+}
+
+function connectToExistingTeams(logzioBot, teamsStorage) {
+  teamsStorage.all(async (err, teams) => {
+    if (err) {
+      throw err;
+    }
+    // connect all teams with bots up to slack!
+    for (const team in teams) {
+      if (teams[team].bot) {
+        try {
+          const bot = await logzioBot.controller.spawn(teams[team]);
+          trackBot(logzioBot, bot);
+        } catch (err) {
+          logger.error('Error connecting bot to Slack:', err);
+        }
+      }
+    }
+  });
+}
+
+function registerAndConfigureCommands(controller) {
+  CommandsRegistry.register(triggeredAlertsCommand);
+  CommandsRegistry.register(helpCommand);
+  CommandsRegistry.register(kibanaObjectsCommand);
+  CommandsRegistry.register(searchCommand);
+  CommandsRegistry.register(addAccountCommand);
+  CommandsRegistry.register(showAlertsCommand);
+  CommandsRegistry.register(snapshotCommand);
+  CommandsRegistry.register(clearChannelAccountCommand);
+  CommandsRegistry.register(setChannelAccountCommand);
+  CommandsRegistry.register(getChannelAccountCommand);
+  CommandsRegistry.register(setDefaultCommand);
+  CommandsRegistry.register(getAccountsCommand);
+  // CommandsRegistry.register(new RemoveAccountCommand(removeAccountHandler));
+  CommandsRegistry.register(setupCommand);
+  CommandsRegistry.register(unknownCommand);
+  addAccountDialogHandler.configure(controller);
+}
+
+class LogzioBot {
+  constructor() {
+    this.bots = {};
+    this.tokenCache = {};
+    this.userCache = {};
+  }
+
+  bootstrap(clientId, clientSecret, clientVerificationToken, port) {
+    require('dotenv').config();
+
+    if (process.env.TOKENS) {
+      this.tokenCache = JSON.parse(process.env.TOKENS);
+    }
+
+    if (process.env.USERS) {
+      this.userCache = JSON.parse(process.env.USERS);
+    }
+
+    const adapter = new SlackAdapter({
+      // parameters used to secure webhook endpoint
+      verificationToken: clientVerificationToken,
+      clientSigningSecret: process.env.CLIENT_SIGNING_SECRET,
+
+      // auth token for a single-team app
+      botToken: process.env.BOT_TOKEN,
+
+      // credentials used to set up oauth for multi-team apps
+      clientId,
+      clientSecret,
+      scopes: ['bot'],
+      redirectUri: process.env.REDIRECT_URI,
+
+      // functions required for retrieving team-specific info
+      // for use in multi-team apps
+      getTokenForTeam: getTokenForTeam,
+      getBotUserByTeam: getBotUserByTeam
+    });
+
+    // Use SlackEventMiddleware to emit events that match their original Slack event types.
+    adapter.use(new SlackEventMiddleware());
+
+    // Use SlackMessageType middleware to further classify messages as direct_message, direct_mention, or mention
+    adapter.use(new SlackMessageTypeMiddleware());
+
+    const controller = new Botkit({
+      webhook_uri: '/api/messages',
+
+      adapter: adapter,
+
+      storage: storageService
+    });
+
+    // Once the bot has booted up its internal services, you can use them to do stuff.
+    controller.ready(() => {
+      this.controller = controller;
+      // load traditional developer-created local custom feature modules
+      controller.loadModules(__dirname + '/features');
+
+      /* catch-all that uses the CMS to trigger dialogs */
+      if (controller.plugins.cms) {
+        controller.on('message,direct_message', async (bot, message) => {
+          let results = false;
+          results = await controller.plugins.cms.testTrigger(bot, message);
+
+          if (results !== false) {
+            // do not continue middleware!
+            return false;
+          }
+        });
+      }
+
+      // This code existed in the old version, and may no longer be needed
+      // // this.controller.setupWebserver(port, (err, webserver) => {
+      //   createWebhookProxyEndpoint(this, webserver);
+      //   this.controller.createWebhookEndpoints(webserver);
+      //
+      //   this.controller.createOauthEndpoints(webserver, (err, req, res) => {
+      //     if (err) {
+      //       res.status(500).send('ERROR: ' + err);
+      //     } else {
+      //       res.redirect('https://logz.io/alice-confirm/');
+      //     }
+      //   });
+      //
+      //   webserver.get('/*', function(req, res) {
+      //     res.redirect('https://logz.io');
+      //   });
+      // });
+
+      registerAndConfigureCommands(controller);
+      registerDialogs(controller);
+      connectToExistingTeams(this, storageService.teams);
+    });
+
+    controller.webserver.get('/', (req, res) => {
+      res.send(`This app is running Botkit ${controller.version}.`);
+    });
+
+    controller.webserver.get('/install', (req, res) => {
+      // getInstallLink points to slack's oauth endpoint and includes clientId and scopes
+      res.redirect(controller.adapter.getInstallLink());
+    });
+
+    controller.webserver.get('/install/auth', async (req, res) => {
+      try {
+        const results = await controller.adapter.validateOauthCode(
+          req.query.code
+        );
+
+        console.log('FULL OAUTH DETAILS', results);
+
+        // Store token by team in bot state.
+        this.tokenCache[results.team_id] = results.bot.bot_access_token;
+
+        // Capture team to bot id
+        this.userCache[results.team_id] = results.bot.bot_user_id;
+
+        res.json('Success! Bot installed.');
+      } catch (err) {
+        console.error('OAUTH ERROR:', err);
+        res.status(401);
+        res.send(err.message);
+      }
+    });
+
+    controller.on('message', async (bot, message) => {
+      await bot.reply(message, 'I heard a message!');
+    });
+
+    controller.on(
+      'create_bot',
+      async (bot, config) => await createBot(this, bot, config)
+    );
+
+    controller.on('rtm_close', async (bot, err) => {
+      if (this.bots[bot.config.token].rtm._closeCode !== 1006) {
+        reconnectBot.call(this, bot, err);
+      }
+    });
+
+    controller.on('rtm_reconnect_failed', async (bot, err) => {
+      reconnectBot.call(this, bot, err);
+    });
+
+    async function getTokenForTeam(teamId) {
+      if (this.tokenCache[teamId]) {
+        return new Promise(resolve => {
+          setTimeout(function() {
+            resolve(this.tokenCache[teamId]);
+          }, 150);
+        });
+      } else {
+        console.error('Team not found in tokenCache: ', teamId);
+      }
+    }
+
+    async function getBotUserByTeam(teamId) {
+      if (this.userCache[teamId]) {
+        return new Promise(resolve => {
+          setTimeout(function() {
+            resolve(this.userCache[teamId]);
+          }, 150);
+        });
+      } else {
+        console.error('Team not found in userCache: ', teamId);
+      }
+    }
+  }
+}
+
+function registerDialogs(controller) {
+  addSetAccountChannelDialog(controller);
+  addSetDefaultAccountDialog(controller);
+}
 
 function createBot(logzioBot, bot, config) {
   if (logzioBot.bots[bot.config.token]) {
@@ -41,182 +256,25 @@ function createBot(logzioBot, bot, config) {
   } else {
     bot.startRTM(err => {
       if (err) {
-        logger.error("startRTM error "+err)
+        logger.error('startRTM error ' + err);
         throw new Error(err);
       }
 
       trackBot(logzioBot, bot);
       if (config.createdBy) {
-        logzioBot.setupDialogSender.sendSetupMessage(
-          bot,
-          config.createdBy,
-          true
-        );
+        addAccountDialogSender.sendSetupMessage(bot, config.createdBy, true);
       }
     });
   }
-}
-
-function trackBot(logzioBot, bot) {
-  logzioBot.bots[bot.config.token] = bot;
-}
-
-function connectToExistingTeams(logzioBot) {
-  logzioBot.controller.storage.teams.all((err, teams) => {
-    if (err) {
-      throw err;
-    }
-
-    // connect all teams with bots up to slack!
-    for (const team in teams) {
-      if (teams[team].bot) {
-        const bot = logzioBot.controller.spawn(teams[team]).startRTM(err => {
-          if (err) {
-            logger.error('Error connecting bot to Slack:', err);
-          } else {
-            trackBot(logzioBot, bot);
-          }
-        });
-      }
-    }
-  });
-}
-
-function registerAndConfigureCommands(logzioBot) {
-  const apiConfig = logzioBot.apiConfig;
-  const externalDomain = logzioBot.externalDomain;
-
-  const storage = logzioBot.storage;
-  const teamConfigurationService = new TeamConfigurationService(storage);
-  const endpointResolver = new EndpointResolver(apiConfig);
-
-  const httpClient = new HttpClient(teamConfigurationService, endpointResolver);
-  teamConfigurationService.httpClient = httpClient;
-  const alertsClient = new AlertsClient(httpClient);
-  const kibanaClient = new KibanaClient(httpClient);
-  const channelAccountHandler = new ChannelAccountHandler(
-    teamConfigurationService
-  );
-  const defaultHandler = new DefaultHandler(
-    teamConfigurationService,
-    httpClient
-  );
-  const removeAccountHandler = new RemoveAccountHandler(
-    teamConfigurationService,
-    defaultHandler
-  );
-
-  logzioBot.setupDialogSender = new SetupDialogSender(
-    teamConfigurationService,
-    apiConfig
-  );
-
-  CommandsRegistry.register(new GetTriggeredAlertsCommand(alertsClient));
-  CommandsRegistry.register(new HelpCommand());
-  CommandsRegistry.register(new KibanaObjectsCommand(kibanaClient));
-  CommandsRegistry.register(new SearchCommand(new SearchClient(httpClient)));
-  CommandsRegistry.register(new AddAccountCommand(logzioBot.setupDialogSender));
-  CommandsRegistry.register(new ShowAlertCommand(alertsClient));
-  CommandsRegistry.register(
-    new SnapshotCommand(
-      externalDomain,
-      kibanaClient,
-      new SnapshotsClient(httpClient)
-    )
-  );
-  CommandsRegistry.register(new ClearActiveCommand(channelAccountHandler));
-  CommandsRegistry.register(new SetActiveCommand(channelAccountHandler));
-  CommandsRegistry.register(new SetDefaultCommand(defaultHandler));
-  CommandsRegistry.register(
-    new GetChannelAccountCommand(teamConfigurationService)
-  );
-  CommandsRegistry.register(new GetAccountsCommand(teamConfigurationService));
-  CommandsRegistry.register(new RemoveAccountCommand(removeAccountHandler));
-  CommandsRegistry.register(new SetupCommand());
-  CommandsRegistry.register(new UnknownCommand());
-
-  CommandsRegistry.getCommands().forEach(command =>
-    command.configure(logzioBot.controller)
-  );
-
-  const setupDialogHandler = new SetupDialogHandler(
-    teamConfigurationService,
-    httpClient,
-    apiConfig,
-    logzioBot.setupDialogSender
-  );
-  setupDialogHandler.configure(logzioBot.controller);
 }
 
 function reconnectBot(bot, err) {
   delete this.bots[bot.config.token];
   logger.warn(
-    `RTM connection for bot ${
-      bot.config.token
-    } closed - trying to reopen RTM connection`,
+    `RTM connection for bot ${bot.config.token} closed - trying to reopen RTM connection`,
     err
   );
   createBot(this, bot, {});
-}
-
-class LogzioBot {
-  constructor(apiConfig, externalDomain, storage) {
-    this.bots = {};
-    this.apiConfig = apiConfig;
-    this.externalDomain = externalDomain;
-    this.storage = storage;
-  }
-
-  bootstrap(clientId, clientSecret, clientVerificationToken, port) {
-    const config = {
-      logger: LoggerFactory.getLogger('botkit'),
-      disable_startup_messages: true,
-      require_delivery: true,
-      storage: this.storage,
-      retry: 1000,
-      clientSigningSecret: clientSecret
-    };
-
-    this.controller = Botkit.slackbot(config).configureSlackApp({
-      clientId: clientId,
-      clientSecret: clientSecret,
-      clientVerificationToken: clientVerificationToken,
-      scopes: ['bot']
-    });
-
-    this.controller.setupWebserver(port, (err, webserver) => {
-      createWebhookProxyEndpoint(this, webserver);
-      this.controller.createWebhookEndpoints(webserver);
-
-      this.controller.createOauthEndpoints(webserver, (err, req, res) => {
-        if (err) {
-          res.status(500).send('ERROR: ' + err);
-        } else {
-          res.redirect('https://logz.io/alice-confirm/');
-        }
-      });
-
-      webserver.get('/*', function(req, res) {
-        res.redirect('https://logz.io');
-      });
-    });
-
-    this.controller.on('create_bot', (bot, config) =>
-      createBot(this, bot, config)
-    );
-
-    this.controller.on('rtm_close', (bot, err) => {
-      if( this.bots[bot.config.token].rtm._closeCode !== 1006 ) {
-        reconnectBot.call(this, bot, err);
-      }
-    });
-
-    this.controller.on('rtm_reconnect_failed', (bot, err) => {
-      reconnectBot.call(this, bot, err);
-    })
-    registerAndConfigureCommands(this);
-    connectToExistingTeams(this);
-  }
 }
 
 process.on('uncaughtException', err => {

@@ -51,7 +51,7 @@ class ApiExtract {
 
   static extractChannelName(bot, channelId) {
     return new Promise(resolve => {
-      bot.api.channels.info({ channel: channelId }, (err, response) => {
+      bot.api.conversations.info({ channel: channelId }, (err, response) => {
         if (response.ok) {
           resolve({
             channelName: response.channel.name.toString(),
@@ -71,7 +71,7 @@ class ApiExtract {
 
   static extractChannelNameAndId(bot, channelId) {
     return new Promise(resolve => {
-      bot.api.channels.info({ channel: channelId }, (err, response) => {
+      bot.api.conversations.info({ channel: channelId }, (err, response) => {
         if (response.ok) {
           resolve({
             channelName: response.channel.name.toString(),
