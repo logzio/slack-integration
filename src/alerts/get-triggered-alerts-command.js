@@ -2,6 +2,7 @@ const Command = require('../core/commands/command');
 const LoggerFactory = require('../core/logging/logger-factory');
 const moment = require('moment');
 const { getEventMetadata } = require('../core/logging/logging-metadata');
+const { logEvent } = require('../core/logging/logging-service');
 const Messages = require('../core/messages/messages');
 
 const logger = LoggerFactory.getLogger(__filename);
@@ -65,10 +66,13 @@ class GetTriggeredAlertsCommand extends Command {
   }
 
   getTriggeredAlerts(channel, bot, message, withAlias, companyName) {
-    logger.info(
-      `User ${message.user} from team ${message.team}, customer name ${companyName} requested triggered alerts list`,
-      getEventMetadata(message, 'get-triggered-alerts', companyName)
-    );
+    logEvent({
+      userObject: message,
+      companyName,
+      eventName: 'get-triggered-alerts',
+      logger,
+      action: 'requested triggered alerts list'
+    });
     let alias;
     const matches = message.match;
     if (withAlias) {
@@ -96,7 +100,10 @@ class GetTriggeredAlertsCommand extends Command {
             logger.warn(
               'Failed to get triggered events',
               err,
-              getEventMetadata(message, 'failed-to-get-triggered-alerts')
+              getEventMetadata({
+                message,
+                eventName: 'failed-to-get-triggered-alerts'
+              })
             );
           },
           true
