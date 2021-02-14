@@ -9,12 +9,14 @@ const commandShowByName = /(get) alert (.*)/;
 const commandShowAll = /(get) alerts/;
 const commandShowAllWithAlias = /(.+) (get) alerts/;
 const Messages = require('../core/messages/messages');
-const Table = require('easy-table'); 
+const Table = require('easy-table');
 
 class ShowAlertCommand extends Command {
   constructor(alertsClient) {
     super();
     this.alertsClient = alertsClient;
+    this.teamConfigurationService =
+      alertsClient.httpClient.teamConfigurationService;
   }
 
   configure(controller) {
@@ -22,7 +24,11 @@ class ShowAlertCommand extends Command {
       [commandShowAllWithAlias],
       'direct_message,direct_mention',
       (bot, message) => {
-        this.getAllAlerts(message.channel, message, bot, true);
+        this.teamConfigurationService
+          .getCompanyNameForTeamId(message.team)
+          .then(companyName => {
+            this.getAllAlerts(message.channel, message, bot, true, companyName);
+          });
       }
     );
 
@@ -30,7 +36,17 @@ class ShowAlertCommand extends Command {
       [commandShowAll],
       'direct_message,direct_mention',
       (bot, message) => {
-        this.getAllAlerts(message.channel, message, bot, false);
+        this.teamConfigurationService
+          .getCompanyNameForTeamId(message.team)
+          .then(companyName => {
+            this.getAllAlerts(
+              message.channel,
+              message,
+              bot,
+              false,
+              companyName
+            );
+          });
       }
     );
 
@@ -38,7 +54,11 @@ class ShowAlertCommand extends Command {
       [commandShowByIdWithAlias],
       'direct_message,direct_mention',
       (bot, message) => {
-        this.showAlertById(null, message, bot, true);
+        this.teamConfigurationService
+          .getCompanyNameForTeamId(message.team)
+          .then(companyName => {
+            this.showAlertById(null, message, bot, true, companyName);
+          });
       }
     );
 
@@ -46,7 +66,17 @@ class ShowAlertCommand extends Command {
       [commandShowById],
       'direct_message,direct_mention',
       (bot, message) => {
-        this.showAlertById(message.channel, message, bot, false);
+        this.teamConfigurationService
+          .getCompanyNameForTeamId(message.team)
+          .then(companyName => {
+            this.showAlertById(
+              message.channel,
+              message,
+              bot,
+              false,
+              companyName
+            );
+          });
       }
     );
 
@@ -54,7 +84,11 @@ class ShowAlertCommand extends Command {
       [commandShowByNameWithAlias],
       'direct_message,direct_mention',
       (bot, message) => {
-        this.showAlertByName(null, message, bot, true);
+        this.teamConfigurationService
+          .getCompanyNameForTeamId(message.team)
+          .then(companyName => {
+            this.showAlertByName(null, message, bot, true, companyName);
+          });
       }
     );
 
@@ -62,17 +96,25 @@ class ShowAlertCommand extends Command {
       [commandShowByName],
       'direct_message,direct_mention',
       (bot, message) => {
-        this.showAlertByName(message.channel, message, bot, false);
+        this.teamConfigurationService
+          .getCompanyNameForTeamId(message.team)
+          .then(companyName => {
+            this.showAlertByName(
+              message.channel,
+              message,
+              bot,
+              false,
+              companyName
+            );
+          });
       }
     );
   }
 
-  showAlertByName(channel, message, bot, withAlias) {
+  showAlertByName(channel, message, bot, withAlias, companyName) {
     logger.info(
-      `User ${message.user} from team ${
-        message.team
-      } requested alert info by name`,
-      getEventMetadata(message, 'get-alert-by-name')
+      `User ${message.user} from team ${message.team}, customer name ${companyName} requested alert info by name`,
+      getEventMetadata(message, 'get-alert-by-name', companyName)
     );
     const matches = message.match;
     let alias;
@@ -100,12 +142,10 @@ class ShowAlertCommand extends Command {
       });
   }
 
-  getAllAlerts(channel, message, bot, withAlias) {
+  getAllAlerts(channel, message, bot, withAlias, companyName) {
     logger.info(
-      `User ${message.user} from team ${
-        message.team
-      } requested all alerts info by name`,
-      getEventMetadata(message, 'get-alerts-by-name')
+      `User ${message.user} from team ${message.team}, customer name ${companyName} requested all alerts info by name`,
+      getEventMetadata(message, 'get-alerts-by-name', companyName)
     );
     const matches = message.match;
     let alias;
@@ -133,12 +173,10 @@ class ShowAlertCommand extends Command {
       });
   }
 
-  showAlertById(channel, message, bot, withAlias) {
+  showAlertById(channel, message, bot, withAlias, companyName) {
     logger.info(
-      `User ${message.user} from team ${
-        message.team
-      } requested alert info by id`,
-      getEventMetadata(message, 'get-alert-by-id')
+      `User ${message.user} from team ${message.team}, customer name ${companyName} requested alert info by id`,
+      getEventMetadata(message, 'get-alert-by-id', companyName)
     );
     const matches = message.match;
     let alias;

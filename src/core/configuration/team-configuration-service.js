@@ -11,13 +11,15 @@ class TeamConfigurationService {
     this.httpClient = httpClient;
   }
   getDefault(teamId) {
-    logger.info("getDefault teamId:"+teamId)
+    logger.info('getDefault teamId:' + teamId);
     return this.teamStore.get_async(teamId).then(teamDate => {
       if (!teamDate || !teamDate.bot.configuration) {
-        logger.info("getDefault 1")
+        logger.info('getDefault 1');
         return new TeamConfiguration();
       } else {
-        logger.info("getDefault 2 "+ teamDate.bot.configuration+ ", "+ teamDate.name)
+        logger.info(
+          'getDefault 2 ' + teamDate.bot.configuration + ', ' + teamDate.name
+        );
         return new TeamConfiguration(teamDate.bot.configuration, teamDate.name);
       }
     });
@@ -85,7 +87,9 @@ class TeamConfigurationService {
   }
 
   addAccount(teamId, teamConfiguration) {
-    logger.info("---saving---:alias" + teamConfiguration.getAlias()+",teamId="+teamId);
+    logger.info(
+      '---saving---:alias' + teamConfiguration.getAlias() + ',teamId=' + teamId
+    );
     return this.accountsStore
       .save({
         team_id: teamId,
@@ -97,10 +101,24 @@ class TeamConfigurationService {
       .then(() => this.getAccountForAlias(teamConfiguration.getAlias(), teamId))
       .then(result => {
         if (!result) {
-          logger.error("tc:"+result+",alias" + teamConfiguration.getAlias()+",teamId="+teamId)
+          logger.error(
+            'tc:' +
+              result +
+              ',alias' +
+              teamConfiguration.getAlias() +
+              ',teamId=' +
+              teamId
+          );
           throw Error();
-        }else{
-          logger.info("tc-saved:"+result+",alias" + teamConfiguration.getAlias()+",teamId="+teamId)
+        } else {
+          logger.info(
+            'tc-saved:' +
+              result +
+              ',alias' +
+              teamConfiguration.getAlias() +
+              ',teamId=' +
+              teamId
+          );
           return result;
         }
       });
@@ -265,18 +283,19 @@ class TeamConfigurationService {
 
   extractRealName(account) {
     return new Promise((resolve, reject) => {
-        if (account.alias === 'my-account') {
-          this.httpClient
-            .getRealName(account.apiToken, account.region)
-            .then(realName => {
-              account.realName = realName.accountName;
-              resolve(account);
-            }).catch(err => {
-            reject(err);
+      if (account.alias === 'my-account') {
+        this.httpClient
+          .getRealName(account.apiToken, account.region)
+          .then(realName => {
+            account.realName = realName.accountName;
+            resolve(account);
           })
-        } else {
-          resolve(account);
-        }
+          .catch(err => {
+            reject(err);
+          });
+      } else {
+        resolve(account);
+      }
     });
   }
 
@@ -297,13 +316,13 @@ class TeamConfigurationService {
           };
         } else {
           map = accounts.map(configuredAccount =>
-                this.getAccountSafeView(
-                configuredAccount,
-                teamId,
-                bot,
-                defaultAccount
-              )
+            this.getAccountSafeView(
+              configuredAccount,
+              teamId,
+              bot,
+              defaultAccount
             )
+          );
         }
         return Promise.all(map);
       })
@@ -328,9 +347,16 @@ class TeamConfigurationService {
         channels: channels
       }))
       .catch(err => {
-          logger.error("getAccountSafeView failed for configuredAccount="+configuredAccount,err);
-        }
-      )
+        logger.error(
+          'getAccountSafeView failed for configuredAccount=' +
+            configuredAccount,
+          err
+        );
+      });
+  }
+
+  getCompanyNameForTeamId(teamId) {
+    return this.teamStore.get_async(teamId).then(teamData => teamData.name);
   }
 }
 
