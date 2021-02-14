@@ -1,22 +1,33 @@
 const Command = require('../core/commands/command');
 const LoggerFactory = require('../core/logging/logger-factory');
-const { getEventMetadata } = require('../core/logging/logging-metadata');
+const { logEvent } = require('../core/logging/logging-service');
 const { sendUsage } = require('./usage-message-supplier');
 
 const logger = LoggerFactory.getLogger(__filename);
 
 class HelpCommand extends Command {
+  constructor(teamConfigurationService) {
+    super();
+    this.teamConfigurationService = teamConfigurationService;
+  }
+
   configure(controller) {
     controller.hears(
       [/help ([\w-]+)/, /help$/],
       'direct_message,direct_mention',
       (bot, message) => {
-        logger.info(
-          `User ${message.user} from team ${message.team} requested usage list`,
-          getEventMetadata(message, 'usage-list')
-        );
-        let query = message.match[1] || '';
-        sendUsage(bot, message, query);
+        this.teamConfigurationService.getCompanyNameForTeamId(message.team)
+          .then(companyName => {
+            logEvent({
+              userObject: message,
+              eventName: 'usage-list',
+              logger,
+              companyName,
+              action: 'requested usage list'
+            });
+            let query = message.match[1] || '';
+            sendUsage(bot, message, query);
+          });
       }
     );
   }

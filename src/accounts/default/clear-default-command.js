@@ -26,7 +26,10 @@ class ClearWorkspaceAccountCommand extends Command {
               logger.warn(
                 'Failed to clear workspace account',
                 err,
-                getEventMetadata(message, 'failed-to-clear-workspace-account')
+                getEventMetadata({
+                  message,
+                  eventName: 'failed-to-clear-workspace-account'
+                })
               );
               bot.reply(message, Messages.DEFAULT_ERROR_MESSAGE);
             });

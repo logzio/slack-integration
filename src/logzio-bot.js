@@ -112,7 +112,7 @@ function registerAndConfigureCommands(logzioBot) {
   );
 
   CommandsRegistry.register(new GetTriggeredAlertsCommand(alertsClient));
-  CommandsRegistry.register(new HelpCommand());
+  CommandsRegistry.register(new HelpCommand(teamConfigurationService));
   CommandsRegistry.register(new KibanaObjectsCommand(kibanaClient));
   CommandsRegistry.register(new SearchCommand(new SearchClient(httpClient)));
   CommandsRegistry.register(new AddAccountCommand(logzioBot.setupDialogSender));
@@ -133,7 +133,7 @@ function registerAndConfigureCommands(logzioBot) {
   CommandsRegistry.register(new GetAccountsCommand(teamConfigurationService));
   CommandsRegistry.register(new RemoveAccountCommand(removeAccountHandler));
   CommandsRegistry.register(new SetupCommand());
-  CommandsRegistry.register(new UnknownCommand());
+  CommandsRegistry.register(new UnknownCommand(teamConfigurationService));
 
   CommandsRegistry.getCommands().forEach(command =>
     command.configure(logzioBot.controller)

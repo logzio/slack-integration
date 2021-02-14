@@ -1,6 +1,6 @@
 const Command = require('../core/commands/command');
 const LoggerFactory = require('../core/logging/logger-factory');
-const { getEventMetadata } = require('../core/logging/logging-metadata');
+const { logEvent } = require('../core/logging/logging-service');
 const logger = LoggerFactory.getLogger(__filename);
 const commandShowByIdWithAlias = /(.+) (get) alert by id (\d*)/;
 const commandShowById = /(get) alert by id (\d*)/;
@@ -112,10 +112,13 @@ class ShowAlertCommand extends Command {
   }
 
   showAlertByName(channel, message, bot, withAlias, companyName) {
-    logger.info(
-      `User ${message.user} from team ${message.team}, customer name ${companyName} requested alert info by name`,
-      getEventMetadata(message, 'get-alert-by-name', companyName)
-    );
+    logEvent({
+      userObject: message,
+      eventName: 'get-alert-by-name',
+      action: 'requested alert info by name',
+      companyName,
+      logger
+    });
     const matches = message.match;
     let alias;
     let index = 2;

@@ -1,6 +1,6 @@
 const Command = require('../../core/commands/command');
 const LoggerFactory = require('../../core/logging/logger-factory');
-const { getEventMetadata } = require('../../core/logging/logging-metadata');
+const { logEvent } = require('../../core/logging/logging-service');
 
 const logger = LoggerFactory.getLogger(__filename);
 
@@ -8,6 +8,7 @@ class AddAccountCommand extends Command {
   constructor(setupDialogSender) {
     super();
     this.setupDialogSender = setupDialogSender;
+    this.teamConfigurationService = setupDialogSender.teamConfigurationService;
   }
 
   configure(controller) {
@@ -19,19 +20,24 @@ class AddAccountCommand extends Command {
   }
 
   handleAddAccountRequest(bot, message) {
-    logger.info(
-      `User ${message.user} from team ${
-        message.team
-      } triggered add account command`,
-      getEventMetadata(message, 'setup')
-    );
-    if (message.type !== 'direct_message') {
-      bot.reply(
-        message,
-        `Sending you the configuration options privately <@${message.user}>`
-      );
-    }
-    this.setupDialogSender.sendSetupMessage(bot, message.user);
+    this.teamConfigurationService
+      .getCompanyNameForTeamId(message.team)
+      .then(companyName => {
+        logEvent({
+          userObject: message,
+          action: 'triggered add account command',
+          eventName: 'setup',
+          companyName,
+          logger
+        });
+        if (message.type !== 'direct_message') {
+          bot.reply(
+            message,
+            `Sending you the configuration options privately <@${message.user}>`
+          );
+        }
+        this.setupDialogSender.sendSetupMessage(bot, message.user);
+      });
   }
 
   getCategory() {

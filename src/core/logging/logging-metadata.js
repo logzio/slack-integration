@@ -1,4 +1,4 @@
-function getEventMetadata(message, eventName, log, companyName) {
+function getEventMetadata({ message, eventName, log, companyName }) {
   const metadata = {
     eventName
   };
