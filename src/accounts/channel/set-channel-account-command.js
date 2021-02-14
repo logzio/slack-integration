@@ -61,7 +61,10 @@ class SetChannelAccountCommand extends Command {
           logger.warn(
             'Failed to set channel account',
             err,
-            getEventMetadata(message, 'failed-to-set-channel-account')
+            getEventMetadata({
+              message,
+              eventName: 'failed-to-set-channel-account'
+            })
           );
           bot.reply(message, Messages.DEFAULT_ERROR_MESSAGE);
         });

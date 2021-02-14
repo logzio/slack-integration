@@ -41,7 +41,10 @@ class SetWorkspaceAccountCommand extends Command {
           logger.warn(
             'Failed to set workspace account',
             err,
-            getEventMetadata(message, 'failed-to-set-workspace-account')
+            getEventMetadata({
+              message,
+              eventName: 'failed-to-set-workspace-account'
+            })
           );
           bot.reply(message, Messages.DEFAULT_ERROR_MESSAGE);
         });

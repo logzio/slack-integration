@@ -3,6 +3,7 @@ const LoggerFactory = require('../core/logging/logger-factory');
 const QueryBuilder = require('./query-builder');
 const TimeUnit = require('../core/time/time-unit');
 const { getEventMetadata } = require('../core/logging/logging-metadata');
+const { logEvent } = require('../core/logging/logging-service');
 
 const searchWithDefaultWindow = /search `(.+)`\s*$/;
 const searchWithDefaultWindowWithAlias = /(.+) search `(.+)`\s*$/;
@@ -72,6 +73,8 @@ class SearchCommand extends Command {
   constructor(searchClient) {
     super();
     this.searchClient = searchClient;
+    this.teamConfigurationService =
+      searchClient.httpClient.teamConfigurationService;
   }
 
   configure(controller) {
@@ -82,7 +85,11 @@ class SearchCommand extends Command {
       ],
       'direct_message,direct_mention',
       (bot, message) => {
-        this.searchWithDefaultWindow(message, bot, true);
+        this.teamConfigurationService
+          .getCompanyNameForTeamId(message.team)
+          .then(companyName => {
+            this.searchWithDefaultWindow(message, bot, true, companyName);
+          });
       }
     );
 
@@ -90,7 +97,11 @@ class SearchCommand extends Command {
       [searchWithDefaultWindow, searchWithDefaultWindowEscape],
       'direct_message,direct_mention',
       (bot, message) => {
-        this.searchWithDefaultWindow(message, bot, false);
+        this.teamConfigurationService
+          .getCompanyNameForTeamId(message.team)
+          .then(companyName => {
+            this.searchWithDefaultWindow(message, bot, false, companyName);
+          });
       }
     );
 
@@ -98,7 +109,11 @@ class SearchCommand extends Command {
       [searchWithTimeToSearchWithAlias, searchWithTimeToSearchWithAliasEscape],
       'direct_message,direct_mention',
       (bot, message) => {
-        this.searchWithTimeToSearch(message, bot, true);
+        this.teamConfigurationService
+          .getCompanyNameForTeamId(message.team)
+          .then(companyName => {
+            this.searchWithTimeToSearch(message, bot, true, companyName);
+          });
       }
     );
 
@@ -106,7 +121,11 @@ class SearchCommand extends Command {
       [searchWithTimeToSearch, searchWithTimeToSearchEscape],
       'direct_message,direct_mention',
       (bot, message) => {
-        this.searchWithTimeToSearch(message, bot, false);
+        this.teamConfigurationService
+          .getCompanyNameForTeamId(message.team)
+          .then(companyName => {
+            this.searchWithTimeToSearch(message, bot, false, companyName);
+          });
       }
     );
 
@@ -117,7 +136,11 @@ class SearchCommand extends Command {
       ],
       'direct_message,direct_mention',
       (bot, message) => {
-        this.searchWithSpecificTimeWindow(message, bot, true);
+        this.teamConfigurationService
+          .getCompanyNameForTeamId(message.team)
+          .then(companyName => {
+            this.searchWithSpecificTimeWindow(message, bot, true, companyName);
+          });
       }
     );
 
@@ -125,18 +148,23 @@ class SearchCommand extends Command {
       [searchWithSpecificTimeWindow, searchWithSpecificTimeWindowEscape],
       'direct_message,direct_mention',
       (bot, message) => {
-        this.searchWithSpecificTimeWindow(message, bot, false);
+        this.teamConfigurationService
+          .getCompanyNameForTeamId(message.team)
+          .then(companyName => {
+            this.searchWithSpecificTimeWindow(message, bot, false, companyName);
+          });
       }
     );
   }
 
-  searchWithSpecificTimeWindow(message, bot, withAlias) {
-    logger.info(
-      `User ${message.user} from team ${
-        message.team
-      } triggered a search with absolute time frame`,
-      getEventMetadata(message, 'search')
-    );
+  searchWithSpecificTimeWindow(message, bot, withAlias, companyName) {
+    logEvent({
+      userObject: message,
+      eventName: 'search',
+      action: 'triggered a search with absolute time frame',
+      logger,
+      companyName
+    });
     const matches = message.match;
     let alias, queryString, fromTS, toTS;
     let index = 1;
@@ -161,13 +189,14 @@ class SearchCommand extends Command {
     );
   }
 
-  searchWithTimeToSearch(message, bot, withAlias) {
-    logger.info(
-      `User ${message.user} from team ${
-        message.team
-      } triggered a search with relative time frame`,
-      getEventMetadata(message, 'search')
-    );
+  searchWithTimeToSearch(message, bot, withAlias, companyName) {
+    logEvent({
+      userObject: message,
+      companyName,
+      action: 'triggered a search with relative time frame',
+      eventName: 'search',
+      logger
+    });
     const matches = message.match;
 
     let alias, queryString, timeValue, timeUnitStr;
@@ -194,13 +223,14 @@ class SearchCommand extends Command {
     );
   }
 
-  searchWithDefaultWindow(message, bot, withAlias) {
-    logger.info(
-      `User ${message.user} from team ${
-        message.team
-      } triggered a search with default time frame`,
-      getEventMetadata(message, 'search')
-    );
+  searchWithDefaultWindow(message, bot, withAlias, companyName) {
+    logEvent({
+      userObject: message,
+      eventName: 'search',
+      logger,
+      action: 'triggered a search with default time frame',
+      companyName
+    });
     const matches = message.match;
     let alias, queryString;
     let index = 1;
