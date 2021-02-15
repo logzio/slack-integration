@@ -3,6 +3,7 @@ const commandRegexWithAlias = /set channel account (.*)/;
 const commandRegex = /set channel account/;
 const LoggerFactory = require('../../core/logging/logger-factory');
 const logger = LoggerFactory.getLogger(__filename);
+const { logEvent } = require('../../core/logging/logging-service');
 const { getEventMetadata } = require('../../core/logging/logging-metadata');
 const Messages = require('../../core/messages/messages');
 
@@ -10,6 +11,7 @@ class SetChannelAccountCommand extends Command {
   constructor(channelHandler) {
     super();
     this.channelHandler = channelHandler;
+    this.teamConfigurationService = channelHandler.teamConfService;
   }
 
   configure(controller) {
@@ -19,13 +21,17 @@ class SetChannelAccountCommand extends Command {
       (bot, message) => {
         let alias = message.match[1];
         this.setChannel(message, bot, alias);
+        this.reportCommand(message);
       }
     );
 
     controller.hears(
       [commandRegex],
       'direct_message,direct_mention',
-      (bot, message) => this.ask(bot, message)
+      (bot, message) => {
+        this.ask(bot, message);
+        this.reportCommand(message);
+      }
     );
   }
 
@@ -69,6 +75,20 @@ class SetChannelAccountCommand extends Command {
           bot.reply(message, Messages.DEFAULT_ERROR_MESSAGE);
         });
       });
+  }
+
+  async reportCommand(userObject) {
+    const companyName = await this.teamConfigurationService.getCompanyNameForTeamId(
+      userObject.team
+    );
+
+    logEvent({
+      userObject,
+      eventName: 'set-channel-account',
+      action: 'triggered the get channel account command',
+      companyName,
+      logger
+    });
   }
 
   getCategory() {

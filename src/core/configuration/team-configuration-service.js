@@ -355,7 +355,7 @@ class TeamConfigurationService {
       });
   }
 
-  getCompanyNameForTeamId(teamId) {
+  async getCompanyNameForTeamId(teamId) {
     return this.teamStore.get_async(teamId).then(teamData => teamData.name);
   }
 }

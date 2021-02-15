@@ -1,5 +1,6 @@
 const Command = require('../../core/commands/command');
 const LoggerFactory = require('../../core/logging/logger-factory');
+const { logEvent } = require('../../core/logging/logging-service');
 const Messages = require('../../core/messages/messages');
 const logger = LoggerFactory.getLogger(__filename);
 const commandRegex = /get channel account/;
@@ -14,7 +15,17 @@ class GetCurrentChannelAccountCommand extends Command {
     controller.hears(
       commandRegex,
       'direct_message,direct_mention',
-      (bot, message) => {
+      async (bot, message) => {
+        const companyName = await this.teamConfigService.getCompanyNameForTeamId(
+          message.team
+        );
+        logEvent({
+          userObject: message,
+          eventName: 'get-channel-account',
+          action: 'triggered the get channel account command',
+          companyName,
+          logger
+        });
         return this.teamConfigService
           .getAccountForChannel(message.team, message.channel)
           .then(channelAccount => {

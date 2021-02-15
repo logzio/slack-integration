@@ -19,25 +19,24 @@ class AddAccountCommand extends Command {
     );
   }
 
-  handleAddAccountRequest(bot, message) {
-    this.teamConfigurationService
-      .getCompanyNameForTeamId(message.team)
-      .then(companyName => {
-        logEvent({
-          userObject: message,
-          action: 'triggered add account command',
-          eventName: 'setup',
-          companyName,
-          logger
-        });
-        if (message.type !== 'direct_message') {
-          bot.reply(
-            message,
-            `Sending you the configuration options privately <@${message.user}>`
-          );
-        }
-        this.setupDialogSender.sendSetupMessage(bot, message.user);
-      });
+  async handleAddAccountRequest(bot, message) {
+    const companyName = await this.teamConfigurationService.getCompanyNameForTeamId(
+      message.team
+    );
+    logEvent({
+      userObject: message,
+      action: 'triggered add account command',
+      eventName: 'setup',
+      companyName,
+      logger
+    });
+    if (message.type !== 'direct_message') {
+      bot.reply(
+        message,
+        `Sending you the configuration options privately <@${message.user}>`
+      );
+    }
+    this.setupDialogSender.sendSetupMessage(bot, message.user);
   }
 
   getCategory() {

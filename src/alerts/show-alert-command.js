@@ -36,18 +36,11 @@ class ShowAlertCommand extends Command {
     controller.hears(
       [commandShowAll],
       'direct_message,direct_mention',
-      (bot, message) => {
-        this.teamConfigurationService
-          .getCompanyNameForTeamId(message.team)
-          .then(companyName => {
-            this.getAllAlerts(
-              message.channel,
-              message,
-              bot,
-              false,
-              companyName
-            );
-          });
+      async (bot, message) => {
+        const companyName = await this.teamConfigurationService.getCompanyNameForTeamId(
+          message.team
+        );
+        this.getAllAlerts(message.channel, message, bot, false, companyName);
       }
     );
 
