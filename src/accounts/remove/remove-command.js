@@ -34,38 +34,34 @@ class RemoveCommand extends Command {
   }
 
   removeAccount(message, alias, bot) {
-    this.teamConfigurationService
-      .getCompanyNameForTeamId(message.team)
-      .then(companyName => {
-        logEvent({
-          userObject: message,
-          eventName: 'remove-account',
-          action: `triggered remove command on ${alias}`,
-          companyName,
-          logger
+    this.reportCommandWithCompanyName({
+      userObject: message,
+      teamConfigurationService: this.teamConfigurationService,
+      eventName: 'remove-account',
+      action: `triggered remove command on ${alias}`,
+      logger
+    });
+    this.removeAccountHandler
+      .removeAccount(
+        message.team,
+        message.channel,
+        alias,
+        bot,
+        message.user,
+        message
+      )
+      .catch(err => {
+        this.handleError(bot, message, err, err => {
+          logger.warn(
+            'Failed to remove account',
+            err,
+            getEventMetadata({
+              message,
+              eventName: 'failed-to-remove-account'
+            })
+          );
+          bot.reply(message, 'Failed to remove account');
         });
-        this.removeAccountHandler
-          .removeAccount(
-            message.team,
-            message.channel,
-            alias,
-            bot,
-            message.user,
-            message
-          )
-          .catch(err => {
-            this.handleError(bot, message, err, err => {
-              logger.warn(
-                'Failed to remove account',
-                err,
-                getEventMetadata({
-                  message,
-                  eventName: 'failed-to-remove-account'
-                })
-              );
-              bot.reply(message, 'Failed to remove account');
-            });
-          });
       });
   }
 

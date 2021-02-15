@@ -4,7 +4,6 @@ const moment = require('moment');
 const Table = require('easy-table');
 const TimeUnit = require('../core/time/time-unit');
 const { getEventMetadata } = require('../core/logging/logging-metadata');
-const { logEvent } = require('../core/logging/logging-service');
 const Messages = require('../core/messages/messages');
 const logger = LoggerFactory.getLogger(__filename);
 const commandWithAlias = /(.+) snapshot (vis|visualization|dash|dashboard) (.*) last (\d+) ?(minutes?|mins?|m|hours?|h)( query (.+))?\s*$/;
@@ -129,40 +128,23 @@ class SnapshotCommand extends Command {
     controller.hears(
       [commandWithAlias],
       'direct_message,direct_mention',
-      (bot, message) => {
-        this.teamConfigurationService
-          .getCompanyNameForTeamId(message.team)
-          .then(companyName => {
-            this.createSnapshot(null, message, bot, true, companyName);
-          });
-      }
+      (bot, message) => this.createSnapshot(null, message, bot, true)
     );
 
     controller.hears(
       [command],
       'direct_message,direct_mention',
-      (bot, message) => {
-        this.teamConfigurationService
-          .getCompanyNameForTeamId(message.team)
-          .then(companyName => {
-            this.createSnapshot(
-              message.channel,
-              message,
-              bot,
-              false,
-              companyName
-            );
-          });
-      }
+      (bot, message) =>
+        this.createSnapshot(message.channel, message, bot, false)
     );
   }
 
-  createSnapshot(channel, message, bot, withAlias, companyName) {
-    logEvent({
+  createSnapshot(channel, message, bot, withAlias) {
+    this.reportCommandWithCompanyName({
       userObject: message,
       action: 'requested a snapshot',
       eventName: 'create-snapshot',
-      companyName,
+      teamConfigurationService: this.teamConfigurationService,
       logger
     });
     const matches = message.match;

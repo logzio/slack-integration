@@ -2,7 +2,6 @@ const Command = require('../../core/commands/command');
 const commandRegex = /clear channel account/;
 const LoggerFactory = require('../../core/logging/logger-factory');
 const logger = LoggerFactory.getLogger(__filename);
-const { logEvent } = require('../../core/logging/logging-service');
 const { getEventMetadata } = require('../../core/logging/logging-metadata');
 const Messages = require('../../core/messages/messages');
 
@@ -18,14 +17,11 @@ class ClearChannelAccountCommand extends Command {
       [commandRegex],
       'direct_message,direct_mention',
       async (bot, message) => {
-        const companyName = await this.teamConfigurationService.getCompanyNameForTeamId(
-          message.team
-        );
-        logEvent({
-          userObject: companyName,
+        this.reportCommandWithCompanyName({
+          userObject: message,
           eventName: 'clear-channel-account',
           action: 'triggered the clear channel account command',
-          companyName,
+          teamConfigurationService: this.teamConfigurationService,
           logger
         });
         const { team = null, channel = null } = message;

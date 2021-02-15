@@ -13,7 +13,7 @@ class GetAccountsCommand extends Command {
       /accounts/,
       'direct_message,direct_mention',
       (bot, message) => {
-        this.reportCommandAndFetchCompanyName({
+        this.reportCommandWithCompanyName({
           userObject: message,
           eventName: 'get-accounts',
           action: 'triggered the get accounts command',

@@ -20,7 +20,7 @@ class AddAccountCommand extends Command {
   }
 
   handlePreviousVersionAddAccountRequest(bot, message) {
-    this.reportCommandAndFetchCompanyName({
+    this.reportCommandWithCompanyName({
       userObject: message,
       teamConfigurationService: this.teamConfigurationService,
       logger,

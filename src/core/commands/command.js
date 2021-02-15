@@ -30,7 +30,7 @@ class Command {
     }
   }
 
-  async reportCommandAndFetchCompanyName({
+  async reportCommandWithCompanyName({
     userObject,
     action,
     eventName,

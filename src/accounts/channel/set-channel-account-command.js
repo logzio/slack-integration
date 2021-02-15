@@ -19,9 +19,15 @@ class SetChannelAccountCommand extends Command {
       [commandRegexWithAlias],
       'direct_message,direct_mention',
       (bot, message) => {
+        this.reportCommandWithCompanyName({
+          userObject: message,
+          teamConfigurationService: this.teamConfigurationService,
+          logger,
+          eventName: 'set-channel-account',
+          action: 'triggered the get channel account command'
+        });
         let alias = message.match[1];
         this.setChannel(message, bot, alias);
-        this.reportCommand(message);
       }
     );
 
@@ -29,8 +35,14 @@ class SetChannelAccountCommand extends Command {
       [commandRegex],
       'direct_message,direct_mention',
       (bot, message) => {
+        this.reportCommandWithCompanyName({
+          userObject: message,
+          teamConfigurationService: this.teamConfigurationService,
+          logger,
+          eventName: 'set-channel-account',
+          action: 'triggered the get channel account command'
+        });
         this.ask(bot, message);
-        this.reportCommand(message);
       }
     );
   }
@@ -75,20 +87,6 @@ class SetChannelAccountCommand extends Command {
           bot.reply(message, Messages.DEFAULT_ERROR_MESSAGE);
         });
       });
-  }
-
-  async reportCommand(userObject) {
-    const companyName = await this.teamConfigurationService.getCompanyNameForTeamId(
-      userObject.team
-    );
-
-    logEvent({
-      userObject,
-      eventName: 'set-channel-account',
-      action: 'triggered the get channel account command',
-      companyName,
-      logger
-    });
   }
 
   getCategory() {

@@ -1,6 +1,5 @@
 const Command = require('../core/commands/command');
 const LoggerFactory = require('../core/logging/logger-factory');
-const { logEvent } = require('../core/logging/logging-service');
 const { getEventMetadata } = require('../core/logging/logging-metadata');
 const logger = LoggerFactory.getLogger(__filename);
 const commandShowByIdWithAlias = /(.+) (get) alert by id (\d*)/;
@@ -24,35 +23,21 @@ class ShowAlertCommand extends Command {
     controller.hears(
       [commandShowAllWithAlias],
       'direct_message,direct_mention',
-      (bot, message) => {
-        this.teamConfigurationService
-          .getCompanyNameForTeamId(message.team)
-          .then(companyName => {
-            this.getAllAlerts(message.channel, message, bot, true, companyName);
-          });
-      }
+      (bot, message) => this.getAllAlerts(message.channel, message, bot, true)
     );
 
     controller.hears(
       [commandShowAll],
       'direct_message,direct_mention',
-      async (bot, message) => {
-        const companyName = await this.teamConfigurationService.getCompanyNameForTeamId(
-          message.team
-        );
-        this.getAllAlerts(message.channel, message, bot, false, companyName);
-      }
+      async (bot, message) =>
+        this.getAllAlerts(message.channel, message, bot, false)
     );
 
     controller.hears(
       [commandShowByIdWithAlias],
       'direct_message,direct_mention',
       (bot, message) => {
-        this.teamConfigurationService
-          .getCompanyNameForTeamId(message.team)
-          .then(companyName => {
-            this.showAlertById(null, message, bot, true, companyName);
-          });
+        this.showAlertById(null, message, bot, true);
       }
     );
 
@@ -60,58 +45,32 @@ class ShowAlertCommand extends Command {
       [commandShowById],
       'direct_message,direct_mention',
       (bot, message) => {
-        this.teamConfigurationService
-          .getCompanyNameForTeamId(message.team)
-          .then(companyName => {
-            this.showAlertById(
-              message.channel,
-              message,
-              bot,
-              false,
-              companyName
-            );
-          });
+        this.showAlertById(message.channel, message, bot, false);
       }
     );
 
     controller.hears(
       [commandShowByNameWithAlias],
       'direct_message,direct_mention',
-      (bot, message) => {
-        this.teamConfigurationService
-          .getCompanyNameForTeamId(message.team)
-          .then(companyName => {
-            this.showAlertByName(null, message, bot, true, companyName);
-          });
-      }
+      (bot, message) => this.showAlertByName(null, message, bot, true)
     );
 
     controller.hears(
       [commandShowByName],
       'direct_message,direct_mention',
       (bot, message) => {
-        this.teamConfigurationService
-          .getCompanyNameForTeamId(message.team)
-          .then(companyName => {
-            this.showAlertByName(
-              message.channel,
-              message,
-              bot,
-              false,
-              companyName
-            );
-          });
+        this.showAlertByName(message.channel, message, bot, false);
       }
     );
   }
 
-  showAlertByName(channel, message, bot, withAlias, companyName) {
-    logEvent({
+  showAlertByName(channel, message, bot, withAlias) {
+    this.reportCommandWithCompanyName({
       userObject: message,
       eventName: 'get-alert-by-name',
       action: 'requested alert info by name',
-      companyName,
-      logger
+      logger,
+      teamConfigurationService: this.teamConfigurationService
     });
     const matches = message.match;
     let alias;
@@ -139,13 +98,13 @@ class ShowAlertCommand extends Command {
       });
   }
 
-  getAllAlerts(channel, message, bot, withAlias, companyName) {
-    logEvent({
+  getAllAlerts(channel, message, bot, withAlias) {
+    this.reportCommandWithCompanyName({
       userObject: message,
+      logger,
+      teamConfigurationService: this.teamConfigurationService,
       eventName: 'get-alerts-by-name',
-      action: 'requested all alerts info by name',
-      companyName,
-      logger
+      action: 'requested all alerts info by name'
     });
     const matches = message.match;
     let alias;
@@ -173,12 +132,12 @@ class ShowAlertCommand extends Command {
       });
   }
 
-  showAlertById(channel, message, bot, withAlias, companyName) {
-    logEvent({
+  showAlertById(channel, message, bot, withAlias) {
+    this.reportCommandWithCompanyName({
       userObject: message,
       action: 'requested alert info by id',
       eventName: 'get-alert-by-id',
-      companyName,
+      teamConfigurationService: this.teamConfigurationService,
       logger
     });
     const matches = message.match;

@@ -19,7 +19,7 @@ class AddAccountCommand extends Command {
   }
 
   async handleAddAccountRequest(bot, message) {
-    this.reportCommandAndFetchCompanyName({
+    this.reportCommandWithCompanyName({
       userObject: message,
       action: 'triggered add account command',
       eventName: 'setup',
