@@ -13,6 +13,13 @@ class GetAccountsCommand extends Command {
       /accounts/,
       'direct_message,direct_mention',
       (bot, message) => {
+        this.reportCommandAndFetchCompanyName({
+          userObject: message,
+          eventName: 'get-accounts',
+          action: 'triggered the get accounts command',
+          logger,
+          teamConfigurationService: this.teamConfigService
+        });
         return this.teamConfigService
           .getAllAccountsSafeView(message.team, bot)
           .then(allAccountsSafeView =>
@@ -31,6 +38,8 @@ class GetAccountsCommand extends Command {
         : createAccountsViewReply(allAccountsSafeView)
     );
   }
+
+  async reportCommand(userObject) {}
 
   getCategory() {
     return 'list accounts';

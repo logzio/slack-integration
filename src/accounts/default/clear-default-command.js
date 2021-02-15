@@ -1,14 +1,16 @@
 const Command = require('../../core/commands/command');
 const commandRegex = /clear workspace account/;
 const LoggerFactory = require('../../core/logging/logger-factory');
-const logger = LoggerFactory.getLogger(__filename);
 const { getEventMetadata } = require('../../core/logging/logging-metadata');
+const { logEvent } = require('../../core/logging/logging-service');
+const logger = LoggerFactory.getLogger(__filename);
 const Messages = require('../../core/messages/messages');
 
 class ClearWorkspaceAccountCommand extends Command {
   constructor(defaultHandler) {
     super();
     this.defaultHandler = defaultHandler;
+    this.teamConfigurationService = defaultHandler.teamConfigService;
   }
 
   configure(controller) {
@@ -16,6 +18,7 @@ class ClearWorkspaceAccountCommand extends Command {
       [commandRegex],
       'direct_message,direct_mention',
       (bot, message) => {
+        this.reportCommand(message);
         this.defaultHandler
           .clearDefault(message.team)
           .then(() => {
@@ -36,6 +39,19 @@ class ClearWorkspaceAccountCommand extends Command {
           });
       }
     );
+  }
+
+  async reportCommand(userObject) {
+    const companyName = await this.teamConfigurationService.getCompanyNameForTeamId(
+      userObject.team
+    );
+    logEvent({
+      userObject,
+      logger,
+      companyName,
+      eventName: 'clear-default-account',
+      action: 'triggered the clear default account command'
+    });
   }
 
   getCategory() {

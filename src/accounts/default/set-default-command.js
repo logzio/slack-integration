@@ -2,14 +2,16 @@ const Command = require('../../core/commands/command');
 const LoggerFactory = require('../../core/logging/logger-factory');
 const commandRegexWithAlias = /set workspace account (.*)/;
 const commandRegex = /set workspace account/;
-const logger = LoggerFactory.getLogger(__filename);
+const { logEvent } = require('../../core/logging/logging-service');
 const { getEventMetadata } = require('../../core/logging/logging-metadata');
+const logger = LoggerFactory.getLogger(__filename);
 const Messages = require('../../core/messages/messages');
 
 class SetWorkspaceAccountCommand extends Command {
   constructor(defaultHandler) {
     super();
     this.defaultHandler = defaultHandler;
+    this.teamConfigurationService = defaultHandler.teamConfigService;
   }
   configure(controller) {
     controller.hears(
@@ -18,6 +20,7 @@ class SetWorkspaceAccountCommand extends Command {
       (bot, message) => {
         let alias = message.text.match(commandRegexWithAlias)[1];
         this.setDefaultWorkspace(message, bot, alias, true);
+        this.reportCommand(message);
       }
     );
 
@@ -26,6 +29,7 @@ class SetWorkspaceAccountCommand extends Command {
       'direct_message,direct_mention',
       (bot, message) => {
         this.ask(bot, message.user, message.team, message);
+        this.reportCommand(message);
       }
     );
   }
@@ -70,6 +74,19 @@ class SetWorkspaceAccountCommand extends Command {
         'default'
       );
       convo.activate();
+    });
+  }
+
+  async reportCommand(userObject) {
+    const companyName = await this.teamConfigurationService.getCompanyNameForTeamId(
+      userObject.team
+    );
+    logEvent({
+      userObject,
+      companyName,
+      logger,
+      eventName: 'set-default-account',
+      action: 'triggered the set default account command'
     });
   }
 

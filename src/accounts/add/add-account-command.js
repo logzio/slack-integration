@@ -1,6 +1,5 @@
 const Command = require('../../core/commands/command');
 const LoggerFactory = require('../../core/logging/logger-factory');
-const { logEvent } = require('../../core/logging/logging-service');
 
 const logger = LoggerFactory.getLogger(__filename);
 
@@ -20,14 +19,11 @@ class AddAccountCommand extends Command {
   }
 
   async handleAddAccountRequest(bot, message) {
-    const companyName = await this.teamConfigurationService.getCompanyNameForTeamId(
-      message.team
-    );
-    logEvent({
+    this.reportCommandAndFetchCompanyName({
       userObject: message,
       action: 'triggered add account command',
       eventName: 'setup',
-      companyName,
+      teamConfigurationService: this.teamConfigurationService,
       logger
     });
     if (message.type !== 'direct_message') {
