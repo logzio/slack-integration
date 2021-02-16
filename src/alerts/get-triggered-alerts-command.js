@@ -36,24 +36,42 @@ class GetTriggeredAlertsCommand extends Command {
   constructor(alertsClient) {
     super();
     this.alertsClient = alertsClient;
+    this.teamConfigurationService =
+      alertsClient.httpClient.teamConfigurationService;
   }
 
   configure(controller) {
     controller.hears([commandWithAlias], events, (bot, message) => {
-      this.getTriggeredAlerts(null, bot, message, true);
+      this.teamConfigurationService
+        .getCompanyNameForTeamId(message.team)
+        .then(companyName => {
+          this.getTriggeredAlerts(null, bot, message, true, companyName);
+        });
     });
     controller.hears([command], events, (bot, message) => {
-      this.getTriggeredAlerts(message.channel, bot, message, null, false);
+      this.teamConfigurationService
+        .getCompanyNameForTeamId(message.team)
+        .then(companyName => {
+          this.getTriggeredAlerts(
+            message.channel,
+            bot,
+            message,
+            null,
+            false,
+            companyName
+          );
+        });
     });
   }
 
   getTriggeredAlerts(channel, bot, message, withAlias) {
-    logger.info(
-      `User ${message.user} from team ${
-        message.team
-      } requested triggered alerts list`,
-      getEventMetadata(message, 'get-triggered-alerts')
-    );
+    this.reportCommandWithCompanyName({
+      userObject: message,
+      eventName: 'get-triggered-alerts',
+      logger,
+      action: 'requested triggered alerts list',
+      teamConfigurationService: this.teamConfigurationService,
+    });
     let alias;
     const matches = message.match;
     if (withAlias) {
@@ -81,7 +99,10 @@ class GetTriggeredAlertsCommand extends Command {
             logger.warn(
               'Failed to get triggered events',
               err,
-              getEventMetadata(message, 'failed-to-get-triggered-alerts')
+              getEventMetadata({
+                message,
+                eventName: 'failed-to-get-triggered-alerts'
+              })
             );
           },
           true

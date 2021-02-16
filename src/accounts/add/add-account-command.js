@@ -1,6 +1,5 @@
 const Command = require('../../core/commands/command');
 const LoggerFactory = require('../../core/logging/logger-factory');
-const { getEventMetadata } = require('../../core/logging/logging-metadata');
 
 const logger = LoggerFactory.getLogger(__filename);
 
@@ -8,6 +7,7 @@ class AddAccountCommand extends Command {
   constructor(setupDialogSender) {
     super();
     this.setupDialogSender = setupDialogSender;
+    this.teamConfigurationService = setupDialogSender.teamConfigurationService;
   }
 
   configure(controller) {
@@ -18,13 +18,14 @@ class AddAccountCommand extends Command {
     );
   }
 
-  handleAddAccountRequest(bot, message) {
-    logger.info(
-      `User ${message.user} from team ${
-        message.team
-      } triggered add account command`,
-      getEventMetadata(message, 'setup')
-    );
+  async handleAddAccountRequest(bot, message) {
+    this.reportCommandWithCompanyName({
+      userObject: message,
+      action: 'triggered add account command',
+      eventName: 'setup',
+      teamConfigurationService: this.teamConfigurationService,
+      logger
+    });
     if (message.type !== 'direct_message') {
       bot.reply(
         message,

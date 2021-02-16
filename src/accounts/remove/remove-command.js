@@ -1,6 +1,7 @@
 const Command = require('../../core/commands/command');
 const LoggerFactory = require('../../core/logging/logger-factory');
 const { getEventMetadata } = require('../../core/logging/logging-metadata');
+const { logEvent } = require('../../core/logging/logging-service');
 const logger = LoggerFactory.getLogger(__filename);
 const commandRegexWithAlias = /remove account (.+)/;
 
@@ -10,6 +11,7 @@ class RemoveCommand extends Command {
   constructor(removeAccountHandler) {
     super();
     this.removeAccountHandler = removeAccountHandler;
+    this.teamConfigurationService = removeAccountHandler.teamConfigService;
   }
 
   configure(controller) {
@@ -32,12 +34,13 @@ class RemoveCommand extends Command {
   }
 
   removeAccount(message, alias, bot) {
-    logger.info(
-      `User ${message.user} from team ${
-        message.team
-      } triggered remove command on ${alias}`,
-      getEventMetadata(message, 'remove account')
-    );
+    this.reportCommandWithCompanyName({
+      userObject: message,
+      teamConfigurationService: this.teamConfigurationService,
+      eventName: 'remove-account',
+      action: `triggered remove command on ${alias}`,
+      logger
+    });
     this.removeAccountHandler
       .removeAccount(
         message.team,
@@ -52,7 +55,10 @@ class RemoveCommand extends Command {
           logger.warn(
             'Failed to remove account',
             err,
-            getEventMetadata(message, 'failed-to-remove-account')
+            getEventMetadata({
+              message,
+              eventName: 'failed-to-remove-account'
+            })
           );
           bot.reply(message, 'Failed to remove account');
         });

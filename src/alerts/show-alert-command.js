@@ -9,29 +9,28 @@ const commandShowByName = /(get) alert (.*)/;
 const commandShowAll = /(get) alerts/;
 const commandShowAllWithAlias = /(.+) (get) alerts/;
 const Messages = require('../core/messages/messages');
-const Table = require('easy-table'); 
+const Table = require('easy-table');
 
 class ShowAlertCommand extends Command {
   constructor(alertsClient) {
     super();
     this.alertsClient = alertsClient;
+    this.teamConfigurationService =
+      alertsClient.httpClient.teamConfigurationService;
   }
 
   configure(controller) {
     controller.hears(
       [commandShowAllWithAlias],
       'direct_message,direct_mention',
-      (bot, message) => {
-        this.getAllAlerts(message.channel, message, bot, true);
-      }
+      (bot, message) => this.getAllAlerts(message.channel, message, bot, true)
     );
 
     controller.hears(
       [commandShowAll],
       'direct_message,direct_mention',
-      (bot, message) => {
-        this.getAllAlerts(message.channel, message, bot, false);
-      }
+      async (bot, message) =>
+        this.getAllAlerts(message.channel, message, bot, false)
     );
 
     controller.hears(
@@ -53,9 +52,7 @@ class ShowAlertCommand extends Command {
     controller.hears(
       [commandShowByNameWithAlias],
       'direct_message,direct_mention',
-      (bot, message) => {
-        this.showAlertByName(null, message, bot, true);
-      }
+      (bot, message) => this.showAlertByName(null, message, bot, true)
     );
 
     controller.hears(
@@ -68,12 +65,13 @@ class ShowAlertCommand extends Command {
   }
 
   showAlertByName(channel, message, bot, withAlias) {
-    logger.info(
-      `User ${message.user} from team ${
-        message.team
-      } requested alert info by name`,
-      getEventMetadata(message, 'get-alert-by-name')
-    );
+    this.reportCommandWithCompanyName({
+      userObject: message,
+      eventName: 'get-alert-by-name',
+      action: 'requested alert info by name',
+      logger,
+      teamConfigurationService: this.teamConfigurationService
+    });
     const matches = message.match;
     let alias;
     let index = 2;
@@ -90,7 +88,7 @@ class ShowAlertCommand extends Command {
           logger.warn(
             `Failed to get details for alert with title: ${alertName}`,
             err,
-            getEventMetadata(message, 'failed-to-show-alert')
+            getEventMetadata({ message, eventName: 'failed-to-show-alert' })
           );
           bot.reply(
             message,
@@ -101,12 +99,13 @@ class ShowAlertCommand extends Command {
   }
 
   getAllAlerts(channel, message, bot, withAlias) {
-    logger.info(
-      `User ${message.user} from team ${
-        message.team
-      } requested all alerts info by name`,
-      getEventMetadata(message, 'get-alerts-by-name')
-    );
+    this.reportCommandWithCompanyName({
+      userObject: message,
+      logger,
+      teamConfigurationService: this.teamConfigurationService,
+      eventName: 'get-alerts-by-name',
+      action: 'requested all alerts info by name'
+    });
     const matches = message.match;
     let alias;
     let index = 2;
@@ -123,7 +122,7 @@ class ShowAlertCommand extends Command {
           logger.warn(
             `Failed to get details for alert with title: ${alertName}`,
             err,
-            getEventMetadata(message, 'failed-to-show-alert')
+            getEventMetadata({ message, eventName: 'failed-to-show-alert' })
           );
           bot.reply(
             message,
@@ -134,12 +133,13 @@ class ShowAlertCommand extends Command {
   }
 
   showAlertById(channel, message, bot, withAlias) {
-    logger.info(
-      `User ${message.user} from team ${
-        message.team
-      } requested alert info by id`,
-      getEventMetadata(message, 'get-alert-by-id')
-    );
+    this.reportCommandWithCompanyName({
+      userObject: message,
+      action: 'requested alert info by id',
+      eventName: 'get-alert-by-id',
+      teamConfigurationService: this.teamConfigurationService,
+      logger
+    });
     const matches = message.match;
     let alias;
     let index = 2;
@@ -160,7 +160,7 @@ class ShowAlertCommand extends Command {
           logger.warn(
             `Failed to get details for alert with id: ${alertId}`,
             err,
-            getEventMetadata(message, 'failed-to-show-alert')
+            getEventMetadata({ message, eventName: 'failed-to-show-alert' })
           );
           bot.reply(
             message,
@@ -247,7 +247,10 @@ class ShowAlertCommand extends Command {
         if (err) {
           logger.error(
             'Failed to send kibana objects table',
-            getEventMetadata(message, 'failed_to_send_kibana_objects'),
+            getEventMetadata({
+              message,
+              eventName: 'failed_to_send_kibana_objects'
+            }),
             err
           );
         }

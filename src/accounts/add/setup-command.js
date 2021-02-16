@@ -1,12 +1,13 @@
 const Command = require('../../core/commands/command');
 const LoggerFactory = require('../../core/logging/logger-factory');
-const { getEventMetadata } = require('../../core/logging/logging-metadata');
+const { logEvent } = require('../../core/logging/logging-service');
 
 const logger = LoggerFactory.getLogger(__filename);
 
 class AddAccountCommand extends Command {
-  constructor() {
+  constructor(teamConfigurationService) {
     super();
+    this.teamConfigurationService = teamConfigurationService;
   }
 
   configure(controller) {
@@ -19,16 +20,17 @@ class AddAccountCommand extends Command {
   }
 
   handlePreviousVersionAddAccountRequest(bot, message) {
-    logger.info(
-      `User ${message.user} from team ${message.team} triggered setup command`,
-      getEventMetadata(message, 'setup')
-    );
+    this.reportCommandWithCompanyName({
+      userObject: message,
+      teamConfigurationService: this.teamConfigurationService,
+      logger,
+      action: 'triggered the setup command',
+      eventName: 'setup'
+    });
 
     bot.reply(
       message,
-      `I've been upgraded to work with multiple accounts now, so we replaced \`setup\`. From now on, if you want to add or remove an account, you can type \`@${
-        bot.identity.name
-      } add account\` or \`@${bot.identity.name} remove account\`.`
+      `I've been upgraded to work with multiple accounts now, so we replaced \`setup\`. From now on, if you want to add or remove an account, you can type \`@${bot.identity.name} add account\` or \`@${bot.identity.name} remove account\`.`
     );
   }
 

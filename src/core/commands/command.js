@@ -2,8 +2,9 @@ const TeamNotConfiguredError = require('../errors/team-not-configured-error');
 const RateLimitExceededError = require('../errors/rate-limit-exceeded-error');
 const AliasNotExistError = require('../errors/alias-not-exist-error');
 const Messages = require('../../core/messages/messages');
+const { logEvent } = require('../../core/logging/logging-service');
 
-class Command{
+class Command {
   configure() {
     throw new Error('Method `configure` must be overridden!');
   }
@@ -27,6 +28,19 @@ class Command{
     } else {
       unknownErrorHandler(err);
     }
+  }
+
+  async reportCommandWithCompanyName({
+    userObject,
+    action,
+    eventName,
+    logger,
+    teamConfigurationService
+  }) {
+    const companyName = await teamConfigurationService.getCompanyNameForTeamId(
+      userObject.team
+    );
+    logEvent({ userObject, eventName, logger, companyName, action });
   }
 }
 

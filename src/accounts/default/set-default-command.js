@@ -2,14 +2,16 @@ const Command = require('../../core/commands/command');
 const LoggerFactory = require('../../core/logging/logger-factory');
 const commandRegexWithAlias = /set workspace account (.*)/;
 const commandRegex = /set workspace account/;
-const logger = LoggerFactory.getLogger(__filename);
+const { logEvent } = require('../../core/logging/logging-service');
 const { getEventMetadata } = require('../../core/logging/logging-metadata');
+const logger = LoggerFactory.getLogger(__filename);
 const Messages = require('../../core/messages/messages');
 
 class SetWorkspaceAccountCommand extends Command {
   constructor(defaultHandler) {
     super();
     this.defaultHandler = defaultHandler;
+    this.teamConfigurationService = defaultHandler.teamConfigService;
   }
   configure(controller) {
     controller.hears(
@@ -17,6 +19,13 @@ class SetWorkspaceAccountCommand extends Command {
       'direct_message,direct_mention',
       (bot, message) => {
         let alias = message.text.match(commandRegexWithAlias)[1];
+        this.reportCommandWithCompanyName({
+          userObject: message,
+          teamConfigurationService: this.teamConfigurationService,
+          logger,
+          eventName: 'set-default-account',
+          action: 'triggered the set default account command'
+        });
         this.setDefaultWorkspace(message, bot, alias, true);
       }
     );
@@ -25,6 +34,13 @@ class SetWorkspaceAccountCommand extends Command {
       [commandRegex],
       'direct_message,direct_mention',
       (bot, message) => {
+        this.reportCommandWithCompanyName({
+          userObject: message,
+          teamConfigurationService: this.teamConfigurationService,
+          logger,
+          eventName: 'set-default-account',
+          action: 'triggered the set default account command'
+        });
         this.ask(bot, message.user, message.team, message);
       }
     );
@@ -41,7 +57,10 @@ class SetWorkspaceAccountCommand extends Command {
           logger.warn(
             'Failed to set workspace account',
             err,
-            getEventMetadata(message, 'failed-to-set-workspace-account')
+            getEventMetadata({
+              message,
+              eventName: 'failed-to-set-workspace-account'
+            })
           );
           bot.reply(message, Messages.DEFAULT_ERROR_MESSAGE);
         });

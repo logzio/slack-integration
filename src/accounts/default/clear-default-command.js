@@ -1,14 +1,15 @@
 const Command = require('../../core/commands/command');
 const commandRegex = /clear workspace account/;
 const LoggerFactory = require('../../core/logging/logger-factory');
-const logger = LoggerFactory.getLogger(__filename);
 const { getEventMetadata } = require('../../core/logging/logging-metadata');
+const logger = LoggerFactory.getLogger(__filename);
 const Messages = require('../../core/messages/messages');
 
 class ClearWorkspaceAccountCommand extends Command {
   constructor(defaultHandler) {
     super();
     this.defaultHandler = defaultHandler;
+    this.teamConfigurationService = defaultHandler.teamConfigService;
   }
 
   configure(controller) {
@@ -16,6 +17,13 @@ class ClearWorkspaceAccountCommand extends Command {
       [commandRegex],
       'direct_message,direct_mention',
       (bot, message) => {
+        this.reportCommandWithCompanyName({
+          userObject: message,
+          logger,
+          teamConfigurationService: this.teamConfigurationService,
+          eventName: 'clear-default-account',
+          action: 'triggered the clear default account command'
+        });
         this.defaultHandler
           .clearDefault(message.team)
           .then(() => {
@@ -26,7 +34,10 @@ class ClearWorkspaceAccountCommand extends Command {
               logger.warn(
                 'Failed to clear workspace account',
                 err,
-                getEventMetadata(message, 'failed-to-clear-workspace-account')
+                getEventMetadata({
+                  message,
+                  eventName: 'failed-to-clear-workspace-account'
+                })
               );
               bot.reply(message, Messages.DEFAULT_ERROR_MESSAGE);
             });

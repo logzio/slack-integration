@@ -61,7 +61,10 @@ function sendMatchedKibanaObjectsTable(
       if (err) {
         logger.error(
           'Failed to send kibana objects table',
-          getEventMetadata(message, 'failed_to_send_kibana_objects'),
+          getEventMetadata({
+            message,
+            eventName: 'failed_to_send_kibana_objects'
+          }),
           err
         );
       }
@@ -81,14 +84,10 @@ function sendSnapshotRequest(
   query,
   alias
 ) {
-  const webhookUrl = `${externalDomain}/webhook/${message.team}/${
-    message.channel
-  }`;
+  const webhookUrl = `${externalDomain}/webhook/${message.team}/${message.channel}`;
   const queryWithFixedQuotes = query.replace('”', '"').replace('“', '"');
   logger.info(
-    `sendSnapshotRequest: ${message.channel},${
-      message.user
-    },${queryWithFixedQuotes},${webhookUrl}`
+    `sendSnapshotRequest: ${message.channel},${message.user},${queryWithFixedQuotes},${webhookUrl}`
   );
   return snapshotsClient
     .createSnapshot(
@@ -121,31 +120,33 @@ class SnapshotCommand extends Command {
     this.externalDomain = externalDomain;
     this.kibanaClient = kibanaClient;
     this.snapshotsClient = snapshotsClient;
+    this.teamConfigurationService =
+      snapshotsClient.httpClient.teamConfigurationService;
   }
 
   configure(controller) {
     controller.hears(
       [commandWithAlias],
       'direct_message,direct_mention',
-      (bot, message) => {
-        this.createSnapshot(null, message, bot, true);
-      }
+      (bot, message) => this.createSnapshot(null, message, bot, true)
     );
 
     controller.hears(
       [command],
       'direct_message,direct_mention',
-      (bot, message) => {
-        this.createSnapshot(message.channel, message, bot, false);
-      }
+      (bot, message) =>
+        this.createSnapshot(message.channel, message, bot, false)
     );
   }
 
   createSnapshot(channel, message, bot, withAlias) {
-    logger.info(
-      `User ${message.user} from team ${message.team} requested a snapshot`,
-      getEventMetadata(message, 'create-snapshot')
-    );
+    this.reportCommandWithCompanyName({
+      userObject: message,
+      action: 'requested a snapshot',
+      eventName: 'create-snapshot',
+      teamConfigurationService: this.teamConfigurationService,
+      logger
+    });
     const matches = message.match;
     let alias, objectType, objectName, timeFrame, timeUnit;
     let index = 1;
@@ -204,7 +205,10 @@ class SnapshotCommand extends Command {
           logger.warn(
             'Failed to send snapshot request',
             err,
-            getEventMetadata(message, 'failed-to-send-snapshot-request')
+            getEventMetadata({
+              message,
+              eventName: 'failed-to-send-snapshot-request'
+            })
           );
           bot.reply(message, 'Failed to send snapshot request');
         });

@@ -2,7 +2,6 @@ const Command = require('../core/commands/command');
 const LoggerFactory = require('../core/logging/logger-factory');
 const QueryBuilder = require('./query-builder');
 const TimeUnit = require('../core/time/time-unit');
-const { getEventMetadata } = require('../core/logging/logging-metadata');
 
 const searchWithDefaultWindow = /search `(.+)`\s*$/;
 const searchWithDefaultWindowWithAlias = /(.+) search `(.+)`\s*$/;
@@ -72,6 +71,8 @@ class SearchCommand extends Command {
   constructor(searchClient) {
     super();
     this.searchClient = searchClient;
+    this.teamConfigurationService =
+      searchClient.httpClient.teamConfigurationService;
   }
 
   configure(controller) {
@@ -81,33 +82,25 @@ class SearchCommand extends Command {
         searchWithDefaultWindowWithAliasEscape
       ],
       'direct_message,direct_mention',
-      (bot, message) => {
-        this.searchWithDefaultWindow(message, bot, true);
-      }
+      (bot, message) => this.searchWithDefaultWindow(message, bot, true)
     );
 
     controller.hears(
       [searchWithDefaultWindow, searchWithDefaultWindowEscape],
       'direct_message,direct_mention',
-      (bot, message) => {
-        this.searchWithDefaultWindow(message, bot, false);
-      }
+      (bot, message) => this.searchWithDefaultWindow(message, bot, false)
     );
 
     controller.hears(
       [searchWithTimeToSearchWithAlias, searchWithTimeToSearchWithAliasEscape],
       'direct_message,direct_mention',
-      (bot, message) => {
-        this.searchWithTimeToSearch(message, bot, true);
-      }
+      (bot, message) => this.searchWithTimeToSearch(message, bot, true)
     );
 
     controller.hears(
       [searchWithTimeToSearch, searchWithTimeToSearchEscape],
       'direct_message,direct_mention',
-      (bot, message) => {
-        this.searchWithTimeToSearch(message, bot, false);
-      }
+      (bot, message) => this.searchWithTimeToSearch(message, bot, false)
     );
 
     controller.hears(
@@ -116,27 +109,24 @@ class SearchCommand extends Command {
         searchWithSpecificTimeWindowWithAliasEscape
       ],
       'direct_message,direct_mention',
-      (bot, message) => {
-        this.searchWithSpecificTimeWindow(message, bot, true);
-      }
+      (bot, message) => this.searchWithSpecificTimeWindow(message, bot, true)
     );
 
     controller.hears(
       [searchWithSpecificTimeWindow, searchWithSpecificTimeWindowEscape],
       'direct_message,direct_mention',
-      (bot, message) => {
-        this.searchWithSpecificTimeWindow(message, bot, false);
-      }
+      (bot, message) => this.searchWithSpecificTimeWindow(message, bot, false)
     );
   }
 
   searchWithSpecificTimeWindow(message, bot, withAlias) {
-    logger.info(
-      `User ${message.user} from team ${
-        message.team
-      } triggered a search with absolute time frame`,
-      getEventMetadata(message, 'search')
-    );
+    this.reportCommandWithCompanyName({
+      userObject: message,
+      eventName: 'search',
+      action: 'triggered a search with absolute time frame',
+      logger,
+      teamConfigurationService: this.teamConfigurationService
+    });
     const matches = message.match;
     let alias, queryString, fromTS, toTS;
     let index = 1;
@@ -162,12 +152,13 @@ class SearchCommand extends Command {
   }
 
   searchWithTimeToSearch(message, bot, withAlias) {
-    logger.info(
-      `User ${message.user} from team ${
-        message.team
-      } triggered a search with relative time frame`,
-      getEventMetadata(message, 'search')
-    );
+    this.reportCommandWithCompanyName({
+      userObject: message,
+      teamConfigurationService: this.teamConfigurationService,
+      action: 'triggered a search with relative time frame',
+      eventName: 'search',
+      logger
+    });
     const matches = message.match;
 
     let alias, queryString, timeValue, timeUnitStr;
@@ -195,12 +186,13 @@ class SearchCommand extends Command {
   }
 
   searchWithDefaultWindow(message, bot, withAlias) {
-    logger.info(
-      `User ${message.user} from team ${
-        message.team
-      } triggered a search with default time frame`,
-      getEventMetadata(message, 'search')
-    );
+    this.reportCommandWithCompanyName({
+      userObject: message,
+      eventName: 'search',
+      logger,
+      action: 'triggered a search with default time frame',
+      teamConfigurationService: this.teamConfigurationService
+    });
     const matches = message.match;
     let alias, queryString;
     let index = 1;

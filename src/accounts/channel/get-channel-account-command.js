@@ -14,7 +14,14 @@ class GetCurrentChannelAccountCommand extends Command {
     controller.hears(
       commandRegex,
       'direct_message,direct_mention',
-      (bot, message) => {
+      async (bot, message) => {
+        this.reportCommandWithCompanyName({
+          userObject: message,
+          eventName: 'get-channel-account',
+          action: 'triggered the get channel account command',
+          logger,
+          teamConfigurationService: this.teamConfigService,
+        });
         return this.teamConfigService
           .getAccountForChannel(message.team, message.channel)
           .then(channelAccount => {
