@@ -39,8 +39,6 @@ class GetAccountsCommand extends Command {
     );
   }
 
-  async reportCommand(userObject) {}
-
   getCategory() {
     return 'list accounts';
   }
