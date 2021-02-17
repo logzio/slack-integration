@@ -168,7 +168,7 @@ class AddAccountDialogHandler {
     });
     return this.teamConfigService.addAccount(team.id, config).then(() => {
       this.teamConfigService
-        .getCompanyNameForTeamId(message.team)
+        .getCompanyNameForTeamId(team.id)
         .then(companyName => {
           this.botReplayWithSetupDialog(bot, message, alias);
           logger.info(
