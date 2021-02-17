@@ -38,7 +38,7 @@ class Command {
     teamConfigurationService
   }) {
     const teamId =
-      typeof userObject.team === 'number'
+      typeof userObject.team === 'string'
         ? userObject.team
         : userObject.team.id;
     const companyName = await teamConfigurationService.getCompanyNameForTeamId(
