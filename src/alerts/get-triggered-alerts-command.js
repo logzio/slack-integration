@@ -41,27 +41,13 @@ class GetTriggeredAlertsCommand extends Command {
   }
 
   configure(controller) {
-    controller.hears([commandWithAlias], events, (bot, message) => {
-      this.teamConfigurationService
-        .getCompanyNameForTeamId(message.team)
-        .then(companyName => {
-          this.getTriggeredAlerts(null, bot, message, true, companyName);
-        });
-    });
-    controller.hears([command], events, (bot, message) => {
-      this.teamConfigurationService
-        .getCompanyNameForTeamId(message.team)
-        .then(companyName => {
-          this.getTriggeredAlerts(
-            message.channel,
-            bot,
-            message,
-            null,
-            false,
-            companyName
-          );
-        });
-    });
+    controller.hears([commandWithAlias], events, (bot, message) =>
+      this.getTriggeredAlerts(null, bot, message, true)
+    );
+
+    controller.hears([command], events, (bot, message) =>
+      this.getTriggeredAlerts(message.channel, bot, message, null, false)
+    );
   }
 
   getTriggeredAlerts(channel, bot, message, withAlias) {
@@ -70,7 +56,7 @@ class GetTriggeredAlertsCommand extends Command {
       eventName: 'get-triggered-alerts',
       logger,
       action: 'requested triggered alerts list',
-      teamConfigurationService: this.teamConfigurationService,
+      teamConfigurationService: this.teamConfigurationService
     });
     let alias;
     const matches = message.match;
