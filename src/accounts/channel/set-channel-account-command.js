@@ -3,6 +3,7 @@ const commandRegexWithAlias = /set channel account (.*)/;
 const commandRegex = /set channel account/;
 const LoggerFactory = require('../../core/logging/logger-factory');
 const logger = LoggerFactory.getLogger(__filename);
+const { logEvent } = require('../../core/logging/logging-service');
 const { getEventMetadata } = require('../../core/logging/logging-metadata');
 const Messages = require('../../core/messages/messages');
 
@@ -10,6 +11,7 @@ class SetChannelAccountCommand extends Command {
   constructor(channelHandler) {
     super();
     this.channelHandler = channelHandler;
+    this.teamConfigurationService = channelHandler.teamConfService;
   }
 
   configure(controller) {
@@ -17,6 +19,13 @@ class SetChannelAccountCommand extends Command {
       [commandRegexWithAlias],
       'direct_message,direct_mention',
       (bot, message) => {
+        this.reportCommandWithCompanyName({
+          userObject: message,
+          teamConfigurationService: this.teamConfigurationService,
+          logger,
+          eventName: 'set-channel-account',
+          action: 'triggered the get channel account command'
+        });
         let alias = message.match[1];
         this.setChannel(message, bot, alias);
       }
@@ -25,7 +34,16 @@ class SetChannelAccountCommand extends Command {
     controller.hears(
       [commandRegex],
       'direct_message,direct_mention',
-      (bot, message) => this.ask(bot, message)
+      (bot, message) => {
+        this.reportCommandWithCompanyName({
+          userObject: message,
+          teamConfigurationService: this.teamConfigurationService,
+          logger,
+          eventName: 'set-channel-account',
+          action: 'triggered the get channel account command'
+        });
+        this.ask(bot, message);
+      }
     );
   }
 
@@ -61,7 +79,10 @@ class SetChannelAccountCommand extends Command {
           logger.warn(
             'Failed to set channel account',
             err,
-            getEventMetadata(message, 'failed-to-set-channel-account')
+            getEventMetadata({
+              message,
+              eventName: 'failed-to-set-channel-account'
+            })
           );
           bot.reply(message, Messages.DEFAULT_ERROR_MESSAGE);
         });

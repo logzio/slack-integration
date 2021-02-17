@@ -13,8 +13,15 @@ class GetAccountsCommand extends Command {
       /accounts/,
       'direct_message,direct_mention',
       (bot, message) => {
+        this.reportCommandWithCompanyName({
+          userObject: message,
+          eventName: 'get-accounts',
+          action: 'triggered the get accounts command',
+          logger,
+          teamConfigurationService: this.teamConfigService
+        });
         return this.teamConfigService
-          .getAllAccountsSafeView(message.team, bot) 
+          .getAllAccountsSafeView(message.team, bot)
           .then(allAccountsSafeView =>
             this.replayWith(allAccountsSafeView.filter(Boolean), bot, message)
           )

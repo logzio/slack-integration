@@ -86,9 +86,8 @@ class AddAccountDialogHandler {
   }
 
   configure(controller) {
-
     controller.on('dialog_submission', async (bot, message) => {
-      logger.info("dialog_submission:"+ message.callback_id);
+      logger.info('dialog_submission:' + message.callback_id);
       if (
         message.callback_id !== 'setup_dialog' &&
         message.callback_id !== 'initialization_setup_dialog'
@@ -108,7 +107,7 @@ class AddAccountDialogHandler {
             aliasExists
           );
           if (configErrors) {
-            logger.info("configErrors:"+configErrors[0].error);
+            logger.info('configErrors:' + configErrors[0].error);
             bot.dialogError(configErrors);
             bot.dialogOk();
             return;
@@ -120,7 +119,7 @@ class AddAccountDialogHandler {
                 realName
               );
               if (configErrors) {
-                logger.info("configErrors:"+configErrors[0].error);
+                logger.info('configErrors:' + configErrors[0].error);
                 bot.dialogError(configErrors);
                 return;
               }
@@ -168,19 +167,25 @@ class AddAccountDialogHandler {
       realName
     });
     return this.teamConfigService.addAccount(team.id, config).then(() => {
-      this.botReplayWithSetupDialog(bot, message, alias);
-      logger.info(
-        `Configuration for team ${team.id} (${team.domain}) changed by user ${
-          user.id
-        } (${user.name})`,
-        getEventMetadata(message.raw_message, 'configuration_changed')
-      );
+      this.teamConfigService
+        .getCompanyNameForTeamId(team.id)
+        .then(companyName => {
+          this.botReplayWithSetupDialog(bot, message, alias);
+          logger.info(
+            `Configuration for team ${team.id} (${team.domain}) changed by user ${user.id} (${user.name}), customer name ${companyName}`,
+            getEventMetadata({
+              message: message.raw_message,
+              eventName: 'configuration_changed',
+              companyName
+            })
+          );
 
-      if (this.hasNoDefaultWorkspace(defaultConfig, alias, apiToken)) {
-        //first one or missing
-        this.teamConfigService.saveDefault(team.id, config);
-      }
-      bot.dialogOk();
+          if (this.hasNoDefaultWorkspace(defaultConfig, alias, apiToken)) {
+            //first one or missing
+            this.teamConfigService.saveDefault(team.id, config);
+          }
+          bot.dialogOk();
+        });
     });
   }
 
@@ -196,9 +201,7 @@ class AddAccountDialogHandler {
       if (!err && message.callback_id === 'initialization_setup_dialog') {
         bot.reply(
           message,
-          `If you want to learn what I can do, just type <@${
-            bot.identity.id
-          }> help.`
+          `If you want to learn what I can do, just type <@${bot.identity.id}> help.`
         );
       }
     });

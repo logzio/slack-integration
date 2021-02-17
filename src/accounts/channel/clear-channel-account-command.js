@@ -9,13 +9,21 @@ class ClearChannelAccountCommand extends Command {
   constructor(defaultHandler) {
     super();
     this.defaultHandler = defaultHandler;
+    this.teamConfigurationService = defaultHandler.teamConfService;
   }
 
   configure(controller) {
     controller.hears(
       [commandRegex],
       'direct_message,direct_mention',
-      (bot, message) => {
+      async (bot, message) => {
+        this.reportCommandWithCompanyName({
+          userObject: message,
+          eventName: 'clear-channel-account',
+          action: 'triggered the clear channel account command',
+          teamConfigurationService: this.teamConfigurationService,
+          logger
+        });
         const { team = null, channel = null } = message;
         this.defaultHandler.isAccountUsedByChannel(team, channel).then(res => {
           if (res) {
@@ -29,7 +37,10 @@ class ClearChannelAccountCommand extends Command {
                   logger.warn(
                     'Failed to clear channel account',
                     err,
-                    getEventMetadata(message, 'failed-to-clear-channel-account')
+                    getEventMetadata({
+                      message,
+                      eventName: 'failed-to-clear-channel-account'
+                    })
                   );
                   bot.reply(message, Messages.DEFAULT_ERROR_MESSAGE);
                 });

@@ -1,4 +1,4 @@
-FROM node:10.5.0-alpine
+FROM node:15.8.0
 
 ENV PORT=8080
 EXPOSE 8080

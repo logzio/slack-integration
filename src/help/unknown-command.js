@@ -1,24 +1,28 @@
 const Command = require('../core/commands/command');
 const LoggerFactory = require('../core/logging/logger-factory');
-const { getEventMetadata } = require('../core/logging/logging-metadata');
 const { sendUsage } = require('./usage-message-supplier');
 
 const logger = LoggerFactory.getLogger(__filename);
 
 class UnknownCommand extends Command {
+  constructor(teamConfigurationService) {
+    super();
+    this.teamConfigurationService = teamConfigurationService;
+  }
+
   configure(controller) {
     controller.hears(
       [/.*/],
       'direct_message,direct_mention',
       (bot, message) => {
         const userCommand = message.text;
-        logger.info(
-          `User ${message.user} from team ${
-            message.team
-          } entered unknown command: ${userCommand}`,
-          getEventMetadata(message, 'user-entered-unknown-command')
-        );
-
+        this.reportCommandWithCompanyName({
+          userObject: message,
+          action: 'entered unknown command',
+          eventName: 'user-entered-unknown-command',
+          logger,
+          teamConfigurationService: this.teamConfigurationService
+        });
         bot.reply(message, `Unrecognized command: ${userCommand}`, () =>
           sendUsage(bot, message, '')
         );

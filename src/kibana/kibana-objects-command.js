@@ -12,6 +12,8 @@ class KibanaObjectsCommand extends Command {
   constructor(kibanaClient) {
     super();
     this.kibanaClient = kibanaClient;
+    this.teamConfigurationService =
+      kibanaClient.httpClient.teamConfigurationService;
   }
 
   configure(controller) {
@@ -32,13 +34,13 @@ class KibanaObjectsCommand extends Command {
   }
 
   getKibanaObjects(message, bot, withAlias) {
-    logger.info(
-      `User ${message.user} from team ${
-        message.team
-      } requested kibana objects list`,
-      getEventMetadata(message, 'get-kibana-objects')
-    );
-
+    this.reportCommandWithCompanyName({
+      userObject: message,
+      eventName: 'get-kibana-objects',
+      action: 'requested kibana objects list',
+      logger,
+      teamConfigurationService: this.teamConfigurationService
+    });
     const matches = message.match;
     let alias, objectType;
     if (withAlias) {
@@ -103,7 +105,10 @@ class KibanaObjectsCommand extends Command {
         this.handleError(bot, message, err, err => {
           logger.error(
             'Failed to send kibana objects table',
-            getEventMetadata(message, 'failed_to_get_kibana_objects'),
+            getEventMetadata({
+              message,
+              eventName: 'failed_to_get_kibana_objects'
+            }),
             err
           );
         });
@@ -124,7 +129,10 @@ class KibanaObjectsCommand extends Command {
         if (err) {
           logger.error(
             'Failed to send kibana objects table',
-            getEventMetadata(message, 'failed_to_send_kibana_objects_table'),
+            getEventMetadata({
+              message,
+              eventName: 'failed_to_send_kibana_objects_table'
+            }),
             err
           );
         }
