@@ -37,8 +37,12 @@ class Command {
     logger,
     teamConfigurationService
   }) {
+    const teamId =
+      typeof userObject.team === 'string'
+        ? userObject.team
+        : userObject.team.id;
     const companyName = await teamConfigurationService.getCompanyNameForTeamId(
-      userObject.team
+      teamId
     );
     logEvent({ userObject, eventName, logger, companyName, action });
   }
