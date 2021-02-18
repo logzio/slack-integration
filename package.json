@@ -37,7 +37,7 @@
     "hoek": "^5.0.4",
     "lodash": "^4.17.14",
     "moment": "^2.24.0",
-    "mysql": "^2.17.1",
+    "mysql": "^2.18.1",
     "sql-template-strings": "^2.2.2",
     "winston": "^3.2.1",
     "winston-logzio": "^4.0.2"
